@@ -184,9 +184,9 @@
 				<ProviderSelector
 					providers={downloader.providers}
 					bind:selected={downloader.selectedProviders}
-					onchange={() => {
+					onchange={async () => {
+						await downloader.resetAll();
 						updateLocationStorage();
-						downloader.resetAll();
 					}}
 				/>
 			{/if}

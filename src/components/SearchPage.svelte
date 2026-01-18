@@ -64,9 +64,9 @@
 		searching = true;
 
 		try {
-			updateLocationStorage();
 			const response = await api.search(searchQuery, selectedProviders);
 			searchResults = response.data;
+			updateLocationStorage();
 		} catch (e) {
 			addAppError(e);
 		}
