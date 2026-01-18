@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Search } from 'lucide-svelte';
+	import { searchLocation } from '../lib/dock.ts';
 
 	let {
 		value = $bindable(''),
@@ -15,7 +16,7 @@
 	let buttonClass = $state<string>('');
 	let iconClass = $state<string>('');
 
-	let searchValue = $derived<string>(`/search?q=${encodeURIComponent(value)}`);
+	let searchValue = $derived<string>(`${searchLocation.path}?q=${encodeURIComponent(value)}`);
 
 	switch (size) {
 		case 'md':

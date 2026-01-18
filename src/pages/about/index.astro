@@ -1,0 +1,74 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import AppTitle from '../../components/AppTitle.astro';
+import { Heart, FolderGit2 } from 'lucide-svelte';
+import { aboutLocation } from '../../lib/dock.ts';
+
+const currentDate = new Date();
+const fullYear = currentDate.getUTCFullYear();
+const year = fullYear.toString().slice(-2);
+const month = (currentDate.getUTCMonth() + 1).toString().padStart(2, '0');
+const day = currentDate.getUTCDate().toString().padStart(2, '0');
+const hours = currentDate.getUTCHours().toString().padStart(2, '0');
+const minutes = currentDate.getUTCMinutes().toString().padStart(2, '0');
+const seconds = currentDate.getUTCSeconds().toString().padStart(2, '0');
+
+const formattedDate = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
+---
+
+<PageLayout title={aboutLocation.label}>
+	<div class="flex w-full grow flex-col items-center p-4">
+		<div class="flex w-2xl max-w-full flex-col items-center gap-4">
+			<div class="card bg-base-100 w-full text-center shadow-sm">
+				<div class="card-body">
+					<div class="card-title justify-center">
+						<AppTitle />
+					</div>
+
+					<p class="text-base">A streamlined utility for acquiring high-resolution book covers.</p>
+				</div>
+			</div>
+
+			<div class="card bg-base-100 w-full text-center shadow-sm">
+				<div class="card-body">
+					<p>
+						This platform facilitates the retrieval of high-quality promotional assets, specifically
+						book covers. These assets are intended for use on metadata tracking services and
+						databases, such as MangaBaka and Anilist.
+					</p>
+				</div>
+			</div>
+
+			<div class="card bg-base-100 w-full text-center shadow-sm">
+				<div class="card-body">
+					<p>
+						This application does not host any promotional material. All intellectual property
+						belongs to the respective copyright holders. Content is accessed and displayed strictly
+						for informational purposes under the principles of "Fair Use."
+					</p>
+				</div>
+			</div>
+
+			<div class="card bg-base-100 w-full text-center shadow-sm">
+				<div class="card-body">
+					<div class="card-actions justify-center">
+						<a class="btn btn-ghost btn-lg" href="/support" target="_blank">
+							<span>Support Me</span>
+							<Heart class="fill-secondary text-secondary size-6" />
+						</a>
+
+						<a class="btn btn-ghost btn-lg" href="/source-code" target="_blank">
+							<span>Source Code</span>
+							<FolderGit2 class="size-6" />
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="text-base-content/60 flex flex-col items-center gap-1 p-2 text-center text-sm">
+				<p>Copyright © {fullYear} Roler • MIT License</p>
+				<p class="text-xs opacity-80">Build v{formattedDate}</p>
+			</div>
+		</div>
+	</div>
+</PageLayout>

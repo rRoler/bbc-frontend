@@ -31,6 +31,7 @@
 	import CopyIcon from './CopyIcon.svelte';
 	import { onMount } from 'svelte';
 	import Downloader from '../lib/svelte/downloader.svelte.ts';
+	import { downloadLocation } from '../lib/dock.ts';
 
 	const downloader = new Downloader();
 
@@ -98,18 +99,12 @@
 
 	$effect(() => {
 		setSvelteSearchParam('automatic', downloader.automaticCoverQualityEnabled.toString());
-	});
-	$effect(() => {
 		setSvelteSearchParam('sort', downloader.sortOrder);
-	});
-	$effect(() => {
 		setSvelteSearchParam('page', downloader.page.toString());
-	});
-	$effect(() => {
 		setSvelteSearchParam('increment', downloader.incrementPages.toString());
-	});
-	$effect(() => {
 		setSvelteSearchParam('bookPage', downloader.selectedBookPage.toString());
+		if (downloadLocation.storageKey)
+			localStorage.setItem(downloadLocation.storageKey, window.location.href);
 	});
 </script>
 

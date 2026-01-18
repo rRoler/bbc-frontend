@@ -1,0 +1,12 @@
+---
+const { class: className } = Astro.props;
+---
+
+<h1
+	class:list={[
+		'from-primary to-base-content bg-linear-to-r bg-clip-text text-xl font-bold text-transparent sm:text-2xl',
+		className,
+	]}
+>
+	<slot>Big Book Covers</slot>
+</h1>

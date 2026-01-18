@@ -1,13 +1,13 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
 import Search from '../../components/SearchPage.svelte';
+import { searchLocation } from '../../lib/dock.ts';
 ---
 
-<PageLayout title="Search">
+<PageLayout title={searchLocation.label}>
 	<div class="flex grow flex-col items-center p-4">
 		<noscript>Please enable JavaScript to search series</noscript>
 
-		{/* @ts-expect-error Svelte 5 type compatibility issue */}
 		<Search client:load />
 	</div>
 </PageLayout>

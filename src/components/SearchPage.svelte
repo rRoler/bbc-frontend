@@ -18,6 +18,7 @@
 		autoMatchResultsSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import { onMount } from 'svelte';
+	import { downloadLocation, searchLocation } from '../lib/dock.ts';
 
 	const maxSelectedSeries = 10;
 	const api = new BBC_API();
@@ -30,7 +31,7 @@
 	let selectedSeries = $state<Record<string, BBCSeries[]>>({});
 	let selectedSeriesCount = $derived(Object.values(selectedSeries).flat().length);
 	let openLink = $derived.by(() => {
-		const basePath = '/download';
+		const basePath = downloadLocation.path;
 		const params = new SvelteURLSearchParams();
 
 		Object.entries(selectedSeries).forEach(([providerId, series]) => {
@@ -90,7 +91,11 @@
 		appState.loading = false;
 	});
 
-	$effect(() => setSvelteSearchParam('q', searchQuery));
+	$effect(() => {
+		setSvelteSearchParam('q', searchQuery);
+		if (searchLocation.storageKey)
+			localStorage.setItem(searchLocation.storageKey, window.location.href);
+	});
 </script>
 
 <div class="relative flex h-full w-full flex-col items-center lg:w-5/6">

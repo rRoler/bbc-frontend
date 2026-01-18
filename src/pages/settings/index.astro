@@ -1,24 +1,13 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
 import SettingsPage from '../../components/SettingsPage.svelte';
-
-const currentDate = new Date();
-const year = currentDate.getUTCFullYear().toString().slice(-2);
-const month = (currentDate.getUTCMonth() + 1).toString().padStart(2, '0');
-const day = currentDate.getUTCDate().toString().padStart(2, '0');
-const hours = currentDate.getUTCHours().toString().padStart(2, '0');
-const minutes = currentDate.getUTCMinutes().toString().padStart(2, '0');
-const seconds = currentDate.getUTCSeconds().toString().padStart(2, '0');
-
-const formattedDate = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
+import { settingsLocation } from '../../lib/dock.ts';
 ---
 
-<PageLayout title="Settings">
+<PageLayout title={settingsLocation.label}>
 	<div class="flex grow flex-col items-center p-4">
 		<noscript>Please enable JavaScript to change settings</noscript>
 
 		<SettingsPage client:load />
-
-		<p class="text-base-content/60 p-4 text-sm">v{formattedDate}</p>
 	</div>
 </PageLayout>

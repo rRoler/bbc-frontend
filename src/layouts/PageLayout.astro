@@ -1,21 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type PageProps from '../lib/types/pageProps';
-import { ArrowLeft, Settings, Heart } from 'lucide-svelte';
+import { ArrowLeft, Settings, Heart, FolderGit2, Info } from 'lucide-svelte';
 import ErrorAlert from '../components/ErrorAlert.svelte';
 import AppContent from '../components/AppContent.svelte';
 import GlobalSearchBox from '../components/GlobalSearchBox.svelte';
+import AppTitle from '../components/AppTitle.astro';
+import { aboutLocation, dockLocations, searchLocation, settingsLocation } from '../lib/dock.ts';
 
 const props = Astro.props as PageProps;
 
 const isRootPath = Astro.url.pathname === '/';
-const isSearchPath = Astro.url.pathname.startsWith('/search');
+const isSearchPath = Astro.url.pathname.startsWith(searchLocation.path);
 ---
 
 <BaseLayout {...props}>
 	<ErrorAlert client:load />
 
-	<div class="flex size-full flex-col">
+	<div class="hidden size-full flex-col sm:flex">
 		<div class="flex max-w-full grow flex-col overflow-x-hidden">
 			{
 				!isRootPath && (
@@ -23,15 +25,6 @@ const isSearchPath = Astro.url.pathname.startsWith('/search');
 						<div class="navbar-start gap-2">
 							<a id="nav-back" class="btn btn-ghost btn-circle" href="../" title="Go Back">
 								<ArrowLeft class="size-6" />
-							</a>
-
-							<a
-								href="https://roler.dev/support"
-								target="_blank"
-								class="btn btn-ghost btn-circle hidden sm:inline-flex"
-								title="Support Me"
-							>
-								<Heart class="fill-secondary text-secondary size-6" />
 							</a>
 						</div>
 
@@ -41,9 +34,7 @@ const isSearchPath = Astro.url.pathname.startsWith('/search');
 								href="/"
 								title="Big Book Covers"
 							>
-								<h1 class="from-primary to-base-content bg-linear-to-r bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
-									Big Book Covers
-								</h1>
+								<AppTitle />
 							</a>
 
 							{!isSearchPath && (
@@ -56,7 +47,37 @@ const isSearchPath = Astro.url.pathname.startsWith('/search');
 								<GlobalSearchBox client:load class="hidden lg:inline-flex" size="lg" />
 							)}
 
-							<a class="btn btn-ghost btn-circle" href="/settings" title="Settings">
+							<a
+								href="/support"
+								target="_blank"
+								class="btn btn-ghost btn-circle hidden xl:inline-flex"
+								title="Support Me"
+							>
+								<Heart class="fill-secondary text-secondary size-6" />
+							</a>
+
+							<a
+								href="/source-code"
+								target="_blank"
+								class="btn btn-ghost btn-circle hidden lg:inline-flex"
+								title="Source Code"
+							>
+								<FolderGit2 class="size-6" />
+							</a>
+
+							<a
+								class="btn btn-ghost btn-circle"
+								href={aboutLocation.path}
+								title={aboutLocation.label}
+							>
+								<Info class="size-6" />
+							</a>
+
+							<a
+								class="btn btn-ghost btn-circle"
+								href={settingsLocation.path}
+								title={settingsLocation.label}
+							>
 								<Settings class="size-6" />
 							</a>
 						</div>
@@ -69,12 +90,50 @@ const isSearchPath = Astro.url.pathname.startsWith('/search');
 			</AppContent>
 		</div>
 	</div>
+
+	<div class="flex size-full flex-col sm:hidden">
+		<div class="relative flex grow flex-col overflow-y-auto">
+			<AppContent client:load>
+				<slot />
+			</AppContent>
+		</div>
+
+		<div class="dock sticky bottom-0 left-0 shrink-0">
+			{
+				dockLocations.map(({ path, Icon, label }) => {
+					const isActive = Astro.url.pathname.startsWith(path);
+					return (
+						<a
+							href={isActive ? '#' : path}
+							class={`dock-location ${isActive ? 'dock-active' : ''}`}
+						>
+							<Icon class="size-6" />
+							<span class="dock-label">{label}</span>
+						</a>
+					);
+				})
+			}
+		</div>
+	</div>
 </BaseLayout>
 
 <script>
+	import { dockLocations } from '../lib/dock.ts';
+
 	const navBack = document.querySelector<HTMLAnchorElement>('#nav-back');
 	navBack?.addEventListener('click', (event) => {
 		event.preventDefault();
 		window.history.back();
 	});
+
+	for (const page of dockLocations) {
+		if (!page.storageKey) continue;
+
+		const storedPage = localStorage.getItem(page.storageKey);
+		const dockElement = document.querySelector<HTMLAnchorElement>(
+			`a.dock-location[href^="${page.path}"]`
+		);
+
+		if (storedPage && dockElement) dockElement.href = storedPage;
+	}
 </script>
