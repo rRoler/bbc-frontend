@@ -42,6 +42,11 @@
 	});
 	let resultAutoMatchEnabled = $state<boolean>(true);
 
+	function updateLocationStorage() {
+		if (searchLocation.storageKey)
+			localStorage.setItem(searchLocation.storageKey, window.location.href);
+	}
+
 	async function toggleSeries(providerId: string, series: BBCSeries, force?: boolean) {
 		selectedSeries[providerId] = selectedSeries[providerId] ?? [];
 		const seriesIndex = selectedSeries[providerId].indexOf(series);
@@ -59,6 +64,7 @@
 		searching = true;
 
 		try {
+			updateLocationStorage();
 			const response = await api.search(searchQuery, selectedProviders);
 			searchResults = response.data;
 		} catch (e) {
@@ -93,8 +99,7 @@
 
 	$effect(() => {
 		setSvelteSearchParam('q', searchQuery);
-		if (searchLocation.storageKey)
-			localStorage.setItem(searchLocation.storageKey, window.location.href);
+		updateLocationStorage();
 	});
 </script>
 

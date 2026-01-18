@@ -37,6 +37,11 @@
 
 	let scrollPosition = $state<number>(0);
 
+	function updateLocationStorage() {
+		if (downloadLocation.storageKey)
+			localStorage.setItem(downloadLocation.storageKey, window.location.href);
+	}
+
 	function setErrorImage(event: Event) {
 		const target = event.target as HTMLImageElement;
 		target.src = '/images/error.svg';
@@ -103,8 +108,7 @@
 		setSvelteSearchParam('page', downloader.page.toString());
 		setSvelteSearchParam('increment', downloader.incrementPages.toString());
 		setSvelteSearchParam('bookPage', downloader.selectedBookPage.toString());
-		if (downloadLocation.storageKey)
-			localStorage.setItem(downloadLocation.storageKey, window.location.href);
+		updateLocationStorage();
 	});
 </script>
 
@@ -180,7 +184,10 @@
 				<ProviderSelector
 					providers={downloader.providers}
 					bind:selected={downloader.selectedProviders}
-					onchange={() => downloader.resetAll()}
+					onchange={() => {
+						updateLocationStorage();
+						downloader.resetAll();
+					}}
 				/>
 			{/if}
 
