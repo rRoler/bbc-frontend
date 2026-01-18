@@ -31,7 +31,7 @@
 	import CopyIcon from './CopyIcon.svelte';
 	import { onMount } from 'svelte';
 	import Downloader from '../lib/svelte/downloader.svelte.ts';
-	import { downloadLocation } from '../lib/dock.ts';
+	import { downloadLocation } from '../lib/locations.ts';
 
 	const downloader = new Downloader();
 

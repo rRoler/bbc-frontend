@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Search } from 'lucide-svelte';
-	import { searchLocation } from '../lib/dock.ts';
+	import { searchLocation } from '../lib/locations.ts';
 
 	let {
 		value = $bindable(''),
@@ -44,6 +43,6 @@
 <label class="input input-primary glass max-w-full {inputClass} {className}">
 	<input bind:value onkeydown={handleKeyDown} type="search" placeholder="Search" />
 	<a class="btn btn-circle btn-ghost {buttonClass}" href={searchValue}>
-		<Search class={iconClass} />
+		<searchLocation.Icon class={iconClass} />
 	</a>
 </label>

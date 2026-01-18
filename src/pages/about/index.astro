@@ -1,8 +1,7 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
 import AppTitle from '../../components/AppTitle.astro';
-import { Heart, FolderGit2 } from 'lucide-svelte';
-import { aboutLocation } from '../../lib/dock.ts';
+import { aboutLocation, donationLocation, sourceCodeLocation } from '../../lib/locations.ts';
 
 const currentDate = new Date();
 const fullYear = currentDate.getUTCFullYear();
@@ -52,14 +51,14 @@ const formattedDate = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
 			<div class="card bg-base-100 w-full text-center shadow-sm">
 				<div class="card-body">
 					<div class="card-actions justify-center">
-						<a class="btn btn-ghost btn-lg" href="/support" target="_blank">
-							<span>Support Me</span>
-							<Heart class="fill-secondary text-secondary size-6" />
+						<a class="btn btn-ghost btn-lg" href={donationLocation.path} target="_blank">
+							<span>{donationLocation.label}</span>
+							<donationLocation.Icon class="fill-secondary text-secondary size-6" />
 						</a>
 
-						<a class="btn btn-ghost btn-lg" href="/source-code" target="_blank">
-							<span>Source Code</span>
-							<FolderGit2 class="size-6" />
+						<a class="btn btn-ghost btn-lg" href={sourceCodeLocation.path} target="_blank">
+							<span>{sourceCodeLocation.label}</span>
+							<sourceCodeLocation.Icon class="size-6" />
 						</a>
 					</div>
 				</div>

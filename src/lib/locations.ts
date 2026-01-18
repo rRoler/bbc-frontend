@@ -1,5 +1,4 @@
-import type { Icon } from 'lucide-svelte';
-import { Download, Info, Search, Settings } from 'lucide-svelte';
+import { Download, Info, Search, Settings, FolderGit2, Heart, type Icon } from 'lucide-svelte';
 
 interface DockLocation {
 	path: string;
@@ -32,6 +31,18 @@ export const aboutLocation: DockLocation = {
 	path: '/about',
 	Icon: Info,
 	label: 'About',
+};
+
+export const sourceCodeLocation: DockLocation = {
+	path: 'https://github.com/rRoler/bbc-frontend',
+	Icon: FolderGit2,
+	label: 'Source Code',
+};
+
+export const donationLocation: DockLocation = {
+	path: 'https://roler.dev/support',
+	Icon: Heart,
+	label: 'Support Me',
 };
 
 export const dockLocations: DockLocation[] = [

@@ -1,12 +1,19 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type PageProps from '../lib/types/pageProps';
-import { ArrowLeft, Settings, Heart, FolderGit2, Info } from 'lucide-svelte';
+import { ArrowLeft } from 'lucide-svelte';
 import ErrorAlert from '../components/ErrorAlert.svelte';
 import AppContent from '../components/AppContent.svelte';
 import GlobalSearchBox from '../components/GlobalSearchBox.svelte';
 import AppTitle from '../components/AppTitle.astro';
-import { aboutLocation, dockLocations, searchLocation, settingsLocation } from '../lib/dock.ts';
+import {
+	aboutLocation,
+	dockLocations,
+	donationLocation,
+	searchLocation,
+	settingsLocation,
+	sourceCodeLocation,
+} from '../lib/locations.ts';
 
 const props = Astro.props as PageProps;
 
@@ -48,21 +55,21 @@ const isSearchPath = Astro.url.pathname.startsWith(searchLocation.path);
 							)}
 
 							<a
-								href="/support"
+								href={donationLocation.path}
 								target="_blank"
 								class="btn btn-ghost btn-circle hidden xl:inline-flex"
-								title="Support Me"
+								title={donationLocation.label}
 							>
-								<Heart class="fill-secondary text-secondary size-6" />
+								<donationLocation.Icon class="fill-secondary text-secondary size-6" />
 							</a>
 
 							<a
-								href="/source-code"
+								href={sourceCodeLocation.path}
 								target="_blank"
 								class="btn btn-ghost btn-circle hidden lg:inline-flex"
-								title="Source Code"
+								title={sourceCodeLocation.label}
 							>
-								<FolderGit2 class="size-6" />
+								<sourceCodeLocation.Icon class="size-6" />
 							</a>
 
 							<a
@@ -70,7 +77,7 @@ const isSearchPath = Astro.url.pathname.startsWith(searchLocation.path);
 								href={aboutLocation.path}
 								title={aboutLocation.label}
 							>
-								<Info class="size-6" />
+								<aboutLocation.Icon class="size-6" />
 							</a>
 
 							<a
@@ -78,7 +85,7 @@ const isSearchPath = Astro.url.pathname.startsWith(searchLocation.path);
 								href={settingsLocation.path}
 								title={settingsLocation.label}
 							>
-								<Settings class="size-6" />
+								<settingsLocation.Icon class="size-6" />
 							</a>
 						</div>
 					</div>
@@ -118,7 +125,7 @@ const isSearchPath = Astro.url.pathname.startsWith(searchLocation.path);
 </BaseLayout>
 
 <script>
-	import { dockLocations } from '../lib/dock.ts';
+	import { dockLocations } from '../lib/locations.ts';
 
 	const navBack = document.querySelector<HTMLAnchorElement>('#nav-back');
 	navBack?.addEventListener('click', (event) => {

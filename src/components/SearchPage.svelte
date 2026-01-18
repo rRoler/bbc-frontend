@@ -18,7 +18,7 @@
 		autoMatchResultsSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import { onMount } from 'svelte';
-	import { downloadLocation, searchLocation } from '../lib/dock.ts';
+	import { downloadLocation, searchLocation } from '../lib/locations.ts';
 
 	const maxSelectedSeries = 10;
 	const api = new BBC_API();
