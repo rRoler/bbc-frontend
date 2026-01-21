@@ -153,7 +153,7 @@
 								{@const isSelected = selectedSeries[provider.id]?.some((s) => s.id === series.id)}
 
 								<div
-									class="card bg-base-100 relative w-24 shrink-0 shadow-sm sm:w-42"
+									class="card bg-base-100 relative w-26 shrink-0 shadow-sm sm:w-42"
 									class:bg-primary={isSelected}
 									class:text-primary-content={isSelected}
 									class:outline-primary={isSelected}
@@ -182,21 +182,37 @@
 										aria-label="Select {series.title} series"
 									></button>
 
-									{#if series.bookType === 'manga'}
-										<div
-											class="badge badge-primary badge-xs sm:badge-sm absolute top-1 right-1 shadow-sm"
-										>
-											Manga
-										</div>
-									{:else if series.bookType === 'novel'}
-										<div
-											class="badge badge-secondary badge-xs sm:badge-sm absolute top-1 right-1 shadow-sm"
-										>
-											Novel
-										</div>
-									{/if}
+									<div
+										class="absolute top-0 left-0 flex w-full flex-row flex-wrap justify-end gap-0.5 p-1 sm:gap-1"
+									>
+										{#if series.bookType === 'manga'}
+											<div class="badge badge-primary badge-xs sm:badge-sm shadow-sm">Manga</div>
+										{:else if series.bookType === 'novel'}
+											<div class="badge badge-secondary badge-xs sm:badge-sm shadow-sm">Novel</div>
+										{/if}
 
-									<figure class="h-32 overflow-hidden sm:h-56">
+										{#if series.publicationType === 'digital'}
+											<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">
+												Digital
+											</div>
+										{:else if series.publicationType === 'physical'}
+											<div class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm">
+												Physical
+											</div>
+										{/if}
+
+										{#if series.type === 'series'}
+											<div class="badge badge-success badge-soft badge-xs sm:badge-sm shadow-sm">
+												Series
+											</div>
+										{:else if series.type === 'book'}
+											<div class="badge badge-warning badge-soft badge-xs sm:badge-sm shadow-sm">
+												Book
+											</div>
+										{/if}
+									</div>
+
+									<figure class="h-36 overflow-hidden sm:h-58">
 										<img
 											src={imageApi.getUrl(series.thumbnail, { width: 168 }).href}
 											alt="{series.title} series thumbnail"

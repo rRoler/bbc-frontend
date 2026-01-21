@@ -288,7 +288,7 @@
 							</div>
 						</div>
 
-						<figure class="h-50 overflow-hidden sm:h-56">
+						<figure class="h-50 overflow-hidden sm:h-58">
 							<img
 								src={book.thumbnail}
 								alt="{book.title} book cover"

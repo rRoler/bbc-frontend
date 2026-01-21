@@ -28,6 +28,7 @@ export interface BBCSeries {
 	title: string;
 	thumbnail: string;
 	bookType?: 'manga' | 'novel';
+	publicationType?: 'physical' | 'digital';
 }
 
 export interface BBCBook {
