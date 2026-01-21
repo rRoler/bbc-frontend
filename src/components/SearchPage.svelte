@@ -170,7 +170,13 @@
 													const matchingSeries = seriesList.filter(
 														(s) =>
 															s.title.toLowerCase().trim() === series.title.toLowerCase().trim() &&
-															s.type === series.type
+															s.type === series.type &&
+															(s.bookType && series.bookType
+																? s.bookType === series.bookType
+																: true) &&
+															(s.publicationType && series.publicationType
+																? s.publicationType === series.publicationType
+																: true)
 													);
 													matchingSeries.forEach((s) => toggleSeries(pId, s, !isSelectedTemp));
 												});
