@@ -1,5 +1,5 @@
 import { appState, addAppError } from './app.svelte.ts';
-import type { BBCBook, BBCBookPage } from '../apis/bbc.ts';
+import type { BBCBook, BBCBookPage, BBCSeries } from '../apis/bbc.ts';
 import allProviders, { type Provider } from '../apis/providers.ts';
 import BBC_API, { type BBCSort } from '../apis/bbc.ts';
 import WsrvApi from '../apis/wsrv.ts';
@@ -26,6 +26,10 @@ import {
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
+
+export interface Series extends BBCSeries {
+	provider: Provider;
+}
 
 export interface Book extends BBCBook {
 	thumbnail: string;
@@ -78,6 +82,7 @@ class Downloader {
 	incrementPages = $state<boolean>(false);
 	fetchedPages = $state<number[]>([]);
 	allBooks = $state<Book[]>([]);
+	allSeries = $state<Series[]>([]);
 	selectedBooks = $state<Book[]>([]);
 	lastToggledBook = $state<Book>();
 	providers = $state<Provider[]>([]);
@@ -256,13 +261,32 @@ class Downloader {
 			vars.push([textVariables.volumeName, book.volumeName]);
 			vars.push([textVariables.volumeNumber, book.volumeNumber]);
 			vars.push([textVariables.bookTitle, book.title]);
-			vars.push([textVariables.seriesId, book.seriesId || '0']);
+			vars.push([textVariables.bookId, book.id]);
 			vars.push([textVariables.providerName, book.provider.name]);
 			vars.push([textVariables.providerId, book.provider.id]);
 			vars.push([textVariables.providerLanguageName, getLocaleName(book.provider.locale)]);
 			vars.push([textVariables.providerLanguageCode, book.provider.locale]);
 			vars.push([textVariables.bookPageNumber, (book.selectedPage || 0).toString()]);
 			vars.push([textVariables.bookPageName, book.selectedPage ? `Page ${book.selectedPage}` : '']);
+
+			const bookSeries = this.allSeries.find(
+				(s) => s.id === book.seriesId && s.provider.id === book.provider.id
+			);
+			if (bookSeries) {
+				vars.push([textVariables.seriesTitle, bookSeries.title]);
+				vars.push([textVariables.seriesThumbnailUrl, bookSeries.thumbnail]);
+				vars.push([textVariables.seriesPublicationType, bookSeries.publicationType || 'digital']);
+				vars.push([textVariables.seriesBookType, bookSeries.bookType || '']);
+				vars.push([textVariables.seriesType, bookSeries.type]);
+				vars.push([textVariables.seriesId, bookSeries.id]);
+			} else {
+				vars.push([textVariables.seriesId, book.seriesId || '0']);
+			}
+
+			vars.push([textVariables.coverQualityScore, book.coverQualityScore?.toString() || '0']);
+			vars.push([textVariables.coverWidth, book.coverWidth?.toString() || '0']);
+			vars.push([textVariables.coverHeight, book.coverHeight?.toString() || '0']);
+			vars.push([textVariables.coverCropStatus, book.coverIsCropped ? 'cropped' : 'uncropped']);
 		}
 
 		if (extension) {
@@ -365,6 +389,35 @@ class Downloader {
 
 	get maxCompareBooks(): number {
 		return this.MAX_COMPARE_BOOKS;
+	}
+
+	async fetchSeries(): Promise<void> {
+		if (this.isFetching) return;
+
+		this.isFetching = true;
+
+		const allIds = {
+			...this.allBookIds,
+			...this.allSeriesIds,
+		};
+
+		try {
+			const response = await this.api.getSeries(allIds);
+
+			if (response.errors.length > 0) response.errors.forEach((e) => addAppError(e));
+
+			Object.entries(response.data).forEach(([providerId, series]) => {
+				const provider = this.providers.find((p) => p.id === providerId);
+
+				if (!provider) return;
+
+				this.allSeries.push(...series.map((s) => ({ ...s, provider })));
+			});
+		} catch (e) {
+			addAppError(new Error('Failed to fetch series', e as Error));
+		}
+
+		this.isFetching = false;
 	}
 
 	async fetchBooks(): Promise<void> {
@@ -849,7 +902,10 @@ class Downloader {
 			return;
 		}
 
-		if (this.providers.length > 0) await this.fetchBooks();
+		if (this.providers.length > 0) {
+			await this.fetchSeries();
+			await this.fetchBooks();
+		}
 	}
 }
 

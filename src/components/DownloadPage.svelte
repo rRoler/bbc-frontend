@@ -230,6 +230,7 @@
 						class:outline-primary={isSelected}
 						class:outline-1={isSelected}
 						class:hover:bg-base-300={!isSelected}
+						title={book.displayText}
 					>
 						<button
 							onclick={(e) => downloader.shiftSelect(e, book)}

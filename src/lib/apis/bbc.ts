@@ -95,6 +95,32 @@ export default class BBC_API {
 		return allData;
 	}
 
+	async getSeries(seriesIds: Record<string, string[]>): Promise<BBCResult<BBCSeries>> {
+		const allData: BBCResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
+
+		try {
+			const url = new URL(`${this.apiUrl}/series`);
+
+			Object.entries(seriesIds).forEach(([providerId, sIds]) =>
+				sIds.forEach((seriesId) => url.searchParams.append(`series(${providerId})`, seriesId))
+			);
+
+			const res = await fetch(url);
+			const data: BBCResponse<BBCSeries> = await res.json();
+
+			if (data.error) {
+				allData.errors.push(new BBC_API_Error(`${data.error}`));
+			} else {
+				allData.data = data.data;
+				allData.count = data.count;
+			}
+		} catch (e) {
+			allData.errors.push(new BBC_API_Error(`${e}`));
+		}
+
+		return allData;
+	}
+
 	async getBooks(
 		seriesIds: Record<string, string[]>,
 		bookIds: Record<string, string[]>,
