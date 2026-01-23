@@ -22,6 +22,7 @@ import {
 	coverPathSetting,
 	zipFilenameSetting,
 	copyFormatSetting,
+	zipThreshold,
 } from './settings.svelte.ts';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
@@ -838,14 +839,15 @@ class Downloader {
 			}
 
 			const imagesToZipTotal = Object.keys(imagesToZip).length;
+			const zipThresholdNumber = parseInt(zipThreshold.value);
 
 			if (imagesToZipTotal === 0) {
 				console.debug('No covers to download');
-			} else if (imagesToZipTotal === 1) {
-				const [imageKey] = Object.keys(imagesToZip);
-				const image = imagesToZip[imageKey];
-				const filename = imageKey.split('/').pop();
-				fileSaver.saveAs(new Blob([new Uint8Array(image)]), filename || 'cover.jpg');
+			} else if (isNaN(zipThresholdNumber) || zipThresholdNumber >= imagesToZipTotal) {
+				Object.entries(imagesToZip).forEach(([f, img]) => {
+					const filename = f.split('/').pop();
+					fileSaver.saveAs(new Blob([new Uint8Array(img)]), filename || 'cover.jpg');
+				});
 			} else {
 				const zipped = zipSync(imagesToZip, { level: 0 });
 				fileSaver.saveAs(

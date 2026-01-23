@@ -401,6 +401,22 @@ export const zipFilenameSetting = new Setting<TextSetting>({
 	defaultValue: `covers.${getTextVariableName(textVariables.fileExtension)}`,
 });
 
+export const zipThreshold = new Setting<SelectSetting>({
+	id: 'zip-threshold',
+	type: 'select',
+	name: 'Zip Threshold',
+	description: 'Determines when selected covers should be bundled into a ZIP file.',
+	defaultValue: '1',
+	options: [
+		{ label: 'Never', value: 'NaN' },
+		{ label: 'Always', value: '0' },
+		{ label: `If more than 1 file`, value: '1' },
+		...new Array(39)
+			.fill(null)
+			.map((_, i) => ({ label: `If more than ${i + 2} files`, value: `${i + 2}` })),
+	],
+});
+
 export const copyFormatSetting = new Setting<TextAreaSetting>({
 	id: 'copy-format',
 	type: 'textarea',
@@ -448,6 +464,7 @@ export const downloadSettings = new SettingsField({
 		coverFilenameSetting,
 		coverPathSetting,
 		zipFilenameSetting,
+		zipThreshold,
 		copyFormatSetting,
 	],
 });
