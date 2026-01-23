@@ -7,6 +7,7 @@ export interface SettingBase<T> {
 	id: string;
 	name: string;
 	description?: string;
+	tooltip?: string;
 	type: string;
 	currentValue?: T;
 	storedValue?: T;
@@ -65,6 +66,7 @@ export class Setting<T extends SettingType> {
 	readonly id: T['id'];
 	readonly name: T['name'];
 	readonly description: T['description'];
+	readonly tooltip: T['tooltip'];
 	readonly type: T['type'];
 	readonly defaultValue: T['defaultValue'];
 	readonly options?: SelectOption[];
@@ -78,6 +80,7 @@ export class Setting<T extends SettingType> {
 		this.id = setting.id;
 		this.name = setting.name;
 		this.description = setting.description;
+		this.tooltip = setting.tooltip;
 		this.type = setting.type;
 		this.defaultValue = setting.defaultValue;
 		this.currentValue = $state(setting.currentValue);
@@ -298,8 +301,9 @@ export const bookDisplayTextSetting = new Setting<TextSetting>({
 	id: 'book-display-text',
 	type: 'text',
 	name: 'Book Display Text',
-	description:
-		'The text to display for books\nAvailable variables: ' +
+	description: 'The text to display for books',
+	tooltip:
+		'Available variables: ' +
 		[
 			textVariables.volumeName,
 			textVariables.volumeNumber,
@@ -330,8 +334,9 @@ export const coverFilenameSetting = new Setting<TextSetting>({
 	id: 'cover-filename',
 	type: 'text',
 	name: 'Cover Filename',
-	description:
-		'The filename to use for downloaded covers\nAvailable variables: ' +
+	description: 'The filename to use for downloaded covers',
+	tooltip:
+		'Available variables: ' +
 		[
 			textVariables.volumeName,
 			textVariables.volumeNumber,
@@ -363,8 +368,9 @@ export const coverPathSetting = new Setting<TextSetting>({
 	id: 'cover-path',
 	type: 'text',
 	name: 'Cover Path',
-	description:
-		'The path inside the ZIP to save downloaded covers to\nAvailable variables: ' +
+	description: 'The path inside the ZIP to save downloaded covers to',
+	tooltip:
+		'Available variables: ' +
 		[
 			textVariables.volumeName,
 			textVariables.volumeNumber,
@@ -395,8 +401,9 @@ export const zipFilenameSetting = new Setting<TextSetting>({
 	id: 'zip-filename',
 	type: 'text',
 	name: 'Zip Filename',
-	description:
-		'The filename of use for the downloaded zip\nAvailable variables: ' +
+	description: 'The filename of use for the downloaded zip',
+	tooltip:
+		'Available variables: ' +
 		[textVariables.fileExtension].map((v) => getTextVariableName(v)).join(', '),
 	defaultValue: `covers.${getTextVariableName(textVariables.fileExtension)}`,
 });
@@ -405,7 +412,7 @@ export const zipThreshold = new Setting<SelectSetting>({
 	id: 'zip-threshold',
 	type: 'select',
 	name: 'Zip Threshold',
-	description: 'Determines when selected covers should be bundled into a ZIP file.',
+	description: 'Determines when selected covers should be bundled into a ZIP file',
 	defaultValue: '1',
 	options: [
 		{ label: 'Never', value: 'NaN' },
@@ -421,8 +428,9 @@ export const copyFormatSetting = new Setting<TextAreaSetting>({
 	id: 'copy-format',
 	type: 'textarea',
 	name: 'Copy Format',
-	description:
-		'The format to use when copying the cover URL\nAvailable variables: ' +
+	description: 'The format to use when copying the cover URL',
+	tooltip:
+		'Available variables: ' +
 		[
 			textVariables.coverUrl,
 			textVariables.volumeName,

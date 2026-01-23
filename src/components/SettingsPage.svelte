@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { RotateCcw } from 'lucide-svelte';
+	import { Info, RotateCcw } from 'lucide-svelte';
 	import allSettingsFields, { themeSetting } from '../lib/svelte/settings.svelte.ts';
 	import ProviderSelector from './ProviderSelector.svelte';
 	import { appState } from '../lib/svelte/app.svelte.ts';
@@ -22,7 +22,14 @@
 			</legend>
 
 			{#each field.settings as setting, settingIndex (setting.id)}
-				<label class="label text-base-content text-base">{setting.name}</label>
+				<label class="label text-base-content text-base">
+					<span>{setting.name}</span>
+					{#if setting.tooltip}
+						<div class="tooltip" data-tip={setting.tooltip}>
+							<Info class="size-4 cursor-help" />
+						</div>
+					{/if}
+				</label>
 
 				{#if setting.description}
 					<p class="label text-wrap! whitespace-pre">{setting.description}</p>
