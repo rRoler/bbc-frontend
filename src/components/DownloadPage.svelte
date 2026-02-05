@@ -35,8 +35,6 @@
 
 	const downloader = new Downloader();
 
-	let scrollPosition = $state<number>(0);
-
 	function updateLocationStorage() {
 		if (downloadLocation.storageKey)
 			localStorage.setItem(downloadLocation.storageKey, window.location.href);
@@ -79,27 +77,6 @@
 		return () => {
 			removeShortcuts.forEach((remove) => remove());
 		};
-	});
-
-	$effect(() => {
-		const handleScroll = () => {
-			if (appState.loading || downloader.isDownloading) return;
-			scrollPosition = window.scrollY;
-		};
-
-		window.addEventListener('scroll', handleScroll);
-
-		return () => {
-			window.removeEventListener('scroll', handleScroll);
-		};
-	});
-
-	$effect(() => {
-		if (!appState.loading && !downloader.isDownloading && scrollPosition > 0) {
-			requestAnimationFrame(() => {
-				window.scrollTo(0, scrollPosition);
-			});
-		}
 	});
 
 	$effect(() => {

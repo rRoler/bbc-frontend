@@ -8,6 +8,10 @@
 	<span class="loading loading-ring loading-xl size-32"></span>
 </div>
 
-<div {id} class="flex size-full flex-col" class:hidden={appState.loading}>
+<div
+	{id}
+	class="relative flex size-full grow flex-col overflow-x-hidden overflow-y-auto"
+	class:hidden={appState.loading}
+>
 	{@render children()}
 </div>
