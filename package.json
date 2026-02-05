@@ -49,6 +49,7 @@
     "sharp": "^0.34.5",
     "sharp-ico": "^0.1.5",
     "typescript-eslint": "^8.53.0",
+    "vite-plugin-pwa": "^1.2.0",
     "workbox-window": "^7.4.0"
   }
 }
