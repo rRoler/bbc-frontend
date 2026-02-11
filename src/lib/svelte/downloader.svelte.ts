@@ -340,7 +340,7 @@ class Downloader {
 	}
 
 	private getVolumeNumber(title: string): string | undefined {
-		let volumeString = title.replace(/[．,#/／・年月+]/g, '.');
+		let volumeString = title.replace(/[．,#/／・年月+〜]/g, '.');
 
 		const japaneseCharacters = '０１２３４５６７８９'.split('');
 		japaneseCharacters.forEach(
