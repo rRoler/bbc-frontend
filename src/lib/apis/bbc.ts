@@ -35,6 +35,7 @@ export interface BBCBook {
 	id: string;
 	title: string;
 	cover: string;
+	volume: { type: 'volume' | 'chapter'; number: string | null };
 	seriesId: string | null;
 }
 

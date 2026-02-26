@@ -36,7 +36,6 @@ export interface Book extends BBCBook {
 	thumbnail: string;
 	provider: Provider;
 	volumeName: string;
-	volumeNumber: string;
 	displayText: string;
 	coverFormat?: string;
 	coverHeight?: number;
@@ -260,7 +259,7 @@ class Downloader {
 		if (book) {
 			vars.push([textVariables.coverUrl, book.cover]);
 			vars.push([textVariables.volumeName, book.volumeName]);
-			vars.push([textVariables.volumeNumber, book.volumeNumber]);
+			vars.push([textVariables.volumeNumber, book.volume.number || '0']);
 			vars.push([textVariables.bookTitle, book.title]);
 			vars.push([textVariables.bookId, book.id]);
 			vars.push([textVariables.providerName, book.provider.name]);
@@ -334,43 +333,24 @@ class Downloader {
 		return books.filter((book) => booksToKeep.has(book));
 	}
 
-	private getVolumePrefix(title: string): string {
-		if (/Chapter|#\d+/i.test(title)) return 'Chapter';
-		return 'Volume';
-	}
-
-	private getVolumeNumber(title: string): string | undefined {
-		let volumeString = title.replace(/[．,#/／・年月+〜]/g, '.');
-
-		volumeString = volumeString.replaceAll('　', ' ');
-
-		const japaneseCharacters = '０１２３４５６７８９'.split('');
-		japaneseCharacters.forEach(
-			(character, i) => (volumeString = volumeString.replaceAll(character, i.toString()))
-		);
-
-		const spaceMatch =
-			volumeString.match(/(?:Volume\s+|Chapter\s+|vol\.|No\.)(\d+(?:(?:\.\d+)+)?)/i) ||
-			volumeString.match(/\((\d+(?:(?:\.\d+)+)?)\)/g) ||
-			volumeString.match(/ (\d+(?:(?:\.\d+)+)?) /g) ||
-			volumeString.match(/(\d+(?:(?:\.\d+)+)?)/g);
-		const spaceMatchN = spaceMatch?.pop();
-		if (spaceMatchN) volumeString = spaceMatchN;
-
-		const volumeNumbers = /(?:0+)?(\d+(?:(?:\.\d+)+)?)/g.exec(volumeString);
-		if (volumeNumbers) {
-			const volumeNumberString = volumeNumbers.pop();
-			if (volumeNumberString) return volumeNumberString;
+	private parseVolumeName(book: BBCBook, options?: { forcePrefix?: string }): string {
+		let volumePrefix: string;
+		if (options?.forcePrefix) {
+			volumePrefix = options.forcePrefix;
+		} else {
+			switch (book.volume.type) {
+				case 'chapter':
+					volumePrefix = 'Chapter';
+					break;
+				default:
+					volumePrefix = 'Volume';
+			}
 		}
-	}
 
-	private parseVolumeName(title: string, options?: { forcePrefix?: string }): string {
-		const volumePrefix = options?.forcePrefix ? options.forcePrefix : this.getVolumePrefix(title);
-		const volumeNumber = this.getVolumeNumber(title);
-
+		const volumeNumber = book.volume.number;
 		if (volumeNumber) return `${volumePrefix} ${volumeNumber}`;
 
-		return title.trim();
+		return book.title;
 	}
 
 	private async copyLinksToClipboard(books: Book[], copyId: string): Promise<void> {
@@ -465,11 +445,10 @@ class Downloader {
 									const data: Book = {
 										...book,
 										provider,
-										volumeName: this.parseVolumeName(book.title, {
+										volumeName: this.parseVolumeName(book, {
 											forcePrefix: provider.volumePrefix,
 										}),
-										volumeNumber: this.getVolumeNumber(book.title) || '0',
-										displayText: this.parseVolumeName(book.title, {
+										displayText: this.parseVolumeName(book, {
 											forcePrefix: provider.volumePrefix,
 										}),
 										thumbnail: this.imageApi.getUrl(book.cover, this.THUMBNAIL_DATA).href,
