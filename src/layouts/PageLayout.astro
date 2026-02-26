@@ -89,14 +89,14 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 				</div>
 			</div>
 
-			<AppContent id="desktop-app-content" client:load>
+			<AppContent id="desktop-app-content" isMobile={false} client:load>
 				<slot />
 			</AppContent>
 		</div>
 	</div>
 
 	<div class="flex size-full flex-col sm:hidden">
-		<AppContent id="mobile-app-content" client:load>
+		<AppContent id="mobile-app-content" isMobile={true} client:load>
 			<slot />
 		</AppContent>
 
