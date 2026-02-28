@@ -14,7 +14,7 @@
 	} = $props();
 </script>
 
-<div class="flex w-fit flex-row items-center justify-center gap-1 {className || ''}">
+<div class="flex w-fit flex-row items-center justify-center gap-2 {className || ''}">
 	<img class="size-4 rounded-sm {iconClass || ''}" src={provider.icon} alt="{provider.name} logo" />
 	<p
 		class="bg-clip-text! font-semibold text-transparent text-shadow-sm {textClass || ''}"

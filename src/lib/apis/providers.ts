@@ -169,6 +169,17 @@ export const amazonGermany: Provider = {
 	ignoreErrors: true,
 };
 
+export const eBookJapan: Provider = {
+	id: 'ebj',
+	name: 'eBookJapan',
+	icon: '/images/providers/ebj.svg',
+	locale: 'ja',
+	colors: {
+		primary: '#F8485E',
+		secondary: '#dd3046',
+	},
+};
+
 const allProviders: Provider[] = [
 	bookLive,
 	bookWalker,
@@ -183,6 +194,7 @@ const allProviders: Provider[] = [
 	amazonSpain,
 	amazonMexico,
 	amazonGermany,
+	eBookJapan,
 ];
 
 export const defaultProviders = [
