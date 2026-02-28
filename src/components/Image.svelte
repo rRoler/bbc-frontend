@@ -18,7 +18,7 @@
 </script>
 
 {#if !loaded && !errored}
-	<div class="skeleton size-full rounded-none"></div>
+	<div class="skeleton size-full rounded-none {className}"></div>
 {/if}
 
 <img
