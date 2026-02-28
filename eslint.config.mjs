@@ -80,6 +80,13 @@ export default [
 		},
 		rules: {
 			'svelte/no-at-html-tags': 'error',
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{
+					argsIgnorePattern: '^_',
+					varsIgnorePattern: '^_',
+				},
+			],
 		},
 	},
 

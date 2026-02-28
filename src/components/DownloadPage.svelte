@@ -21,6 +21,7 @@
 		unfocusAndExecute,
 	} from '../lib/utils.ts';
 	import { ImageViewer } from 'svelte-image-viewer';
+	import Image from './Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
 	import {
@@ -38,11 +39,6 @@
 	function updateLocationStorage() {
 		if (downloadLocation.storageKey)
 			localStorage.setItem(downloadLocation.storageKey, window.location.href);
-	}
-
-	function setErrorImage(event: Event) {
-		const target = event.target as HTMLImageElement;
-		target.src = '/images/error.svg';
 	}
 
 	onMount(async () => {
@@ -267,18 +263,17 @@
 						</div>
 
 						<figure class="h-50 overflow-hidden sm:h-58">
-							<img
+							<Image
 								src={book.thumbnail}
 								alt="{book.title} book cover"
 								class="w-full"
 								loading="lazy"
-								onerror={setErrorImage}
 							/>
 						</figure>
 
 						<div class="card-body items-center justify-between gap-1 p-1 text-center">
 							<div class="card-title line-clamp-2 grow text-sm">
-								<h2>{book.displayText}</h2>
+								<h3>{book.displayText}</h3>
 							</div>
 
 							<ProviderLabel
@@ -519,6 +514,10 @@
 			</div>
 		{:else if !downloader.isFetching}
 			<p class="w-full text-center text-lg font-semibold">No covers found</p>
+		{:else}
+			<div class="flex size-full items-center justify-center">
+				<span class="loading loading-spinner loading-xl size-24"></span>
+			</div>
 		{/if}
 	</div>
 {/if}

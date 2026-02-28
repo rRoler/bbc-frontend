@@ -10,6 +10,7 @@
 		hasSvelteSearchParam,
 		setSvelteSearchParam,
 	} from '../lib/utils.ts';
+	import Image from './Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
 	import {
@@ -220,7 +221,7 @@
 									</div>
 
 									<figure class="h-36 overflow-hidden sm:h-58">
-										<img
+										<Image
 											src={imageApi.getUrl(series.thumbnail, { width: 168 }).href}
 											alt="{series.title} series thumbnail"
 											class="w-full"
@@ -234,7 +235,7 @@
 												{series.title}
 											</div>
 											<div class="card-title line-clamp-2 text-sm">
-												<h2>{series.title}</h2>
+												<h3>{series.title}</h3>
 											</div>
 										</div>
 									</div>
