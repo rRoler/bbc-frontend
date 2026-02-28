@@ -18,10 +18,9 @@
 </script>
 
 {#if !loaded && !errored}
-	<div class="relative size-full">
-		<div class="skeleton pointer-events-none absolute inset-0 size-full rounded-none"></div>
-	</div>
+	<div class="skeleton size-full rounded-none"></div>
 {/if}
+
 <img
 	{src}
 	{alt}
