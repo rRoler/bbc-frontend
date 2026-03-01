@@ -402,14 +402,12 @@ if (platform === 'all' || platform === 'android') {
 		// bubblewrap build is just a thin wrapper around gradlew — calling it
 		// directly avoids all interactive password prompts entirely since the
 		// signing config is already baked into the generated build.gradle.
-		const gradlew = join(androidDir, 'android', 'gradlew');
+		const gradlew = join(androidDir, 'gradlew');
 		run(`chmod +x ${JSON.stringify(gradlew)}`);
-		run('./gradlew assembleRelease --no-daemon', {
-			cwd: join(androidDir, 'android'),
-		});
+		run('./gradlew assembleRelease --no-daemon', { cwd: androidDir });
 
 		// Locate the signed APK and move it where collect() can find it.
-		const apkDir = join(androidDir, 'android', 'app', 'build', 'outputs', 'apk', 'release');
+		const apkDir = join(androidDir, 'app', 'build', 'outputs', 'apk', 'release');
 		const apkName = readdirSync(apkDir).find((f) => f.endsWith('.apk'));
 		if (!apkName) throw new Error('No APK found after gradle build');
 		renameSync(join(apkDir, apkName), join(androidDir, 'app-release-signed.apk'));
