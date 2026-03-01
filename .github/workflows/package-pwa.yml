@@ -152,7 +152,7 @@ jobs:
     steps:
       - name: Generate release timestamp
         id: ts
-        run: echo "name=Release v$(date -u +'%Y.%m.%d-%H.%M.%S')" >> "$GITHUB_OUTPUT"
+        run: echo "name=Release v$(date -u +'%Y.%m.%d')" >> "$GITHUB_OUTPUT"
 
       - uses: actions/download-artifact@v4
         with:

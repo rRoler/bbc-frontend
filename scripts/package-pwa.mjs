@@ -409,9 +409,26 @@ if (platform === 'all' || platform === 'android') {
 
 		// Locate the signed APK and move it where collect() can find it.
 		const apkDir = join(androidDir, 'app', 'build', 'outputs', 'apk', 'release');
-		const apkName = readdirSync(apkDir).find((f) => f.endsWith('.apk'));
-		if (!apkName) throw new Error('No APK found after gradle build');
-		renameSync(join(apkDir, apkName), join(androidDir, 'app-release-signed.apk'));
+		const builtApk = readdirSync(apkDir).find((f) => f.endsWith('.apk'));
+		if (!builtApk) throw new Error('No APK found after gradle build');
+
+		const unsignedApk = join(apkDir, builtApk);
+		const signedApk = join(androidDir, 'app-release-signed.apk');
+
+		// Sign with apksigner (part of Android SDK build-tools)
+		const buildToolsDir = join(androidSdkPath, 'build-tools');
+		const buildToolsVersion = readdirSync(buildToolsDir).sort().at(-1); // use latest
+		const apkSigner = join(buildToolsDir, buildToolsVersion, 'apksigner');
+
+		run(
+			`${JSON.stringify(apkSigner)} sign` +
+				` --ks ${JSON.stringify(keystorePath)}` +
+				` --ks-key-alias android` +
+				` --ks-pass pass:${storePassword}` +
+				` --key-pass pass:${keyPassword}` +
+				` --out ${JSON.stringify(signedApk)}` +
+				` ${JSON.stringify(unsignedApk)}`
+		);
 
 		collect(androidDir);
 	} finally {
