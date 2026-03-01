@@ -166,7 +166,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.ts.outputs.tag }}
-          name: ${{ steps.ts.outputs.name }
+          name: ${{ steps.ts.outputs.name }}
           body: |
             Download high-quality book covers from Amazon, BookWalker, BookLive, eBookJapan and more. Installs once, auto-updates via service worker.
             🐧 Linux · 🪟 Windows · 🍎 macOS · 🤖 Android · 🌐 covers.roler.dev
