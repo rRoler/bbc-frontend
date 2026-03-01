@@ -34,7 +34,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: bbc-windows
-          path: pwa-packages/bbc-windows.exe
+          path: pwa-packages/bbc-windows_setup.exe
           if-no-files-found: error
 
   mac:
