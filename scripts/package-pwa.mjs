@@ -349,8 +349,11 @@ if (platform === 'all' || platform === 'android') {
 			)
 		);
 
-		run(`bubblewrap build --skipPwaValidation --jdkPath ${JSON.stringify(jdkPath)}`, {
+		console.log(`\n▶  bubblewrap build --skipPwaValidation\n`);
+		execSync('bubblewrap build --skipPwaValidation', {
 			cwd: androidDir,
+			input: `n\n${jdkPath}\n`,
+			stdio: ['pipe', 'inherit', 'inherit'],
 		});
 		collect(androidDir);
 	} finally {
