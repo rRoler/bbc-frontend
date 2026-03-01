@@ -36,19 +36,25 @@ const rootPkg = req('../package.json');
 const APP_NAME = 'Big Book Covers';
 const APP_ID = 'dev.roler.covers';
 const APP_URL = new URL('https://covers.roler.dev');
+const OUT = './pwa-packages';
+const FAVICON_SVG = fileURLToPath(new URL('../public/favicon.svg', import.meta.url));
+
+// YYYY.MM.DD build version
 const VERSION = (() => {
 	const d = new Date();
 	const pad = (n) => String(n).padStart(2, '0');
 	return `${d.getUTCFullYear()}.${pad(d.getUTCMonth() + 1)}.${pad(d.getUTCDate())}`;
 })();
-const OUT = './pwa-packages';
-const FAVICON_SVG = fileURLToPath(new URL('../public/favicon.svg', import.meta.url));
+
+// electron-builder normalizes version segments (strips leading zeros), e.g.
+// 2026.03.01 → 2026.3.1. Use this for RENAME keys that come from eb filenames.
+const EB_VERSION = VERSION.split('.').map(Number).join('.');
 
 const RENAME = {
-	[`${APP_NAME} Setup ${VERSION}.exe`]: 'bbc-windows.exe',
-	[`${APP_NAME}-${VERSION}.dmg`]: 'bbc-mac.dmg',
-	[`${APP_NAME}-${VERSION}.AppImage`]: 'bbc-linux.AppImage',
-	[`${APP_NAME}_${VERSION}_amd64.deb`]: 'bbc-linux.deb',
+	[`${APP_NAME} Setup ${EB_VERSION}.exe`]: 'bbc-windows.exe',
+	[`${APP_NAME}-${EB_VERSION}.dmg`]: 'bbc-mac.dmg',
+	[`${APP_NAME}-${EB_VERSION}.AppImage`]: 'bbc-linux.AppImage',
+	[`${APP_NAME}_${EB_VERSION}_amd64.deb`]: 'bbc-linux.deb',
 	'app-release-signed.apk': 'bbc-android.apk',
 };
 
@@ -266,8 +272,12 @@ if (platform === 'all' || platform === 'linux') {
 
 // ── Android (.apk via bubblewrap TWA) ─────────────────────────────────────────
 if (platform === 'all' || platform === 'android') {
+	const jdkPath = process.env.JAVA_HOME;
+	if (!jdkPath) throw new Error('JAVA_HOME is not set — add a setup-java step to your workflow');
+
 	const androidDir = resolve('./tmp-android');
 	mkdirSync(androidDir, { recursive: true });
+
 	try {
 		const keystorePath = join(androidDir, 'android.keystore');
 		if (!existsSync(keystorePath)) {
@@ -279,28 +289,47 @@ if (platform === 'all' || platform === 'android') {
 			);
 		}
 
+		console.log(`\n▶  Fetching ${APP_URL.origin}/manifest.webmanifest\n`);
+		const manifestRes = await fetch(`${APP_URL.origin}/manifest.webmanifest`);
+		if (!manifestRes.ok) throw new Error(`Failed to fetch manifest: ${manifestRes.status}`);
+		const manifest = await manifestRes.json();
+
+		const themeColor = manifest.theme_color ?? '#000000';
+		const bgColor = manifest.background_color ?? '#ffffff';
+
+		const icons = manifest.icons ?? [];
+		const icon192 = icons.find((i) => i.sizes === '192x192' && !i.purpose?.includes('maskable'));
+		const iconMaskable = icons.find((i) => i.purpose?.includes('maskable'));
+		const iconAny = icons.find((i) => !i.purpose?.includes('maskable')) ?? icons[0];
+
+		function iconUrl(entry) {
+			if (!entry) return `${APP_URL.origin}/pwa-192x192.png`;
+			const src = entry.src;
+			return src.startsWith('http') ? src : `${APP_URL.origin}/${src.replace(/^\//, '')}`;
+		}
+
 		writeFileSync(
 			join(androidDir, 'twa-manifest.json'),
 			JSON.stringify(
 				{
 					packageId: APP_ID,
 					host: APP_URL.host,
-					name: APP_NAME,
-					launcherName: 'BBC',
-					display: 'standalone',
-					orientation: 'default',
-					themeColor: '#04262e',
-					navigationColor: '#04262e',
-					navigationColorDark: '#030d11',
-					navigationDividerColor: '#04262e',
-					navigationDividerColorDark: '#030d11',
-					backgroundColor: '#030d11',
+					name: manifest.name ?? APP_NAME,
+					launcherName: manifest.short_name ?? 'BBC',
+					display: manifest.display ?? 'standalone',
+					orientation: manifest.orientation ?? 'default',
+					themeColor,
+					navigationColor: themeColor,
+					navigationColorDark: bgColor,
+					navigationDividerColor: themeColor,
+					navigationDividerColorDark: bgColor,
+					backgroundColor: bgColor,
 					enableNotifications: false,
-					startUrl: '/',
-					iconUrl: `${APP_URL.origin}/pwa-192x192.png`,
-					maskableIconUrl: `${APP_URL.origin}/maskable-icon-512x512.png`,
-					monochromeIconUrl: `${APP_URL.origin}/pwa-192x192.png`,
-					shortcuts: [],
+					startUrl: manifest.start_url ?? '/',
+					iconUrl: iconUrl(icon192 ?? iconAny),
+					maskableIconUrl: iconUrl(iconMaskable ?? iconAny),
+					monochromeIconUrl: iconUrl(icon192 ?? iconAny),
+					shortcuts: manifest.shortcuts ?? [],
 					webManifestUrl: `${APP_URL.origin}/manifest.webmanifest`,
 					fallbackType: 'customtabs',
 					features: {},
@@ -313,14 +342,16 @@ if (platform === 'all' || platform === 'android') {
 					signingKey: { path: './android.keystore', alias: 'android' },
 					signing: { storePassword: 'android', keyPassword: 'android' },
 					version: VERSION,
-					versionCode: '1',
+					versionCode: String(Math.floor(Date.now() / 1000)),
 				},
 				null,
 				2
 			)
 		);
 
-		run('bubblewrap build --skipPwaValidation', { cwd: androidDir });
+		run(`bubblewrap build --skipPwaValidation --jdkPath ${JSON.stringify(jdkPath)}`, {
+			cwd: androidDir,
+		});
 		collect(androidDir);
 	} finally {
 		rmSync(androidDir, { recursive: true, force: true });
