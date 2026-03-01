@@ -360,8 +360,19 @@ if (platform === 'all' || platform === 'android') {
 			)
 		);
 
-		run('bubblewrap update --skipPwaValidation', { cwd: androidDir });
-		run('bubblewrap build --skipPwaValidation', { cwd: androidDir });
+		console.log('\n▶  bubblewrap update --skipPwaValidation\n');
+		execSync('bubblewrap update --skipPwaValidation', {
+			cwd: androidDir,
+			input: `${VERSION}\n`,
+			stdio: ['pipe', 'inherit', 'inherit'],
+		});
+
+		console.log('\n▶  bubblewrap build --skipPwaValidation\n');
+		execSync('bubblewrap build --skipPwaValidation', {
+			cwd: androidDir,
+			input: `n\n${jdkPath}\n`,
+			stdio: ['pipe', 'inherit', 'inherit'],
+		});
 		collect(androidDir);
 	} finally {
 		rmSync(androidDir, { recursive: true, force: true });
