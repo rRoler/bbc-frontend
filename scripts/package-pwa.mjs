@@ -394,15 +394,17 @@ if (platform === 'all' || platform === 'android') {
 			stdio: ['pipe', 'inherit', 'inherit'],
 		});
 
-		console.log('\n▶  bubblewrap build --skipPwaValidation\n');
-		execSync(
-			`printf '%s\n%s\n' ${JSON.stringify(storePassword)} ${JSON.stringify(keyPassword)} | bubblewrap build --skipPwaValidation`,
-			{
-				cwd: androidDir,
-				shell: true,
-				stdio: 'inherit',
-			}
-		);
+		const passwords =
+			Array(10).fill(storePassword).join('\n') +
+			'\n' +
+			Array(10).fill(keyPassword).join('\n') +
+			'\n';
+
+		execSync('bubblewrap build --skipPwaValidation', {
+			cwd: androidDir,
+			input: passwords,
+			stdio: ['pipe', 'inherit', 'inherit'],
+		});
 
 		collect(androidDir);
 	} finally {
