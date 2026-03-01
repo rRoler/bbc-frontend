@@ -35,8 +35,12 @@ const rootPkg = req('../package.json');
 
 const APP_NAME = 'Big Book Covers';
 const APP_ID = 'dev.roler.covers';
-const APP_URL = 'https://covers.roler.dev';
-const VERSION = rootPkg.version ?? '1.0.0';
+const APP_URL = new URL('https://covers.roler.dev');
+const VERSION = (() => {
+	const d = new Date();
+	const pad = (n) => String(n).padStart(2, '0');
+	return `${d.getUTCFullYear()}.${pad(d.getUTCMonth() + 1)}.${pad(d.getUTCDate())}`;
+})();
 const OUT = './pwa-packages';
 const FAVICON_SVG = fileURLToPath(new URL('../public/favicon.svg', import.meta.url));
 
@@ -128,7 +132,7 @@ app.whenReady().then(() => {
     },
   });
   win.once('ready-to-show', () => win.show());
-  win.loadURL('${APP_URL}');
+  win.loadURL('${APP_URL.href}');
 });
 
 app.on('window-all-closed', () => {
@@ -151,7 +155,7 @@ async function buildElectron(ebFlag, targets, outDir) {
 				name: 'big-book-covers',
 				version: VERSION,
 				description: 'Download high-quality book covers',
-				homepage: APP_URL,
+				homepage: APP_URL.href,
 				author: { name: 'roler', email: '60528736+rRoler@users.noreply.github.com' },
 				main: 'main.js',
 				dependencies: {},
@@ -261,22 +265,61 @@ if (platform === 'all' || platform === 'linux') {
 }
 
 // ── Android (.apk via bubblewrap TWA) ─────────────────────────────────────────
-// Prereqs: npm i -g @bubblewrap/cli  +  JDK 11+  +  Android SDK
 if (platform === 'all' || platform === 'android') {
-	const androidDir = './tmp-android';
+	const androidDir = resolve('./tmp-android');
 	mkdirSync(androidDir, { recursive: true });
 	try {
-		if (!existsSync(join(androidDir, 'twa-manifest.json'))) {
-			console.log(`\n▶  bubblewrap init ...\n`);
-			execSync(
-				`bubblewrap init --manifest "${APP_URL}/manifest.webmanifest" --directory "${androidDir}"`,
-				{
-					cwd: androidDir,
-					input: 'n\n',
-					stdio: ['pipe', 'inherit', 'inherit'],
-				}
+		const keystorePath = join(androidDir, 'android.keystore');
+		if (!existsSync(keystorePath)) {
+			run(
+				`keytool -genkeypair -v -keystore ${JSON.stringify(keystorePath)}` +
+					` -alias android -keyalg RSA -keysize 2048 -validity 10000` +
+					` -dname "CN=BBC, OU=Dev, O=roler.dev, L=Earth, S=Earth, C=US"` +
+					` -storepass android -keypass android`
 			);
 		}
+
+		writeFileSync(
+			join(androidDir, 'twa-manifest.json'),
+			JSON.stringify(
+				{
+					packageId: APP_ID,
+					host: APP_URL.host,
+					name: APP_NAME,
+					launcherName: 'BBC',
+					display: 'standalone',
+					orientation: 'default',
+					themeColor: '#04262e',
+					navigationColor: '#04262e',
+					navigationColorDark: '#030d11',
+					navigationDividerColor: '#04262e',
+					navigationDividerColorDark: '#030d11',
+					backgroundColor: '#030d11',
+					enableNotifications: false,
+					startUrl: '/',
+					iconUrl: `${APP_URL.origin}/pwa-192x192.png`,
+					maskableIconUrl: `${APP_URL.origin}/maskable-icon-512x512.png`,
+					monochromeIconUrl: `${APP_URL.origin}/pwa-192x192.png`,
+					shortcuts: [],
+					webManifestUrl: `${APP_URL.origin}/manifest.webmanifest`,
+					fallbackType: 'customtabs',
+					features: {},
+					alphaDependencies: false,
+					enableSiteSettingsShortcut: true,
+					isChromeOSOnly: false,
+					isMetaQuest: false,
+					minSdkVersion: 21,
+					targetSdkVersion: 34,
+					signingKey: { path: './android.keystore', alias: 'android' },
+					signing: { storePassword: 'android', keyPassword: 'android' },
+					version: VERSION,
+					versionCode: '1',
+				},
+				null,
+				2
+			)
+		);
+
 		run('bubblewrap build --skipPwaValidation', { cwd: androidDir });
 		collect(androidDir);
 	} finally {
