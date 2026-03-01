@@ -151,7 +151,8 @@ async function buildElectron(ebFlag, targets, outDir) {
 				name: 'big-book-covers',
 				version: VERSION,
 				description: 'Download high-quality book covers',
-				author: 'roler.dev',
+				homepage: APP_URL,
+				author: { name: 'roler', email: '60528736+rRoler@users.noreply.github.com' },
 				main: 'main.js',
 				dependencies: {},
 			},
@@ -245,6 +246,7 @@ if (platform === 'all' || platform === 'linux') {
 			linux: {
 				target: ['AppImage', 'deb'],
 				category: 'Utility',
+				maintainer: '60528736+rRoler@users.noreply.github.com',
 				desktop: {
 					entry: {
 						Name: APP_NAME,
@@ -265,11 +267,13 @@ if (platform === 'all' || platform === 'android') {
 	mkdirSync(androidDir, { recursive: true });
 	try {
 		if (!existsSync(join(androidDir, 'twa-manifest.json'))) {
-			run(
+			console.log(`\n▶  bubblewrap init ...\n`);
+			execSync(
 				`bubblewrap init --manifest "${APP_URL}/manifest.webmanifest" --directory "${androidDir}"`,
 				{
 					cwd: androidDir,
 					input: 'n\n',
+					stdio: ['pipe', 'inherit', 'inherit'],
 				}
 			);
 		}
