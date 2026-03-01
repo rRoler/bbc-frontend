@@ -360,6 +360,7 @@ if (platform === 'all' || platform === 'android') {
 			)
 		);
 
+		run('bubblewrap update --skipPwaValidation', { cwd: androidDir });
 		run('bubblewrap build --skipPwaValidation', { cwd: androidDir });
 		collect(androidDir);
 	} finally {
