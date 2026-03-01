@@ -34,6 +34,7 @@ const req = createRequire(import.meta.url);
 const rootPkg = req('../package.json');
 
 const APP_NAME = 'Big Book Covers';
+const APP_NAME_SLUG = APP_NAME.toLowerCase().replaceAll(' ', '-');
 const APP_ID = 'dev.roler.covers';
 const APP_URL = new URL('https://covers.roler.dev');
 const OUT = './pwa-packages';
@@ -51,11 +52,11 @@ const VERSION = (() => {
 const EB_VERSION = VERSION.split('.').map(Number).join('.');
 
 const RENAME = {
-	[`${APP_NAME} Setup ${EB_VERSION}.exe`]: 'bbc-windows.exe',
-	[`${APP_NAME}-${EB_VERSION}.dmg`]: 'bbc-mac.dmg',
-	[`${APP_NAME}-${EB_VERSION}.AppImage`]: 'bbc-linux.AppImage',
-	[`${APP_NAME}_${EB_VERSION}_amd64.deb`]: 'bbc-linux.deb',
-	'app-release-signed.apk': 'bbc-android.apk',
+	[`${APP_NAME} Setup ${EB_VERSION}.exe`]: `bbc-windows_setup.exe`,
+	[`${APP_NAME}-${EB_VERSION}.dmg`]: `bbc-mac.dmg`,
+	[`${APP_NAME}-${EB_VERSION}.AppImage`]: `bbc-linux.AppImage`,
+	[`${APP_NAME_SLUG}_${EB_VERSION}_amd64.deb`]: `bbc-linux.deb`,
+	'app-release-signed.apk': `bbc-android.apk`,
 };
 
 const platform = process.argv.find((a) => a.startsWith('--platform='))?.split('=')[1] ?? 'all';
