@@ -28,7 +28,7 @@ import {
 import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 
 const req = createRequire(import.meta.url);
 const rootPkg = req('../package.json');
@@ -275,6 +275,17 @@ if (platform === 'all' || platform === 'android') {
 	const jdkPath = process.env.JAVA_HOME;
 	if (!jdkPath) throw new Error('JAVA_HOME is not set — add a setup-java step to your workflow');
 
+	const androidSdkPath = process.env.ANDROID_SDK_ROOT ?? process.env.ANDROID_HOME ?? '';
+	if (!androidSdkPath)
+		throw new Error('ANDROID_SDK_ROOT is not set — add a setup-android step to your workflow');
+
+	const bubblewrapConfigDir = join(homedir(), '.bubblewrap');
+	mkdirSync(bubblewrapConfigDir, { recursive: true });
+	writeFileSync(
+		join(bubblewrapConfigDir, 'config.json'),
+		JSON.stringify({ jdkPath, androidSdkPath }, null, 2)
+	);
+
 	const androidDir = resolve('./tmp-android');
 	mkdirSync(androidDir, { recursive: true });
 
@@ -349,12 +360,7 @@ if (platform === 'all' || platform === 'android') {
 			)
 		);
 
-		console.log(`\n▶  bubblewrap build --skipPwaValidation\n`);
-		execSync('bubblewrap build --skipPwaValidation', {
-			cwd: androidDir,
-			input: `n\n${jdkPath}\n`,
-			stdio: ['pipe', 'inherit', 'inherit'],
-		});
+		run('bubblewrap build --skipPwaValidation', { cwd: androidDir });
 		collect(androidDir);
 	} finally {
 		rmSync(androidDir, { recursive: true, force: true });
