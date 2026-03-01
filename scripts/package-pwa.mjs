@@ -424,8 +424,8 @@ if (platform === 'all' || platform === 'android') {
 			`${JSON.stringify(apkSigner)} sign` +
 				` --ks ${JSON.stringify(keystorePath)}` +
 				` --ks-key-alias android` +
-				` --ks-pass pass:${storePassword}` +
-				` --key-pass pass:${keyPassword}` +
+				` --ks-pass env:ANDROID_STORE_PASSWORD` +
+				` --key-pass env:ANDROID_KEY_PASSWORD` +
 				` --out ${JSON.stringify(signedApk)}` +
 				` ${JSON.stringify(unsignedApk)}`
 		);
