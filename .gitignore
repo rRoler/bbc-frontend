@@ -26,3 +26,13 @@ pnpm-debug.log*
 .vscode/
 
 .tmp/
+
+# PWA build temp files
+pwa-packages/
+tmp-win-dist/
+_eb-win.json
+tmp-mac-dist/
+_eb-mac.json
+tmp-linux-dist/
+_eb-linux.json
+tmp-android/

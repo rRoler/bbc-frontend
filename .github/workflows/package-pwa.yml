@@ -1,0 +1,167 @@
+name: Build PWA Installers
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        type: choice
+        default: all
+        options: [all, windows, mac, linux, android]
+
+jobs:
+  windows:
+    if: ${{ inputs.platform == 'all' || inputs.platform == 'windows' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build installer
+        run: pnpm run build:pwa:win
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bbc-windows
+          path: pwa-packages/bbc-windows.exe
+          if-no-files-found: error
+
+  mac:
+    if: ${{ inputs.platform == 'all' || inputs.platform == 'mac' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build installer
+        run: pnpm run build:pwa:mac
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bbc-mac
+          path: pwa-packages/bbc-mac.dmg
+          if-no-files-found: error
+
+  linux:
+    if: ${{ inputs.platform == 'all' || inputs.platform == 'linux' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Linux build deps
+        run: sudo apt-get install -y libarchive-tools rpm
+
+      - name: Build installer
+        run: pnpm run build:pwa:linux
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bbc-linux
+          path: |
+            pwa-packages/bbc-linux.AppImage
+            pwa-packages/bbc-linux.deb
+          if-no-files-found: error
+
+  android:
+    if: ${{ inputs.platform == 'all' || inputs.platform == 'android' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install bubblewrap
+        run: npm i -g @bubblewrap/cli
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build .apk
+        run: pnpm run build:pwa:android
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bbc-android
+          path: pwa-packages/bbc-android.apk
+          if-no-files-found: error
+
+  release:
+    needs: [windows, mac, linux, android]
+    # Only runs when all four jobs were triggered and succeeded.
+    if: |
+      always() &&
+      inputs.platform == 'all' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Generate release timestamp
+        id: ts
+        run: echo "name=Release v$(date -u +'%Y.%m.%d-%H.%M.%S')" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: pwa-packages
+          merge-multiple: true
+
+      - name: Create / update "latest" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: ${{ steps.ts.outputs.name }}
+          body: |
+            Download high-quality book covers from Amazon, BookWalker, BookLive, eBookJapan and more. Installs once, auto-updates via service worker.
+            🐧 Linux · 🪟 Windows · 🍎 macOS · 🤖 Android · 🌐 covers.roler.dev
+          prerelease: false
+          files: pwa-packages/*
