@@ -302,7 +302,7 @@ if (platform === 'all' || platform === 'android') {
 		const keystorePath = join(androidDir, 'android.keystore');
 		const keystoreB64 = process.env.ANDROID_KEYSTORE_BASE64;
 		let storePassword = process.env.ANDROID_STORE_PASSWORD;
-		let keyPassword = process.env.ANDROID_KEY_PASSWORD;
+		let keyPassword = process.env.ANDROID_KEY_PASSWORD || storePassword;
 
 		if (keystoreB64 && storePassword && keyPassword) {
 			// Production: decode the real keystore from the GitHub secret.
@@ -395,11 +395,14 @@ if (platform === 'all' || platform === 'android') {
 		});
 
 		console.log('\n▶  bubblewrap build --skipPwaValidation\n');
-		execSync('bubblewrap build --skipPwaValidation', {
-			cwd: androidDir,
-			input: `${storePassword}\n${keyPassword}\n`,
-			stdio: ['pipe', 'inherit', 'inherit'],
-		});
+		execSync(
+			`printf '%s\n%s\n' ${JSON.stringify(storePassword)} ${JSON.stringify(keyPassword)} | bubblewrap build --skipPwaValidation`,
+			{
+				cwd: androidDir,
+				shell: true,
+				stdio: 'inherit',
+			}
+		);
 
 		collect(androidDir);
 	} finally {
