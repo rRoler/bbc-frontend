@@ -465,35 +465,10 @@ export const copyFormatSetting = new Setting<TextAreaSetting>({
 });
 
 export const fileSystemFolderSetting = new Setting<FileSystemFolderPickerSetting>({
-	id: 'file-system-folder',
+	id: 'download-folder',
 	type: 'file-system-folder-picker',
 	name: 'Download Folder',
 	description: 'The folder where the covers will be downloaded. Browser support is limited.',
-	tooltip:
-		'Available variables: ' +
-		[
-			textVariables.volumeName,
-			textVariables.volumeNumber,
-			textVariables.bookPageName,
-			textVariables.bookPageNumber,
-			textVariables.bookTitle,
-			textVariables.bookId,
-			textVariables.seriesTitle,
-			textVariables.seriesPublicationType,
-			textVariables.seriesBookType,
-			textVariables.seriesType,
-			textVariables.seriesId,
-			textVariables.providerName,
-			textVariables.providerId,
-			textVariables.providerLanguageName,
-			textVariables.providerLanguageCode,
-			textVariables.coverQualityScore,
-			textVariables.coverWidth,
-			textVariables.coverHeight,
-			textVariables.coverCropStatus,
-		]
-			.map((v) => getTextVariableName(v))
-			.join(', '),
 	defaultValue: undefined,
 });
 
