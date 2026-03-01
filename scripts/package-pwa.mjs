@@ -377,6 +377,7 @@ if (platform === 'all' || platform === 'android') {
 					isMetaQuest: false,
 					minSdkVersion: 21,
 					targetSdkVersion: 34,
+					splashScreenFadeOutDuration: 300,
 					signingKey: { path: '../android.keystore', alias: 'android' },
 					signing: { storePassword, keyPassword },
 					version: VERSION,
