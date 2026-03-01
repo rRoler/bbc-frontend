@@ -246,9 +246,11 @@ if (platform === 'all' || platform === 'linux') {
 				target: ['AppImage', 'deb'],
 				category: 'Utility',
 				desktop: {
-					Name: APP_NAME,
-					Comment: 'Download high-quality book covers',
-					Categories: 'Utility;',
+					entry: {
+						Name: APP_NAME,
+						Comment: 'Download high-quality book covers',
+						Categories: 'Utility;',
+					},
 				},
 			},
 		},
@@ -264,7 +266,11 @@ if (platform === 'all' || platform === 'android') {
 	try {
 		if (!existsSync(join(androidDir, 'twa-manifest.json'))) {
 			run(
-				`bubblewrap init --manifest "${APP_URL}/manifest.webmanifest" --directory "${androidDir}"`
+				`bubblewrap init --manifest "${APP_URL}/manifest.webmanifest" --directory "${androidDir}"`,
+				{
+					cwd: androidDir,
+					input: 'n\n',
+				}
 			);
 		}
 		run('bubblewrap build --skipPwaValidation', { cwd: androidDir });
