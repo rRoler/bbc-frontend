@@ -271,6 +271,14 @@ if (platform === 'all' || platform === 'linux') {
 }
 
 // ── Android (.apk via bubblewrap TWA) ─────────────────────────────────────────
+// Prereqs: npm i -g @bubblewrap/cli  +  JDK 17+  +  Android SDK
+// JAVA_HOME must be set (GitHub Actions: use actions/setup-java before this).
+//
+// Secrets (GitHub Actions):
+//   ANDROID_KEYSTORE_BASE64  — base64 -w0 bbc-release.keystore
+//   ANDROID_STORE_PASSWORD   — keystore password
+//   ANDROID_KEY_PASSWORD     — key password
+// If secrets are absent, a throwaway debug keystore is used (sideload only).
 if (platform === 'all' || platform === 'android') {
 	const jdkPath = process.env.JAVA_HOME;
 	if (!jdkPath) throw new Error('JAVA_HOME is not set — add a setup-java step to your workflow');
@@ -290,8 +298,21 @@ if (platform === 'all' || platform === 'android') {
 	mkdirSync(androidDir, { recursive: true });
 
 	try {
+		// ── Keystore ────────────────────────────────────────────────────────
 		const keystorePath = join(androidDir, 'android.keystore');
-		if (!existsSync(keystorePath)) {
+		const keystoreB64 = process.env.ANDROID_KEYSTORE_BASE64;
+		let storePassword = process.env.ANDROID_STORE_PASSWORD;
+		let keyPassword = process.env.ANDROID_KEY_PASSWORD;
+
+		if (keystoreB64 && storePassword && keyPassword) {
+			// Production: decode the real keystore from the GitHub secret.
+			writeFileSync(keystorePath, Buffer.from(keystoreB64, 'base64'));
+			console.log('  ✔  Using production keystore from ANDROID_KEYSTORE_BASE64');
+		} else {
+			// Local dev fallback: generate a throwaway keystore (sideload only).
+			console.warn('  ⚠  No keystore secrets found — using debug keystore (sideload only)');
+			storePassword = 'android';
+			keyPassword = 'android';
 			run(
 				`keytool -genkeypair -v -keystore ${JSON.stringify(keystorePath)}` +
 					` -alias android -keyalg RSA -keysize 2048 -validity 10000` +
@@ -300,6 +321,9 @@ if (platform === 'all' || platform === 'android') {
 			);
 		}
 
+		// ── Web App Manifest ─────────────────────────────────────────────────
+		// Fetch the live manifest so twa-manifest.json stays in sync with
+		// whatever @vite-pwa/astro generates — no values hardcoded here.
 		console.log(`\n▶  Fetching ${APP_URL.origin}/manifest.webmanifest\n`);
 		const manifestRes = await fetch(`${APP_URL.origin}/manifest.webmanifest`);
 		if (!manifestRes.ok) throw new Error(`Failed to fetch manifest: ${manifestRes.status}`);
@@ -351,7 +375,7 @@ if (platform === 'all' || platform === 'android') {
 					minSdkVersion: 21,
 					targetSdkVersion: 34,
 					signingKey: { path: './android.keystore', alias: 'android' },
-					signing: { storePassword: 'android', keyPassword: 'android' },
+					signing: { storePassword, keyPassword },
 					version: VERSION,
 					versionCode: String(Math.floor(Date.now() / 1000)),
 				},
@@ -360,6 +384,9 @@ if (platform === 'all' || platform === 'android') {
 			)
 		);
 
+		// ── Build ────────────────────────────────────────────────────────────
+		// update scaffolds the Android project from twa-manifest.json and
+		// writes the checksum file that build requires.
 		console.log('\n▶  bubblewrap update --skipPwaValidation\n');
 		execSync('bubblewrap update --skipPwaValidation', {
 			cwd: androidDir,
@@ -370,9 +397,10 @@ if (platform === 'all' || platform === 'android') {
 		console.log('\n▶  bubblewrap build --skipPwaValidation\n');
 		execSync('bubblewrap build --skipPwaValidation', {
 			cwd: androidDir,
-			input: `n\n${jdkPath}\n`,
+			input: `${storePassword}\n${keyPassword}\n`,
 			stdio: ['pipe', 'inherit', 'inherit'],
 		});
+
 		collect(androidDir);
 	} finally {
 		rmSync(androidDir, { recursive: true, force: true });
