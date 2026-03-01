@@ -277,7 +277,7 @@ if (platform === 'all' || platform === 'linux') {
 // Secrets (GitHub Actions):
 //   ANDROID_KEYSTORE_BASE64  — base64 -w0 bbc-release.keystore
 //   ANDROID_STORE_PASSWORD   — keystore password
-//   ANDROID_KEY_PASSWORD     — key password
+//   ANDROID_KEY_PASSWORD     — key password (often same as store password)
 // If secrets are absent, a throwaway debug keystore is used (sideload only).
 if (platform === 'all' || platform === 'android') {
 	const jdkPath = process.env.JAVA_HOME;
@@ -287,6 +287,7 @@ if (platform === 'all' || platform === 'android') {
 	if (!androidSdkPath)
 		throw new Error('ANDROID_SDK_ROOT is not set — add a setup-android step to your workflow');
 
+	// Pre-configure bubblewrap so it never prompts for JDK/SDK paths.
 	const bubblewrapConfigDir = join(homedir(), '.bubblewrap');
 	mkdirSync(bubblewrapConfigDir, { recursive: true });
 	writeFileSync(
@@ -304,7 +305,7 @@ if (platform === 'all' || platform === 'android') {
 		let storePassword = process.env.ANDROID_STORE_PASSWORD;
 		let keyPassword = process.env.ANDROID_KEY_PASSWORD || storePassword;
 
-		if (keystoreB64 && storePassword && keyPassword) {
+		if (keystoreB64 && storePassword) {
 			// Production: decode the real keystore from the GitHub secret.
 			writeFileSync(keystorePath, Buffer.from(keystoreB64, 'base64'));
 			console.log('  ✔  Using production keystore from ANDROID_KEYSTORE_BASE64');
@@ -343,6 +344,8 @@ if (platform === 'all' || platform === 'android') {
 			return src.startsWith('http') ? src : `${APP_URL.origin}/${src.replace(/^\//, '')}`;
 		}
 
+		// Passwords are embedded in twa-manifest.json so bubblewrap update
+		// writes them into the gradle signingConfigs block — no prompts at build time.
 		writeFileSync(
 			join(androidDir, 'twa-manifest.json'),
 			JSON.stringify(
@@ -374,7 +377,7 @@ if (platform === 'all' || platform === 'android') {
 					isMetaQuest: false,
 					minSdkVersion: 21,
 					targetSdkVersion: 34,
-					signingKey: { path: './android.keystore', alias: 'android' },
+					signingKey: { path: '../android.keystore', alias: 'android' },
 					signing: { storePassword, keyPassword },
 					version: VERSION,
 					versionCode: String(Math.floor(Date.now() / 1000)),
@@ -384,9 +387,10 @@ if (platform === 'all' || platform === 'android') {
 			)
 		);
 
-		// ── Build ────────────────────────────────────────────────────────────
-		// update scaffolds the Android project from twa-manifest.json and
-		// writes the checksum file that build requires.
+		// ── Scaffold Android project ─────────────────────────────────────────
+		// bubblewrap update reads twa-manifest.json (including signing passwords)
+		// and generates the full gradle project — no interactive prompts needed
+		// except for the versionName question.
 		console.log('\n▶  bubblewrap update --skipPwaValidation\n');
 		execSync('bubblewrap update --skipPwaValidation', {
 			cwd: androidDir,
@@ -394,17 +398,21 @@ if (platform === 'all' || platform === 'android') {
 			stdio: ['pipe', 'inherit', 'inherit'],
 		});
 
-		const passwords =
-			Array(10).fill(storePassword).join('\n') +
-			'\n' +
-			Array(10).fill(keyPassword).join('\n') +
-			'\n';
-
-		execSync('bubblewrap build --skipPwaValidation', {
-			cwd: androidDir,
-			input: passwords,
-			stdio: ['pipe', 'inherit', 'inherit'],
+		// ── Build via gradle directly ────────────────────────────────────────
+		// bubblewrap build is just a thin wrapper around gradlew — calling it
+		// directly avoids all interactive password prompts entirely since the
+		// signing config is already baked into the generated build.gradle.
+		const gradlew = join(androidDir, 'android', 'gradlew');
+		run(`chmod +x ${JSON.stringify(gradlew)}`);
+		run('./gradlew assembleRelease --no-daemon', {
+			cwd: join(androidDir, 'android'),
 		});
+
+		// Locate the signed APK and move it where collect() can find it.
+		const apkDir = join(androidDir, 'android', 'app', 'build', 'outputs', 'apk', 'release');
+		const apkName = readdirSync(apkDir).find((f) => f.endsWith('.apk'));
+		if (!apkName) throw new Error('No APK found after gradle build');
+		renameSync(join(apkDir, apkName), join(androidDir, 'app-release-signed.apk'));
 
 		collect(androidDir);
 	} finally {
