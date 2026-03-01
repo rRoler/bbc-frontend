@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "dev.roler.covers",
+    "sha256_cert_fingerprints": ["CE:B0:41:4D:F5:58:06:EE:3B:3E:1D:2C:F2:AB:4B:F6:5A:70:01:2A:AF:94:A0:2A:87:F3:A0:A2:3A:A8:E9:1C"]
+  }
+}]
