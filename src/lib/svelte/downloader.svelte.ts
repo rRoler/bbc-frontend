@@ -24,6 +24,7 @@ import {
 	copyFormatSetting,
 	zipThreshold,
 } from './settings.svelte.ts';
+import { type FileSystem } from './filesystem.svelte.ts';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
@@ -101,6 +102,8 @@ class Downloader {
 	copyValues = new SvelteMap<string, boolean | null>();
 	allBookPages = $state<BookPage[]>([]);
 	selectedBookPage = $state<number>(0);
+
+	fileSystem = $state<FileSystem | null>(null);
 
 	allPages = $derived<number[]>(this.getPages(this.page, this.maxPage));
 	isNextPage = $derived<boolean>(this.page < this.maxPage);
@@ -754,7 +757,7 @@ class Downloader {
 		try {
 			const urls = this.selectedBooks.map((b) => b.cover);
 			const images = await this.api.getCovers(urls, (p) => (this.downloadProgress = p));
-			const imagesToZip: Record<string, Uint8Array<ArrayBufferLike>> = {};
+			const imagesToSave: Record<string, Uint8Array<ArrayBufferLike>> = {};
 
 			for (const [index, book] of this.selectedBooks.entries()) {
 				const imageBuffer = images[index];
@@ -809,32 +812,37 @@ class Downloader {
 					} else {
 						imageFileName = filterFilename(
 							`${imageFileName} (${this.knownFilenames[imageFileName]})`,
-							{
-								isPath: true,
-							}
+							{ isPath: true }
 						);
 					}
 				}
 
-				imagesToZip[imageFileName] = imageBuffer;
+				imagesToSave[imageFileName] = imageBuffer;
 			}
 
-			const imagesToZipTotal = Object.keys(imagesToZip).length;
-			const zipThresholdNumber = parseInt(zipThreshold.value);
+			const imagesToSaveTotal = Object.keys(imagesToSave).length;
 
-			if (imagesToZipTotal === 0) {
+			if (imagesToSaveTotal === 0) {
 				console.debug('No covers to download');
-			} else if (isNaN(zipThresholdNumber) || zipThresholdNumber >= imagesToZipTotal) {
-				Object.entries(imagesToZip).forEach(([f, img]) => {
-					const filename = f.split('/').pop();
-					fileSaver.saveAs(new Blob([new Uint8Array(img)]), filename || 'cover.jpg');
-				});
+			} else if (this.fileSystem?.hasFolder) {
+				for (const [fullPath, imageBuffer] of Object.entries(imagesToSave)) {
+					await this.fileSystem.writeFile(fullPath, new Blob([new Uint8Array(imageBuffer)]));
+				}
 			} else {
-				const zipped = zipSync(imagesToZip, { level: 0 });
-				fileSaver.saveAs(
-					new Blob([new Uint8Array(zipped)]),
-					this.parseTextVariables(zipFilenameSetting.value, { extension: 'zip' }) || 'covers.zip'
-				);
+				const zipThresholdNumber = parseInt(zipThreshold.value);
+
+				if (isNaN(zipThresholdNumber) || zipThresholdNumber >= imagesToSaveTotal) {
+					Object.entries(imagesToSave).forEach(([f, img]) => {
+						const filename = f.split('/').pop();
+						fileSaver.saveAs(new Blob([new Uint8Array(img)]), filename || 'cover.jpg');
+					});
+				} else {
+					const zipped = zipSync(imagesToSave, { level: 0 });
+					fileSaver.saveAs(
+						new Blob([new Uint8Array(zipped)]),
+						this.parseTextVariables(zipFilenameSetting.value, { extension: 'zip' }) || 'covers.zip'
+					);
+				}
 			}
 		} catch (e) {
 			addAppError(new Error('Failed to download covers', e as Error));

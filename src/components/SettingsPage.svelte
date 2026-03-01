@@ -1,17 +1,45 @@
 <script lang="ts">
-	import { Info, RotateCcw } from 'lucide-svelte';
-	import allSettingsFields, { themeSetting } from '../lib/svelte/settings.svelte.ts';
+	import { Info, RotateCcw, Folder, FolderOpen, X } from 'lucide-svelte';
+	import allSettingsFields, {
+		themeSetting,
+		fileSystemFolderSetting,
+	} from '../lib/svelte/settings.svelte.ts';
 	import ProviderSelector from './ProviderSelector.svelte';
-	import { appState } from '../lib/svelte/app.svelte.ts';
+	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
+	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { onMount } from 'svelte';
 
-	onMount(() => {
+	const fs = new FileSystem();
+
+	onMount(async () => {
 		appState.loading = true;
 
 		allSettingsFields.forEach((f) => f.load());
 
+		await fs.restore();
+		if (fs.hasFolder) {
+			fileSystemFolderSetting.value = fs.folderName;
+			fileSystemFolderSetting.save();
+		}
+
 		appState.loading = false;
 	});
+
+	async function pickFolder() {
+		try {
+			const h = await fs.pickFolder();
+			fileSystemFolderSetting.value = h.name;
+			fileSystemFolderSetting.save();
+		} catch (error) {
+			if ((error as Error)?.name !== 'AbortError') addAppError(error);
+		}
+	}
+
+	async function clearFolder() {
+		await fs.clearFolder();
+		fileSystemFolderSetting.value = null;
+		fileSystemFolderSetting.save();
+	}
 </script>
 
 <div class="flex w-full flex-col gap-2 sm:w-2xl">
@@ -65,13 +93,54 @@
 								step={setting.step}
 							/>
 						</div>
+					{:else if setting.type === 'file-system-folder-picker'}
+						<div class="flex w-full flex-row items-center gap-2">
+							<div class="input flex flex-1 flex-row items-center gap-2 overflow-hidden">
+								{#if fs.hasFolder}
+									<FolderOpen class="text-success size-4 shrink-0" />
+								{:else}
+									<Folder class="text-base-content/30 size-4 shrink-0" />
+								{/if}
+								<span
+									class="truncate text-sm {fs.hasFolder
+										? 'text-base-content'
+										: 'text-base-content/40'}"
+								>
+									{fs.folderName ?? 'No folder selected'}
+								</span>
+							</div>
+
+							<div
+								class="tooltip tooltip-top"
+								data-tip={fs.supported ? 'Pick folder' : (fs.support.reason ?? undefined)}
+							>
+								<button
+									class="btn btn-soft"
+									class:btn-success={fs.hasFolder}
+									onclick={pickFolder}
+									disabled={!fs.supported}
+								>
+									<Folder class="size-4" />
+									{fs.hasFolder ? 'Change' : 'Pick'}
+								</button>
+							</div>
+
+							{#if fs.hasFolder}
+								<button class="btn btn-soft btn-error btn-square" onclick={clearFolder}>
+									<X class="size-4" />
+								</button>
+							{/if}
+						</div>
 					{/if}
 
 					<div class="tooltip tooltip-top" data-tip="Reset">
 						<button
 							class="btn btn-circle btn-soft"
 							disabled={setting.isDefault}
-							onclick={() => setting.reset()}
+							onclick={() => {
+								setting.reset();
+								if (setting.type === 'file-system-folder-picker') clearFolder();
+							}}
 						>
 							<RotateCcw class="size-6" />
 						</button>

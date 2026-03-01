@@ -49,13 +49,18 @@ export interface RangeSetting extends SettingBase<number> {
 	step: number;
 }
 
+export interface FileSystemFolderPickerSetting extends SettingBase<string | null | undefined> {
+	type: 'file-system-folder-picker';
+}
+
 export type SettingType =
 	| ProviderSelectSetting
 	| TextSetting
 	| TextAreaSetting
 	| ToggleSetting
 	| SelectSetting
-	| RangeSetting;
+	| RangeSetting
+	| FileSystemFolderPickerSetting;
 
 export interface SettingsFieldType<T extends readonly Setting<SettingType>[]> {
 	name: string;
@@ -459,6 +464,39 @@ export const copyFormatSetting = new Setting<TextAreaSetting>({
 	defaultValue: `${getTextVariableName(textVariables.coverUrl)}\n`,
 });
 
+export const fileSystemFolderSetting = new Setting<FileSystemFolderPickerSetting>({
+	id: 'file-system-folder',
+	type: 'file-system-folder-picker',
+	name: 'Download Folder',
+	description: 'The folder where the covers will be downloaded. Browser support is limited.',
+	tooltip:
+		'Available variables: ' +
+		[
+			textVariables.volumeName,
+			textVariables.volumeNumber,
+			textVariables.bookPageName,
+			textVariables.bookPageNumber,
+			textVariables.bookTitle,
+			textVariables.bookId,
+			textVariables.seriesTitle,
+			textVariables.seriesPublicationType,
+			textVariables.seriesBookType,
+			textVariables.seriesType,
+			textVariables.seriesId,
+			textVariables.providerName,
+			textVariables.providerId,
+			textVariables.providerLanguageName,
+			textVariables.providerLanguageCode,
+			textVariables.coverQualityScore,
+			textVariables.coverWidth,
+			textVariables.coverHeight,
+			textVariables.coverCropStatus,
+		]
+			.map((v) => getTextVariableName(v))
+			.join(', '),
+	defaultValue: undefined,
+});
+
 export const downloadSettings = new SettingsField({
 	name: 'Download',
 	settings: [
@@ -474,6 +512,7 @@ export const downloadSettings = new SettingsField({
 		zipFilenameSetting,
 		zipThreshold,
 		copyFormatSetting,
+		fileSystemFolderSetting,
 	],
 });
 

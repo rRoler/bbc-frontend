@@ -28,13 +28,16 @@
 		automaticQualityPickerSetting,
 		bookSortOrderSetting,
 		downloadSettings,
+		fileSystemFolderSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import CopyIcon from './CopyIcon.svelte';
 	import { onMount } from 'svelte';
 	import Downloader from '../lib/svelte/downloader.svelte.ts';
+	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { downloadLocation } from '../lib/locations.ts';
 
 	const downloader = new Downloader();
+	const fs = new FileSystem();
 
 	function updateLocationStorage() {
 		if (downloadLocation.storageKey)
@@ -45,6 +48,11 @@
 		appState.loading = true;
 
 		downloadSettings.load();
+
+		if (fileSystemFolderSetting.value) {
+			await fs.restore();
+			if (fs.hasFolder) downloader.fileSystem = fs;
+		}
 
 		const automaticQualityParam = getSvelteSearchParam('automatic');
 		if (automaticQualityParam)
