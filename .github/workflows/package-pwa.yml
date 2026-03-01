@@ -154,7 +154,7 @@ jobs:
         id: ts
         run: |
           DATE=$(date -u +'%Y.%m.%d')
-          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "tag=v$DATE" >> "$GITHUB_OUTPUT"
           echo "name=Release v$DATE" >> "$GITHUB_OUTPUT"
 
       - uses: actions/download-artifact@v4
@@ -165,7 +165,7 @@ jobs:
       - name: Create / update "latest" release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.ts.outputs.date }}
+          tag_name: ${{ steps.ts.outputs.tag }}
           name: ${{ steps.ts.outputs.name }
           body: |
             Download high-quality book covers from Amazon, BookWalker, BookLive, eBookJapan and more. Installs once, auto-updates via service worker.
