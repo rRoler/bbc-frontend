@@ -8,6 +8,7 @@
 		removeSvelteSearchParam,
 	} from '../lib/utils.ts';
 	import { onMount } from 'svelte';
+	import { Search, X } from 'lucide-svelte';
 
 	let {
 		class: className = '',
@@ -26,7 +27,14 @@
 	} = $props();
 
 	let pendingSelection = $derived<Provider[]>([...selected]);
-	let debounceTimer = $state<number | undefined>(undefined);
+	let debounceTimer = $state<number>();
+	let search = $state<string>('');
+
+	let filteredProviders = $derived(
+		search.trim() === ''
+			? providers
+			: providers.filter((p) => p.name.toLowerCase().trim().includes(search.toLowerCase().trim()))
+	);
 
 	onMount(() => {
 		if (paramsEnabled) {
@@ -108,7 +116,30 @@
 		tabindex="-1"
 		class="dropdown-content menu bg-base-100 rounded-box z-1 w-full min-w-69 p-2 shadow-sm"
 	>
-		{#each providers as provider (provider.id)}
+		<li class="menu-title p-1">
+			<label class="input input-bordered flex w-full items-center gap-2 font-normal">
+				<Search class="size-5 shrink-0 opacity-80" />
+				<input
+					bind:value={search}
+					onkeydown={(e) => e.stopPropagation()}
+					type="text"
+					placeholder="Search providers…"
+					class="grow"
+					autocomplete="off"
+				/>
+				{#if search}
+					<button
+						onclick={() => (search = '')}
+						class="cursor-pointer opacity-80 hover:opacity-100"
+						aria-label="Clear search"
+					>
+						<X class="size-4" />
+					</button>
+				{/if}
+			</label>
+		</li>
+
+		{#each filteredProviders as provider (provider.id)}
 			<li>
 				<label class="label">
 					<input
@@ -120,6 +151,8 @@
 					<ProviderLabel {provider} />
 				</label>
 			</li>
+		{:else}
+			<li class="menu-title text-center opacity-80">No providers found</li>
 		{/each}
 	</ul>
 </div>
