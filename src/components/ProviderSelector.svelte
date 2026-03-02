@@ -8,7 +8,7 @@
 		removeSvelteSearchParam,
 	} from '../lib/utils.ts';
 	import { onMount } from 'svelte';
-	import { Search, X } from 'lucide-svelte';
+	import { Search } from 'lucide-svelte';
 
 	let {
 		class: className = '',
@@ -122,20 +122,11 @@
 				<input
 					bind:value={search}
 					onkeydown={(e) => e.stopPropagation()}
-					type="text"
+					type="search"
 					placeholder="Search providers…"
 					class="grow"
 					autocomplete="off"
 				/>
-				{#if search}
-					<button
-						onclick={() => (search = '')}
-						class="cursor-pointer opacity-80 hover:opacity-100"
-						aria-label="Clear search"
-					>
-						<X class="size-4" />
-					</button>
-				{/if}
 			</label>
 		</li>
 
