@@ -42,7 +42,7 @@ Available as a web app, desktop client (Windows, macOS, Linux), and Android TWA.
 
 ### PWA Optimized
 
-Fast, offline-capable, and updates automatically.
+Fast, and updates automatically.
 
 ## Development
 
