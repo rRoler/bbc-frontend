@@ -54,7 +54,7 @@ Fast, with automatic updates.
 > Requires **Node.js 22+** and **pnpm** before running any commands.
 
 ```sh
-pnpm install        # install dependencies
+pnpm install            # install dependencies
 pnpm run dev            # dev server → localhost:4321
 pnpm run build          # production build → ./dist/
 pnpm run preview        # preview production build locally
