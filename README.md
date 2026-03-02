@@ -89,6 +89,8 @@ pnpm preview        # preview production build locally
 
 The developer(s) of this application have no affiliation with the content providers listed. This application is a tool to fetch publicly available metadata and covers; it does not host or provide book content.
 
+<br/>
+
 MIT License · Made by [Roler](https://roler.dev)
 
 </div>
