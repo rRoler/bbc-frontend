@@ -29,6 +29,7 @@
 	let pendingSelection = $derived<Provider[]>([...selected]);
 	let debounceTimer = $state<number>();
 	let search = $state<string>('');
+	let searchInput = $state<HTMLInputElement>();
 
 	let filteredProviders = $derived(
 		search.trim() === ''
@@ -100,7 +101,14 @@
 	}
 </script>
 
-<div class="dropdown sm:dropdown-start dropdown-center {className}">
+<div
+	class="dropdown sm:dropdown-start dropdown-center {className}"
+	onkeydown={(e) => {
+		if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && document.activeElement !== searchInput) {
+			searchInput?.focus();
+		}
+	}}
+>
 	<div tabindex="0" role="button" class="btn btn-primary btn-outline h-fit flex-wrap px-4 py-1">
 		{#if selected.length > 0}
 			<span>Providers:</span>
@@ -120,6 +128,7 @@
 			<label class="input input-bordered flex w-full items-center gap-2 font-normal">
 				<Search class="size-5 shrink-0 opacity-80" />
 				<input
+					bind:this={searchInput}
 					bind:value={search}
 					onkeydown={(e) => e.stopPropagation()}
 					type="search"
