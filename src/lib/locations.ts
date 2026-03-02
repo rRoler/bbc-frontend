@@ -55,6 +55,6 @@ export const donationLocation: DockLocation = {
 export const dockLocations: DockLocation[] = [
 	searchLocation,
 	downloadLocation,
-	settingsLocation,
 	aboutLocation,
+	settingsLocation,
 ];
