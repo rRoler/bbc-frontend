@@ -42,7 +42,7 @@ Available as a web app, desktop client (Windows, macOS, Linux), and Android TWA.
 
 ### PWA Optimized
 
-Fast, and updates automatically.
+Fast, with automatic updates.
 
 ## Development
 
@@ -55,31 +55,31 @@ Fast, and updates automatically.
 
 ```sh
 pnpm install        # install dependencies
-pnpm dev            # dev server → localhost:4321
-pnpm build          # production build → ./dist/
-pnpm preview        # preview production build locally
+pnpm run dev            # dev server → localhost:4321
+pnpm run build          # production build → ./dist/
+pnpm run preview        # preview production build locally
 ```
 
 <details>
 <summary>View all commands</summary>
 
-| Command                  | Action                                     |
-| :----------------------- | :----------------------------------------- |
-| `pnpm install`           | Install dependencies                       |
-| `pnpm dev`               | Start local dev server at `localhost:4321` |
-| `pnpm build`             | Build production site to `./dist/`         |
-| `pnpm preview`           | Preview build locally before deploying     |
-| `pnpm lint`              | Run linter                                 |
-| `pnpm lint:fix`          | Fix lint issues                            |
-| `pnpm format`            | Check formatting                           |
-| `pnpm format:write`      | Format and write changes                   |
-| `pnpm flint`             | Format + fix lint in one step              |
-| `pnpm astro ...`         | Run Astro CLI commands e.g. `astro add`    |
-| `pnpm build:pwa`         | Package PWA for all platforms              |
-| `pnpm build:pwa:win`     | Package for Windows                        |
-| `pnpm build:pwa:mac`     | Package for macOS                          |
-| `pnpm build:pwa:linux`   | Package for Linux                          |
-| `pnpm build:pwa:android` | Package for Android                        |
+| Command                      | Action                                       |
+| :--------------------------- | :------------------------------------------- |
+| `pnpm install`               | Installs dependencies                        |
+| `pnpm run dev`               | Starts local dev server at `localhost:4321`  |
+| `pnpm run lint`              | Run linter                                   |
+| `pnpm run lint:fix`          | Fix lint issues                              |
+| `pnpm run format`            | Run code formatter                           |
+| `pnpm run format:write`      | Format code                                  |
+| `pnpm run flint`             | Format code and fix lint issues              |
+| `pnpm run build`             | Build your production site to `./dist/`      |
+| `pnpm run preview`           | Preview your build locally, before deploying |
+| `pnpm run astro ...`         | Run CLI commands like `astro add`            |
+| `pnpm run build:pwa`         | Package PWA for all platforms                |
+| `pnpm run build:pwa:win`     | Package for Windows                          |
+| `pnpm run build:pwa:mac`     | Package for macOS                            |
+| `pnpm run build:pwa:linux`   | Package for Linux                            |
+| `pnpm run build:pwa:android` | Package for Android                          |
 
 </details>
 
