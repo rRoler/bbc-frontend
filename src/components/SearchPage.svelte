@@ -113,11 +113,6 @@
 			required
 			placeholder="Search"
 		/>
-		{#if searchQuery}
-			<button onclick={() => (searchQuery = '')} class="btn btn-circle btn-ghost">
-				<X class="size-6" />
-			</button>
-		{/if}
 		<button onclick={handleSubmit} class="btn btn-circle btn-ghost">
 			<Search class="size-6" />
 		</button>

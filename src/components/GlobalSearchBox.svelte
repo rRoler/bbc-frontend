@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { searchLocation } from '../lib/locations.ts';
-	import { X } from 'lucide-svelte';
 
 	let {
 		value = $bindable(''),
@@ -43,15 +42,6 @@
 
 <label class="input input-primary glass max-w-full {inputClass} {className}">
 	<input bind:value onkeydown={handleKeyDown} type="search" placeholder="Search" />
-	{#if value}
-		<button
-			onclick={() => (value = '')}
-			class="btn btn-circle btn-ghost {buttonClass}"
-			aria-label="Clear search"
-		>
-			<X class={iconClass} />
-		</button>
-	{/if}
 	<a class="btn btn-circle btn-ghost {buttonClass}" href={searchValue}>
 		<searchLocation.Icon class={iconClass} />
 	</a>
