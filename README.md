@@ -1,56 +1,54 @@
 <div align="center">
 
-<img src="public/favicon.svg" alt="Big Book Covers" width="80" />
+<a href="https://covers.roler.dev">
+    <img src="public/favicon.svg" alt="Big Book Covers logo" title="Big Book Covers" width="160"/>
+</a>
 
-<h1>Big Book Covers</h1>
+# Big Book Covers
 
-<p>Download high-quality book covers</p>
+### High-quality cover downloader
+
+Download high-resolution book covers from major digital storefronts.
 
 [![Site](https://img.shields.io/badge/covers.roler.dev-live-6366f1?style=flat-square&logo=astro&logoColor=white)](https://covers.roler.dev)
 [![License](https://img.shields.io/github/license/rRoler/bbc-frontend?style=flat-square&color=6366f1)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/rRoler/bbc-frontend?style=flat-square&color=6366f1)](https://github.com/rRoler/bbc-frontend/stargazers)
 
-</div>
+## Download
 
-<br/>
-
-## ✨ Features
-
-- 📚 Download covers from Amazon, BookWalker, BookLive, eBookJapan, and more
-- ⚡ Fast, offline-capable PWA — installs once, updates automatically
-- 🖥️ Electron desktop apps for Windows, macOS, and Linux
-- 📱 Android app via TWA (Trusted Web Activity)
-- 🌐 Works directly in any modern browser — no install required
-
-<br/>
-
-## 📥 Download
-
-<div align="center">
-
-[![Web](https://img.shields.io/badge/Open%20in%20Browser-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white)](https://covers.roler.dev)
+[![Web App](https://img.shields.io/badge/Open%20in%20Browser-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white)](https://covers.roler.dev)
 &nbsp;
-
 [![Windows](https://img.shields.io/badge/Windows-.exe-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/rRoler/bbc-frontend/releases/latest/download/bbc-windows_setup.exe)
 &nbsp;
 [![macOS](https://img.shields.io/badge/macOS-.dmg-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/rRoler/bbc-frontend/releases/latest/download/bbc-mac.dmg)
-&nbsp;
-[![Android](https://img.shields.io/badge/Android-.apk-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/rRoler/bbc-frontend/releases/latest/download/bbc-android.apk)
 
+[![Android](https://img.shields.io/badge/Android-.apk-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/rRoler/bbc-frontend/releases/latest/download/bbc-android.apk)
+&nbsp;
 [![Linux AppImage](https://img.shields.io/badge/Linux-.AppImage-f97316?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/rRoler/bbc-frontend/releases/latest/download/bbc-linux.AppImage)
 &nbsp;
 [![Linux deb](https://img.shields.io/badge/Linux-.deb-f97316?style=for-the-badge&logo=debian&logoColor=white)](https://github.com/rRoler/bbc-frontend/releases/latest/download/bbc-linux.deb)
 
-</div>
+_On mobile, [open the website](https://covers.roler.dev) in Chrome or Safari and tap "Install" or "Add to Home Screen" for an app-like experience._
 
-> [!TIP]
-> On mobile, open [the site](https://covers.roler.dev) in Chrome or Safari and tap **Install** or **Add to Home Screen** for an app-like experience without the APK.
+## Features
 
-<br/>
+### Multi-Source Support
 
-## 🛠️ Development
+Download high-quality covers from Amazon, BookWalker, BookLive, eBookJapan, and more.
+
+### Cross-Platform
+
+Available as a web app, desktop client (Windows, macOS, Linux), and Android TWA.
+
+### PWA Optimized
+
+Fast, offline-capable, and updates automatically.
+
+## Development
 
 **Stack:** Astro · Svelte · Tailwind CSS · DaisyUI · TypeScript
+
+</div>
 
 > [!IMPORTANT]
 > Requires **Node.js 22+** and **pnpm** before running any commands.
@@ -63,8 +61,7 @@ pnpm preview        # preview production build locally
 ```
 
 <details>
-<summary>All commands</summary>
-<br/>
+<summary>View all commands</summary>
 
 | Command                  | Action                                     |
 | :----------------------- | :----------------------------------------- |
@@ -86,10 +83,12 @@ pnpm preview        # preview production build locally
 
 </details>
 
-<br/>
-
 <div align="center">
 
-MIT License · made by [Roler](https://roler.dev)
+### Disclaimer
+
+The developer(s) of this application have no affiliation with the content providers listed. This application is a tool to fetch publicly available metadata and covers; it does not host or provide book content.
+
+MIT License · Made by [Roler](https://roler.dev)
 
 </div>
