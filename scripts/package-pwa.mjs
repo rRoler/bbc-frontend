@@ -129,8 +129,8 @@ Menu.setApplicationMenu(null);
 
 app.whenReady().then(() => {
   const win = new BrowserWindow({
-    width: 1920,
-    height: 1080,
+		width: 1280,
+		height: 800,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
@@ -138,7 +138,10 @@ app.whenReady().then(() => {
       contextIsolation: true,
     },
   });
-  win.once('ready-to-show', () => win.show());
+  win.once('ready-to-show', () => {
+		win.maximize();
+		win.show();
+	});
   win.loadURL('${APP_URL.href}');
 });
 
