@@ -14,6 +14,14 @@ export function checkBrowserSupport(): BrowserSupport {
 			reason: 'Running in a non-browser environment (SSR).',
 		};
 	}
+	if (/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)) {
+		return {
+			supported: false,
+			missing: 'showDirectoryPicker',
+			reason:
+				'Mobile browsers are not supported due to file system permission limitations. Use Chrome or Edge on desktop.',
+		};
+	}
 	if (!('indexedDB' in window)) {
 		return {
 			supported: false,
