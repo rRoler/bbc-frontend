@@ -105,9 +105,15 @@ declare global {
 }
 
 export class FileSystem {
-	readonly support = checkBrowserSupport();
-	readonly supported = this.support.supported;
-	readonly platform = this.support.platform;
+	get support(): BrowserSupport {
+		return checkBrowserSupport();
+	}
+	get supported(): boolean {
+		return this.support.supported;
+	}
+	get platform(): Platform {
+		return this.support.platform;
+	}
 
 	#desktopHandle = $state<FileSystemDirectoryHandle | null>(null);
 
