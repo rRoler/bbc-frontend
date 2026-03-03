@@ -824,24 +824,42 @@ class Downloader {
 
 			if (imagesToSaveTotal === 0) {
 				console.debug('No covers to download');
-			} else if (this.fileSystem?.hasFolder) {
-				for (const [fullPath, imageBuffer] of Object.entries(imagesToSave)) {
-					await this.fileSystem.writeFile(fullPath, new Blob([new Uint8Array(imageBuffer)]));
+				return;
+			}
+
+			const saveZip = async () => {
+				const zipped = zipSync(imagesToSave, { level: 0 });
+				const zipFilename =
+					this.parseTextVariables(zipFilenameSetting.value, { extension: 'zip' }) || 'covers.zip';
+				const blob = new Blob([new Uint8Array(zipped)]);
+
+				if (this.fileSystem?.hasFolder) {
+					await this.fileSystem.writeFile(zipFilename, blob);
+				} else {
+					fileSaver.saveAs(blob, zipFilename);
+				}
+			};
+
+			const zipThresholdNumber = parseInt(zipThreshold.value);
+			const saveSeparately = isNaN(zipThresholdNumber) || zipThresholdNumber >= imagesToSaveTotal;
+
+			if (this.fileSystem?.hasFolder) {
+				if (saveSeparately) {
+					for (const [fullPath, imageBuffer] of Object.entries(imagesToSave)) {
+						await this.fileSystem.writeFile(fullPath, new Blob([new Uint8Array(imageBuffer)]));
+					}
+				} else {
+					await saveZip();
 				}
 			} else {
-				const zipThresholdNumber = parseInt(zipThreshold.value);
-
-				if (isNaN(zipThresholdNumber) || zipThresholdNumber >= imagesToSaveTotal) {
-					Object.entries(imagesToSave).forEach(([f, img]) => {
-						const filename = f.split('/').pop();
-						fileSaver.saveAs(new Blob([new Uint8Array(img)]), filename || 'cover.jpg');
-					});
+				if (saveSeparately) {
+					for (const [fullPath, imageBuffer] of Object.entries(imagesToSave)) {
+						const filename = fullPath.split('/').pop();
+						fileSaver.saveAs(new Blob([new Uint8Array(imageBuffer)]), filename || 'cover.jpg');
+						await new Promise((r) => setTimeout(r, 100));
+					}
 				} else {
-					const zipped = zipSync(imagesToSave, { level: 0 });
-					fileSaver.saveAs(
-						new Blob([new Uint8Array(zipped)]),
-						this.parseTextVariables(zipFilenameSetting.value, { extension: 'zip' }) || 'covers.zip'
-					);
+					await saveZip();
 				}
 			}
 		} catch (e) {
