@@ -36,6 +36,7 @@ const rootPkg = req('../package.json');
 const APP_NAME = 'Big Book Covers';
 const APP_NAME_SLUG = APP_NAME.toLowerCase().replaceAll(' ', '-');
 const APP_ID = 'dev.roler.covers';
+const APP_ID_PATH = APP_ID.replaceAll('.', '/'); // dev/roler/covers
 const APP_URL = new URL('https://covers.roler.dev');
 const OUT = './pwa-packages';
 const FAVICON_SVG = fileURLToPath(new URL('../public/favicon.svg', import.meta.url));
@@ -403,6 +404,9 @@ if (platform === 'all' || platform === 'android') {
 			stdio: ['pipe', 'inherit', 'inherit'],
 		});
 
+		// ── Patch generated Android project for FS bridge access ─────────────
+		patchAndroidProject(androidDir);
+
 		// ── Build via gradle directly ────────────────────────────────────────
 		// bubblewrap build is just a thin wrapper around gradlew — calling it
 		// directly avoids all interactive password prompts entirely since the
@@ -438,6 +442,376 @@ if (platform === 'all' || platform === 'android') {
 	} finally {
 		rmSync(androidDir, { recursive: true, force: true });
 	}
+}
+
+// ── Android project patching ──────────────────────────────────────────────────
+//
+// bubblewrap generates a standard TWA shell with no custom Java/Kotlin code.
+// This function post-processes the generated project to:
+//
+//   1. Add storage permissions to AndroidManifest.xml:
+//        - READ/WRITE_EXTERNAL_STORAGE  (≤ API 32 legacy scoped-storage opt-in)
+//        - requestLegacyExternalStorage  (Android 10 scoped-storage opt-out)
+//        - android:preserveLegacyExternalStorage  (Android 11 upgrade compat)
+//        These are needed so the injected Android FS bridge can write files to
+//        user-visible Downloads / a user-chosen SAF tree URI on all API levels.
+//
+//   2. Inject AndroidFSBridge.kt — the @JavascriptInterface class that exposes
+//      window.AndroidFS to the hosted web page. It uses the Storage Access
+//      Framework (SAF) throughout so it works on API 21–34+ without MANAGE_
+//      EXTERNAL_STORAGE. All methods are synchronous from JS's perspective;
+//      pickFolder() is the one exception: it posts an Intent and resolves the
+//      result via a blocking SynchronousQueue so the JS caller still gets a
+//      plain return value rather than a callback.
+//
+//   3. Patch MainActivity.kt to:
+//        a. Register the bridge with addJavascriptInterface(bridge, "AndroidFS")
+//        b. Wire up onActivityResult so pickFolder's Intent round-trip works.
+//        c. Inject the TWA detection signal  document.referrer = "android-app://"
+//           via onPageStarted — Chrome clears referrer across navigations so
+//           the JS-side detectPlatform() uses window.AndroidFS presence as the
+//           primary signal; the referrer injection is a belt-and-suspenders
+//           fallback for the very first page load.
+//
+// NOTE: bubblewrap generates Kotlin by default since CLI v1.6. If an older
+// version emits Java, swap `.kt` → `.java` paths and adjust syntax accordingly.
+function patchAndroidProject(androidDir) {
+	console.log('\n▶  Patching Android project for FS bridge access\n');
+
+	// Locate generated source root (bubblewrap uses the package ID as the path)
+	const javaRoot = join(androidDir, 'app', 'src', 'main', 'java', ...APP_ID.split('.'));
+	const manifestPath = join(androidDir, 'app', 'src', 'main', 'AndroidManifest.xml');
+
+	// ── 1. AndroidManifest.xml ───────────────────────────────────────────────
+	let manifest = readFileSync(manifestPath, 'utf8');
+
+	// Insert storage permissions right after <manifest ...> opening tag if absent.
+	if (!manifest.includes('WRITE_EXTERNAL_STORAGE')) {
+		manifest = manifest.replace(
+			/(<manifest[^>]*>)/,
+			`$1
+    <!-- Storage permissions for the AndroidFS bridge (SAF tree URIs + legacy) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />`
+		);
+		console.log('  ✔  Added READ/WRITE_EXTERNAL_STORAGE permissions');
+	}
+
+	// Enable legacy external storage on Android 10 (API 29) so SAF writes land
+	// in the correct location before scoped storage was fully enforced.
+	if (!manifest.includes('requestLegacyExternalStorage')) {
+		manifest = manifest.replace(
+			/(<application\b[^>]*)(>)/,
+			`$1
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"$2`
+		);
+		console.log('  ✔  Added requestLegacyExternalStorage to <application>');
+	}
+
+	writeFileSync(manifestPath, manifest, 'utf8');
+
+	// ── 2. AndroidFSBridge.kt ────────────────────────────────────────────────
+	// Exposes window.AndroidFS to the TWA WebView. Uses Storage Access Framework
+	// exclusively — no MANAGE_EXTERNAL_STORAGE needed. The "pick folder" flow
+	// requires an Activity round-trip; we block the calling JS thread on a
+	// SynchronousQueue and unblock it from onActivityResult in MainActivity.
+	writeFileSync(
+		join(javaRoot, 'AndroidFSBridge.kt'),
+		`package ${APP_ID}
+
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.DocumentsContract
+import android.util.Base64
+import android.webkit.JavascriptInterface
+import androidx.documentfile.provider.DocumentFile
+import org.json.JSONObject
+import java.util.concurrent.SynchronousQueue
+
+/**
+ * Injected into the WebView as \`window.AndroidFS\`.
+ *
+ * All methods are called from the WebView's JavaScript thread and must be
+ * @JavascriptInterface. pickFolder() blocks on a SynchronousQueue until
+ * MainActivity.onActivityResult() delivers the chosen URI.
+ */
+class AndroidFSBridge(
+    private val context: Context,
+    private val startPickIntent: (Intent, Int) -> Unit,
+) {
+    companion object {
+        const val REQUEST_PICK_FOLDER = 9001
+    }
+
+    // SynchronousQueue transfers the URI from onActivityResult → pickFolder().
+    // Capacity 0 means put() blocks until take() is called and vice-versa.
+    internal val folderPickQueue = SynchronousQueue<String>()
+
+    // ── pickFolder ────────────────────────────────────────────────────────────
+    // Returns JSON: { uri: string; name: string } | null (null = cancelled)
+    @JavascriptInterface
+    fun pickFolder(): String {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PREFIX_URI_PERMISSION,
+            )
+        }
+        startPickIntent(intent, REQUEST_PICK_FOLDER)
+
+        // Block until onActivityResult delivers the result (or "null" on cancel).
+        val raw = folderPickQueue.take()
+        return raw
+    }
+
+    // ── writeFile ─────────────────────────────────────────────────────────────
+    // folderUri  — SAF tree URI returned by pickFolder
+    // relativePath — forward-slash path relative to the folder, e.g. "a/b.jpg"
+    // base64Data — file content encoded as standard Base64
+    // mimeType   — MIME type string, e.g. "image/jpeg"
+    // Returns JSON: { success: boolean; error?: string }
+    @JavascriptInterface
+    fun writeFile(folderUri: String, relativePath: String, base64Data: String, mimeType: String): String {
+        return try {
+            val treeUri = Uri.parse(folderUri)
+            val segments = relativePath.split("/").filter { it.isNotBlank() }
+            val fileName = segments.last()
+            val dirs = segments.dropLast(1)
+
+            // Walk / create subdirectories under the SAF tree.
+            var parent = DocumentFile.fromTreeUri(context, treeUri)
+                ?: return error("Cannot open folder URI")
+
+            for (seg in dirs) {
+                parent = parent.findFile(seg)?.takeIf { it.isDirectory }
+                    ?: parent.createDirectory(seg)
+                    ?: return error("Cannot create directory: $seg")
+            }
+
+            // Delete existing file so createFile doesn't append a suffix.
+            parent.findFile(fileName)?.delete()
+
+            val fileDoc = parent.createFile(mimeType, fileName)
+                ?: return error("Cannot create file: $fileName")
+
+            context.contentResolver.openOutputStream(fileDoc.uri)?.use { out ->
+                out.write(Base64.decode(base64Data, Base64.DEFAULT))
+            } ?: return error("Cannot open output stream")
+
+            JSONObject().put("success", true).toString()
+        } catch (e: Exception) {
+            error(e.message ?: "Unknown error")
+        }
+    }
+
+    // ── requestPermission ─────────────────────────────────────────────────────
+    // Checks whether a persistable read/write grant is still held for the URI.
+    // Returns JSON: { granted: boolean }
+    @JavascriptInterface
+    fun requestPermission(folderUri: String): String {
+        val uri = Uri.parse(folderUri)
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        val granted = context.contentResolver.persistedUriPermissions.any {
+            it.uri == uri && it.isReadPermission && it.isWritePermission
+        }
+        if (!granted) {
+            try {
+                context.contentResolver.takePersistableUriPermission(uri, flags)
+                return JSONObject().put("granted", true).toString()
+            } catch (_: SecurityException) {
+                return JSONObject().put("granted", false).toString()
+            }
+        }
+        return JSONObject().put("granted", true).toString()
+    }
+
+    // ── clearFolder ───────────────────────────────────────────────────────────
+    // Releases the persistable URI permission so Android can reclaim the grant.
+    @JavascriptInterface
+    fun clearFolder(folderUri: String) {
+        val uri = Uri.parse(folderUri)
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        try {
+            context.contentResolver.releasePersistableUriPermission(uri, flags)
+        } catch (_: SecurityException) { /* already released */ }
+    }
+
+    // ── helpers ───────────────────────────────────────────────────────────────
+    private fun error(msg: String) = JSONObject().put("success", false).put("error", msg).toString()
+}
+`
+	);
+	console.log('  ✔  AndroidFSBridge.kt written');
+
+	// ── 3. Find the Activity file dynamically ────────────────────────────────
+	// bubblewrap has used several names across versions:
+	// LauncherActivity.kt, MainActivity.kt, or a class named after the app.
+	// Walk the entire java source tree and pick the first .kt file that
+	// contains a WebView or TwaLauncher reference — that's the one to patch.
+	function findActivityFile(dir) {
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			const full = join(dir, entry.name);
+			if (entry.isDirectory()) {
+				const found = findActivityFile(full);
+				if (found) return found;
+			} else if (entry.name.endsWith('.kt') || entry.name.endsWith('.java')) {
+				const src = readFileSync(full, 'utf8');
+				if (
+					src.includes('TwaLauncherActivity') ||
+					src.includes('WebView') ||
+					src.includes('addJavascriptInterface') ||
+					src.includes('BrowserActivity')
+				) {
+					return full;
+				}
+			}
+		}
+		return null;
+	}
+
+	const javaSourceRoot = join(androidDir, 'app', 'src', 'main', 'java');
+	const mainActivityPath = findActivityFile(javaSourceRoot);
+
+	if (!mainActivityPath) {
+		// Dump the tree so the next run gives us a clear diagnosis
+		const tree = execSync(`find ${JSON.stringify(javaSourceRoot)} -type f`, {
+			encoding: 'utf8',
+		}).trim();
+		throw new Error(
+			`Cannot find any Activity/WebView file under ${javaSourceRoot}.\n` +
+				`Files present:\n${tree}\n` +
+				`Check bubblewrap version and re-run.`
+		);
+	}
+
+	console.log(`  ✔  Found Activity: ${mainActivityPath.replace(androidDir, '.')}`);
+
+	let activity = readFileSync(mainActivityPath, 'utf8');
+
+	// a) Add import for ActivityResult if missing
+	if (!activity.includes('import android.app.Activity')) {
+		activity = activity.replace(
+			/^(package .+\n)/m,
+			`$1
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+`
+		);
+	}
+
+	// b) Declare the bridge as a class property after the class opening brace.
+	//    Guard: only inject once.
+	if (!activity.includes('AndroidFSBridge')) {
+		activity = activity.replace(
+			/(class \w+[^{]*\{)/,
+			`$1
+    // ── AndroidFS bridge ──────────────────────────────────────────────────────
+    private val fsBridge by lazy {
+        AndroidFSBridge(applicationContext) { intent, reqCode ->
+            startActivityForResult(intent, reqCode)
+        }
+    }
+`
+		);
+
+		// c) Register the bridge on the WebView once the TWA client is set up.
+		//    bubblewrap exposes the WebView via twaWebView (the field name differs
+		//    across bubblewrap versions; cover both "twaWebView" and "webView").
+		//    We hook into onResume which is always called and guaranteed to run
+		//    after the WebView is initialised.
+		const onResumePatch = `
+    override fun onResume() {
+        super.onResume()
+        // Inject the FS bridge so window.AndroidFS is available in the TWA.
+        // addJavascriptInterface is idempotent when the name is already registered.
+        (twaWebView ?: webView)?.addJavascriptInterface(fsBridge, "AndroidFS")
+    }
+`;
+
+		if (!activity.includes('onResume')) {
+			// Append before the closing brace of the class
+			activity = activity.replace(/(\n}\s*$)/, `\n${onResumePatch}\n$1`);
+		} else {
+			// Prepend our code inside the existing onResume body
+			activity = activity.replace(
+				/(override fun onResume\(\)\s*\{)/,
+				`$1\n        (twaWebView ?: webView)?.addJavascriptInterface(fsBridge, "AndroidFS")`
+			);
+		}
+
+		// d) Handle onActivityResult for the folder-picker round-trip.
+		const onActivityResultPatch = `
+    @Suppress("OVERRIDE_DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == AndroidFSBridge.REQUEST_PICK_FOLDER) {
+            if (resultCode == Activity.RESULT_OK && data?.data != null) {
+                val uri: Uri = data.data!!
+                // Persist read+write grants across reboots.
+                val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                contentResolver.takePersistableUriPermission(uri, flags)
+                // Resolve the human-readable folder name from the document tree.
+                val name = resolveDocumentName(uri) ?: uri.lastPathSegment ?: uri.toString()
+                val json = org.json.JSONObject()
+                    .put("uri", uri.toString())
+                    .put("name", name)
+                    .toString()
+                fsBridge.folderPickQueue.put(json)
+            } else {
+                // User cancelled — unblock pickFolder() with a JSON null sentinel.
+                fsBridge.folderPickQueue.put("null")
+            }
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    /** Resolve the display name of a SAF tree URI via DocumentsContract. */
+    private fun resolveDocumentName(treeUri: Uri): String? {
+        return try {
+            val docId = DocumentsContract.getTreeDocumentId(treeUri)
+            val docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
+            contentResolver.query(docUri, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME),
+                null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            }
+        } catch (_: Exception) { null }
+    }
+`;
+
+		if (!activity.includes('onActivityResult')) {
+			activity = activity.replace(/(\n}\s*$)/, `\n${onActivityResultPatch}\n$1`);
+		}
+
+		writeFileSync(mainActivityPath, activity, 'utf8');
+		console.log(`  ✔  ${candidateFiles.find((f) => mainActivityPath.endsWith(f))} patched`);
+	} else {
+		console.log('  ℹ  MainActivity already patched — skipping');
+	}
+
+	// ── 4. Ensure DocumentFile dependency in app/build.gradle ───────────────
+	// DocumentFile is in androidx.documentfile; bubblewrap does not include it.
+	const buildGradlePath = join(androidDir, 'app', 'build.gradle');
+	if (existsSync(buildGradlePath)) {
+		let buildGradle = readFileSync(buildGradlePath, 'utf8');
+		if (!buildGradle.includes('documentfile')) {
+			buildGradle = buildGradle.replace(
+				/(dependencies\s*\{)/,
+				`$1\n    implementation 'androidx.documentfile:documentfile:1.0.1'`
+			);
+			writeFileSync(buildGradlePath, buildGradle, 'utf8');
+			console.log('  ✔  Added androidx.documentfile dependency');
+		}
+	}
+
+	console.log('  ✔  Android FS bridge patch complete\n');
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────────
