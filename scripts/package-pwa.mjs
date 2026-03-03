@@ -274,61 +274,6 @@ if (platform === 'all' || platform === 'linux') {
 	);
 }
 
-// ── Android manifest patcher ──────────────────────────────────────────────────
-// Injects storage permissions required for the File System Access API
-// (window.showDirectoryPicker / showSaveFilePicker) to read and write media
-// files into a user-selected folder on Android 10–14+.
-//
-// Permissions injected:
-//   READ_EXTERNAL_STORAGE            (≤ API 32 / Android 12L — legacy broad storage)
-//   WRITE_EXTERNAL_STORAGE           (≤ API 29 / Android 9   — legacy write)
-//   READ_MEDIA_IMAGES                (API 33+ / Android 13   — granular media read)
-//   READ_MEDIA_VIDEO                 (API 33+)
-//   READ_MEDIA_AUDIO                 (API 33+)
-//   READ_MEDIA_VISUAL_USER_SELECTED  (API 34+ / Android 14   — photo picker partial access)
-//
-// MANAGE_EXTERNAL_STORAGE is intentionally omitted — it requires a special
-// Play Store declaration and is unnecessary for SAF/picker-based flows.
-function patchAndroidManifest(androidDir) {
-	const manifestPath = join(androidDir, 'app', 'src', 'main', 'AndroidManifest.xml');
-	if (!existsSync(manifestPath)) {
-		console.warn(`  ⚠  AndroidManifest.xml not found at ${manifestPath} — skipping patch`);
-		return;
-	}
-
-	const permissions = [
-		// Capped with maxSdkVersion so they don't appear on modern Android
-		'<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>',
-		'<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>',
-		// Granular media permissions (Android 13+)
-		'<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>',
-		'<uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>',
-		'<uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>',
-		// Partial photo/video access picker (Android 14+)
-		'<uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>',
-	];
-
-	let xml = readFileSync(manifestPath, 'utf8');
-
-	// Avoid duplicating entries on re-runs
-	const toAdd = permissions.filter((p) => !xml.includes(p));
-	if (!toAdd.length) {
-		console.log('  ✔  AndroidManifest.xml already patched');
-		return;
-	}
-
-	// Insert before the opening <application> tag
-	const anchor = '<application';
-	if (!xml.includes(anchor)) {
-		console.warn('  ⚠  Could not find <application> in manifest — skipping patch');
-		return;
-	}
-
-	xml = xml.replace(anchor, `${toAdd.join('\n    ')}\n\n    ${anchor}`);
-	writeFileSync(manifestPath, xml);
-	console.log(`  ✔  AndroidManifest.xml patched (+${toAdd.length} storage permissions)`);
-}
-
 // ── Android (.apk via bubblewrap TWA) ─────────────────────────────────────────
 // Prereqs: npm i -g @bubblewrap/cli  +  JDK 17+  +  Android SDK
 // JAVA_HOME must be set (GitHub Actions: use actions/setup-java before this).
@@ -457,12 +402,6 @@ if (platform === 'all' || platform === 'android') {
 			input: `${VERSION}\n`,
 			stdio: ['pipe', 'inherit', 'inherit'],
 		});
-
-		// ── Patch AndroidManifest.xml ────────────────────────────────────────
-		// Must run after bubblewrap generates the project but before gradle
-		// compiles it. Adds storage + media permissions needed for the File
-		// System Access API (showDirectoryPicker / showSaveFilePicker).
-		patchAndroidManifest(androidDir);
 
 		// ── Build via gradle directly ────────────────────────────────────────
 		// bubblewrap build is just a thin wrapper around gradlew — calling it
