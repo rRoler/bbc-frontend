@@ -33,7 +33,7 @@
     "file-saver": "^2.0.5",
     "file-type": "^21.3.0",
     "idb-keyval": "^6.2.2",
-    "lucide-svelte": "^0.575.0",
+    "lucide-svelte": "^0.576.0",
     "svelte": "^5.53.6",
     "svelte-image-viewer": "^6.0.0",
     "tailwindcss": "^4.2.1",
