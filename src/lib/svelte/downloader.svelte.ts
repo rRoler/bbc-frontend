@@ -3,7 +3,7 @@ import type { BBCBook, BBCBookPage, BBCSeries } from '../apis/bbc.ts';
 import allProviders, { type Provider } from '../apis/providers.ts';
 import BBC_API, { type BBCSort } from '../apis/bbc.ts';
 import WsrvApi from '../apis/wsrv.ts';
-import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
 import {
 	filterFilename,
 	getAllSvelteSearchParams,
@@ -258,6 +258,14 @@ class Downloader {
 	): string {
 		const { book, extension } = options;
 		const vars: [string, string][] = [];
+		const currentDate = new SvelteDate();
+		const date = currentDate.toISOString().split('T')[0];
+		const time = currentDate.toISOString().split('T')[1].split('.')[0].replaceAll(':', '-');
+		const datetime = `${date}_${time}`;
+
+		vars.push([textVariables.date, date]);
+		vars.push([textVariables.time, time]);
+		vars.push([textVariables.datetime, datetime]);
 
 		if (book) {
 			vars.push([textVariables.coverUrl, book.cover]);

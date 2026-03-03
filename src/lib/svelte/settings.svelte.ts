@@ -191,6 +191,9 @@ export const textVariables = {
 	coverHeight: 'COVER_HEIGHT',
 	coverCropStatus: 'COVER_CROP_STATUS',
 	fileExtension: 'FILE_EXTENSION',
+	date: 'DATE',
+	time: 'TIME',
+	datetime: 'DATETIME',
 };
 
 export const themeSetting = new Setting<SelectSetting<SelectOption<'light' | 'dark' | 'system'>>>({
@@ -329,6 +332,9 @@ export const bookDisplayTextSetting = new Setting<TextSetting>({
 			textVariables.coverWidth,
 			textVariables.coverHeight,
 			textVariables.coverCropStatus,
+			textVariables.date,
+			textVariables.time,
+			textVariables.datetime,
 		]
 			.map((v) => getTextVariableName(v))
 			.join(', '),
@@ -363,6 +369,9 @@ export const coverFilenameSetting = new Setting<TextSetting>({
 			textVariables.coverHeight,
 			textVariables.coverCropStatus,
 			textVariables.fileExtension,
+			textVariables.date,
+			textVariables.time,
+			textVariables.datetime,
 		]
 			.map((v) => getTextVariableName(v))
 			.join(', '),
@@ -396,6 +405,9 @@ export const coverPathSetting = new Setting<TextSetting>({
 			textVariables.coverWidth,
 			textVariables.coverHeight,
 			textVariables.coverCropStatus,
+			textVariables.date,
+			textVariables.time,
+			textVariables.datetime,
 		]
 			.map((v) => getTextVariableName(v))
 			.join(', '),
@@ -410,7 +422,7 @@ export const zipFilenameSetting = new Setting<TextSetting>({
 	tooltip:
 		'Available variables: ' +
 		[textVariables.fileExtension].map((v) => getTextVariableName(v)).join(', '),
-	defaultValue: `covers.${getTextVariableName(textVariables.fileExtension)}`,
+	defaultValue: `covers_${getTextVariableName(textVariables.datetime)}.${getTextVariableName(textVariables.fileExtension)}`,
 });
 
 export const zipThreshold = new Setting<SelectSetting>({
@@ -458,6 +470,9 @@ export const copyFormatSetting = new Setting<TextAreaSetting>({
 			textVariables.coverWidth,
 			textVariables.coverHeight,
 			textVariables.coverCropStatus,
+			textVariables.date,
+			textVariables.time,
+			textVariables.datetime,
 		]
 			.map((v) => getTextVariableName(v))
 			.join(', '),
