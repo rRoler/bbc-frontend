@@ -27,8 +27,8 @@
 
 	async function pickFolder() {
 		try {
-			await fs.pickFolder();
-			fileSystemFolderSetting.value = fs.folderName;
+			const h = await fs.pickFolder();
+			fileSystemFolderSetting.value = h.name;
 			fileSystemFolderSetting.save();
 		} catch (error) {
 			if ((error as Error)?.name !== 'AbortError') addAppError(error);

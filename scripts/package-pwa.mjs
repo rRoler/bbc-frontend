@@ -721,21 +721,27 @@ import android.net.Uri
 `
 		);
 
-		const onCreatePatch = `
-    override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Inject before the first page load so window.AndroidFS is available
-        // synchronously when the JS module evaluates detectPlatform().
+		// c) Register the bridge on the WebView once the TWA client is set up.
+		//    bubblewrap exposes the WebView via twaWebView (the field name differs
+		//    across bubblewrap versions; cover both "twaWebView" and "webView").
+		//    We hook into onResume which is always called and guaranteed to run
+		//    after the WebView is initialised.
+		const onResumePatch = `
+    override fun onResume() {
+        super.onResume()
+        // Inject the FS bridge so window.AndroidFS is available in the TWA.
+        // addJavascriptInterface is idempotent when the name is already registered.
         (twaWebView ?: webView)?.addJavascriptInterface(fsBridge, "AndroidFS")
     }
 `;
 
-		if (!activity.includes('onCreate')) {
-			activity = activity.replace(/(\n}\s*$)/, `\n${onCreatePatch}\n$1`);
+		if (!activity.includes('onResume')) {
+			// Append before the closing brace of the class
+			activity = activity.replace(/(\n}\s*$)/, `\n${onResumePatch}\n$1`);
 		} else {
-			// Prepend into the existing onCreate, after super.onCreate(...)
+			// Prepend our code inside the existing onResume body
 			activity = activity.replace(
-				/(super\.onCreate\([^)]*\))/,
+				/(override fun onResume\(\)\s*\{)/,
 				`$1\n        (twaWebView ?: webView)?.addJavascriptInterface(fsBridge, "AndroidFS")`
 			);
 		}
