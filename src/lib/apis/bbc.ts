@@ -42,9 +42,9 @@ export interface BBCBook {
 export interface BBCBookPage {
 	number: number;
 	url: string;
-	type: string;
-	height: number;
-	width: number;
+	type: string | null;
+	height: number | null;
+	width: number | null;
 	bookId: string;
 }
 

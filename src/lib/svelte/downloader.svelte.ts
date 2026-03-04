@@ -107,6 +107,9 @@ class Downloader {
 
 	allPages = $derived<number[]>(this.getPages(this.page, this.maxPage));
 	isNextPage = $derived<boolean>(this.page < this.maxPage);
+	canBeAutomaticallyPicked = $derived<boolean>(
+		this.automaticallyPickCovers(this.allBooks).length !== this.allBooks.length
+	);
 	filteredBooks = $derived.by(() => {
 		let books = [...this.allBooks];
 		if (this.automaticCoverQualityEnabled) books = this.automaticallyPickCovers(books);

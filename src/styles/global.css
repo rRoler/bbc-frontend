@@ -80,3 +80,9 @@
 	--depth: 1;
 	--noise: 0;
 }
+
+@layer utilities {
+	.content-visibility-auto {
+		content-visibility: auto;
+	}
+}

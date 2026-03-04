@@ -184,7 +184,7 @@
 				</select>
 			{/if}
 
-			{#if downloader.sortedFilteredBooks.length > 0}
+			{#if downloader.sortedFilteredBooks.length > 0 && downloader.canBeAutomaticallyPicked}
 				<label class="label text-base-content">
 					<input
 						bind:checked={downloader.automaticCoverQualityEnabled}
@@ -205,7 +205,7 @@
 					)}
 
 					<div
-						class="card bg-base-100 group relative w-36 shrink-0 shadow-sm sm:w-42"
+						class="card bg-base-100 group content-visibility-auto relative w-36 shrink-0 shadow-sm sm:w-42"
 						class:bg-primary={isSelected}
 						class:text-primary-content={isSelected}
 						class:outline-primary={isSelected}

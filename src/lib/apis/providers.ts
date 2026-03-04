@@ -2,7 +2,7 @@ export interface Provider {
 	id: string;
 	name: string;
 	icon: string;
-	locale: 'en' | 'ja' | 'de' | 'it' | 'es' | 'es-mx';
+	locale: 'en' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko';
 	colors: {
 		primary: string;
 		secondary: string;
@@ -180,6 +180,18 @@ export const eBookJapan: Provider = {
 	},
 };
 
+export const aladin: Provider = {
+	id: 'aladin',
+	name: 'Aladin',
+	icon: '/images/providers/aladin.ico',
+	locale: 'ko',
+	colors: {
+		primary: '#fcaf17',
+		secondary: '#ee3897',
+	},
+	supportsBookPages: true,
+};
+
 const allProviders: Provider[] = [
 	bookLive,
 	bookWalker,
@@ -195,6 +207,7 @@ const allProviders: Provider[] = [
 	amazonMexico,
 	amazonGermany,
 	eBookJapan,
+	aladin,
 ];
 
 export const defaultProviders = [

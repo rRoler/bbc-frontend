@@ -140,7 +140,7 @@
 			{#each selectedProviders as provider (provider.id)}
 				{@const allSeries = searchResults[provider.id] ?? []}
 
-				<div class="w-full text-left">
+				<div class="content-visibility-auto w-full text-left">
 					<ProviderLabel
 						{provider}
 						class="pb-4"
@@ -154,7 +154,7 @@
 								{@const isSelected = selectedSeries[provider.id]?.some((s) => s.id === series.id)}
 
 								<div
-									class="card bg-base-100 relative w-26 shrink-0 shadow-sm sm:w-42"
+									class="card bg-base-100 content-visibility-auto relative w-26 shrink-0 shadow-sm sm:w-42"
 									class:bg-primary={isSelected}
 									class:text-primary-content={isSelected}
 									class:outline-primary={isSelected}
