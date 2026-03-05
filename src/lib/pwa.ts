@@ -7,34 +7,29 @@ window.addEventListener('load', () => {
 
 	const refreshCallback = () => refreshSW?.(true);
 
-	const hidePwaToast = (raf = false) => {
-		if (raf) {
-			requestAnimationFrame(() => hidePwaToast(false));
-			return;
-		}
-		if (pwaToast?.classList.contains('refresh'))
-			pwaRefreshBtn?.removeEventListener('click', refreshCallback);
-
-		pwaToast?.classList.remove('show', 'refresh');
+	const hidePwaToast = () => {
+		pwaRefreshBtn?.removeEventListener('click', refreshCallback);
+		requestAnimationFrame(() => {
+			pwaToast?.classList.add('hidden');
+		});
 	};
 
 	const showPwaToast = () => {
 		pwaRefreshBtn?.addEventListener('click', refreshCallback);
 		requestAnimationFrame(() => {
-			hidePwaToast(false);
-			pwaToast?.classList.add('show', 'refresh');
+			pwaToast?.classList.remove('hidden');
 		});
 	};
 
-	pwaCloseBtn?.addEventListener('click', () => hidePwaToast(true));
+	pwaCloseBtn?.addEventListener('click', () => hidePwaToast());
 
 	const refreshSW = registerSW({
 		immediate: true,
 		onOfflineReady() {
-			console.log('App ready to work offline');
+			console.log('App ready to work offline.');
 		},
 		onNeedRefresh() {
-			console.log('New content available, click on reload button to update');
+			console.log('New content available, click on reload button to update.');
 			showPwaToast();
 		},
 		onRegisteredSW(swScriptUrl) {

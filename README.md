@@ -87,7 +87,7 @@ pnpm run preview        # preview production build locally
 
 ### Disclaimer
 
-The developer of this application has no affiliation with the content providers listed. This application is a tool to fetch publicly available metadata and covers; it does not host book content.
+The developer of this application has no affiliation with any listed content providers. This tool retrieves publicly available metadata and cover images and does not host or distribute book content. All intellectual property rights remain with their respective copyright holders.
 
 <br/>
 

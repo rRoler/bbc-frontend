@@ -1,34 +1,19 @@
 <script src="../lib/pwa.ts"></script>
+
 <div
 	id="pwa-toast"
 	role="alert"
 	aria-labelledby="toast-message"
-	class="border-base-100 bg-base-300 rounded-box fixed right-0 bottom-0 z-1000 m-4 border p-4 text-left shadow-md transition-opacity duration-300 ease-in-out"
+	class="toast toast-bottom toast-end z-1000 hidden"
 >
-	<div class="message mb-4">
-		<span id="toast-message" class="text-base-content">
-			New app version available, reload to update!
-		</span>
-	</div>
-	<div class="action flex flex-row justify-end gap-2 sm:justify-start">
-		<button id="pwa-refresh" class="btn btn-primary btn-outline"> Reload </button>
-		<button id="pwa-close" class="btn btn-error btn-outline"> Cancel </button>
+	<div class="card card-border bg-base-300 border-base-100 w-96 max-w-full">
+		<div class="card-body">
+			<h2 class="card-title">Update Available</h2>
+			<p id="toast-message">A new version is available. Reload to apply the update instantly.</p>
+			<div class="card-actions justify-end sm:justify-start">
+				<button id="pwa-refresh" class="btn btn-primary btn-outline"> Reload </button>
+				<button id="pwa-close" class="btn btn-outline"> Ignore </button>
+			</div>
+		</div>
 	</div>
 </div>
-
-<style>
-	#pwa-toast {
-		visibility: hidden;
-		opacity: 0;
-	}
-	#pwa-toast.show {
-		visibility: visible;
-		opacity: 1;
-	}
-	button#pwa-refresh {
-		display: none;
-	}
-	#pwa-toast.show.refresh button#pwa-refresh {
-		display: inline-flex;
-	}
-</style>
