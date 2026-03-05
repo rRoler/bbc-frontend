@@ -103,6 +103,7 @@
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape') {
+			(document.activeElement as HTMLElement | null)?.blur();
 			dropdownEl?.blur();
 			return;
 		}
@@ -180,7 +181,8 @@
 					bind:this={searchInput}
 					bind:value={search}
 					onkeydown={(e) => {
-						if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') e.stopPropagation();
+						if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Escape')
+							e.stopPropagation();
 					}}
 					type="search"
 					placeholder="Search providers…"
