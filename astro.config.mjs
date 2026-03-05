@@ -54,7 +54,7 @@ export default defineConfig({
 			base: '/',
 			scope: '/',
 			includeAssets: ['favicon.svg'],
-			registerType: 'autoUpdate',
+			registerType: 'prompt',
 			manifest: {
 				name: 'Big Book Covers',
 				short_name: 'BBC',

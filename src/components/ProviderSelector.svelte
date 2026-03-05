@@ -152,7 +152,7 @@
 				</label>
 			</li>
 		{:else}
-			<li class="menu-title text-center opacity-80">No providers found</li>
+			<li class="menu-title text-center">No providers found</li>
 		{/each}
 	</ul>
 </div>
