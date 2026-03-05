@@ -30,6 +30,7 @@
 	let debounceTimer = $state<number>();
 	let search = $state<string>('');
 	let searchInput = $state<HTMLInputElement>();
+	let dropdownEl = $state<HTMLElement>();
 
 	let filteredProviders = $derived(
 		search.trim() === ''
@@ -99,15 +100,63 @@
 			debounceTimer = undefined;
 		}, delayMs) as unknown as number;
 	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			dropdownEl?.blur();
+			return;
+		}
+
+		if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
+			if (e.key === ' ' || e.key === 'Enter') {
+				const focused = document.activeElement;
+				if (focused && focused !== searchInput) {
+					const checkbox = focused.querySelector<HTMLInputElement>('input[type="checkbox"]');
+					if (checkbox) {
+						e.preventDefault();
+						checkbox.click();
+						return;
+					}
+				}
+			}
+			if (
+				e.key.length === 1 &&
+				!e.ctrlKey &&
+				!e.metaKey &&
+				document.activeElement !== searchInput
+			) {
+				searchInput?.focus();
+			}
+			return;
+		}
+
+		e.preventDefault();
+
+		const items = Array.from(
+			dropdownEl?.querySelectorAll<HTMLElement>('ul li:not(.menu-title) label') ?? []
+		);
+
+		if (items.length === 0) return;
+
+		const current = document.activeElement;
+		const currentIndex = items.indexOf(current as HTMLElement);
+
+		let nextIndex: number;
+		if (e.key === 'ArrowDown') {
+			nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % items.length;
+		} else {
+			nextIndex =
+				currentIndex === -1 ? items.length - 1 : (currentIndex - 1 + items.length) % items.length;
+		}
+
+		items[nextIndex]?.focus();
+	}
 </script>
 
 <div
+	bind:this={dropdownEl}
 	class="dropdown sm:dropdown-start dropdown-center {className}"
-	onkeydown={(e) => {
-		if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && document.activeElement !== searchInput) {
-			searchInput?.focus();
-		}
-	}}
+	onkeydown={handleKeydown}
 >
 	<div tabindex="0" role="button" class="btn btn-primary btn-outline h-fit flex-wrap px-4 py-1">
 		{#if selected.length > 0}
@@ -130,7 +179,9 @@
 				<input
 					bind:this={searchInput}
 					bind:value={search}
-					onkeydown={(e) => e.stopPropagation()}
+					onkeydown={(e) => {
+						if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') e.stopPropagation();
+					}}
 					type="search"
 					placeholder="Search providers…"
 					class="grow"
@@ -141,12 +192,13 @@
 
 		{#each filteredProviders as provider (provider.id)}
 			<li>
-				<label class="label">
+				<label class="label" tabindex="-1">
 					<input
 						onchange={(e) => changeProvider(e, provider)}
 						type="checkbox"
 						checked={isProviderSelected(provider.id)}
 						class="checkbox checkbox-xs"
+						tabindex="-1"
 					/>
 					<ProviderLabel {provider} />
 				</label>
