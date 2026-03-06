@@ -105,7 +105,6 @@ class Downloader {
 
 	fileSystem = $state<FileSystem | null>(null);
 
-	allPages = $derived<number[]>(this.getPages(this.page, this.maxPage));
 	isNextPage = $derived<boolean>(this.page < this.maxPage);
 	canBeAutomaticallyPicked = $derived<boolean>(
 		this.automaticallyPickCovers(this.allBooks).length !== this.allBooks.length
@@ -161,40 +160,6 @@ class Downloader {
 		}
 
 		return order === 'asc' ? compareResult : -compareResult;
-	}
-
-	private getPages(currentPage: number, maxPage: number): number[] {
-		if (maxPage <= 0) return [];
-		if (currentPage < 1) currentPage = 1;
-		if (currentPage > maxPage) currentPage = maxPage;
-
-		const pages = new SvelteSet<number>();
-
-		pages.add(1);
-		pages.add(currentPage);
-		pages.add(maxPage);
-
-		const maxLength = 5;
-		let offset = 1;
-		while (pages.size < maxLength) {
-			let added = false;
-
-			if (currentPage - offset >= 1 && pages.size < maxLength) {
-				pages.add(currentPage - offset);
-				added = true;
-			}
-
-			if (currentPage + offset <= maxPage && pages.size < maxLength) {
-				pages.add(currentPage + offset);
-				added = true;
-			}
-
-			if (!added) break;
-
-			offset++;
-		}
-
-		return Array.from(pages).sort((a, b) => a - b);
 	}
 
 	private coverCanBeCropped(b: Book): boolean {

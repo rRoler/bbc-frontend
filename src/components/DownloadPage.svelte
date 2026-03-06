@@ -31,6 +31,7 @@
 		fileSystemFolderSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import CopyIcon from './CopyIcon.svelte';
+	import Pagination from './Pagination.svelte';
 	import { onMount } from 'svelte';
 	import Downloader from '../lib/svelte/downloader.svelte.ts';
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
@@ -198,6 +199,13 @@
 		</div>
 
 		{#if downloader.sortedFilteredBooks.length > 0}
+			<Pagination
+				page={downloader.page}
+				minPage={1}
+				maxPage={downloader.maxPage}
+				onchange={(p) => downloader.changePage(p)}
+			/>
+
 			<div class="flex flex-row flex-wrap justify-center gap-4">
 				{#each downloader.sortedFilteredBooks as book, index (index)}
 					{@const isSelected = downloader.selectedBooks.some(
@@ -307,18 +315,12 @@
 				</button>
 			{/if}
 
-			{#if downloader.maxPage > 1}
-				<div class="join p-4">
-					{#each downloader.allPages as p, i (i)}
-						<button
-							onclick={() => downloader.changePage(p)}
-							class="join-item btn {p === downloader.page ? 'btn-primary' : 'btn-soft'}"
-						>
-							{p}
-						</button>
-					{/each}
-				</div>
-			{/if}
+			<Pagination
+				page={downloader.page}
+				minPage={1}
+				maxPage={downloader.maxPage}
+				onchange={(p) => downloader.changePage(p)}
+			/>
 
 			<div class="grow"></div>
 			<div
