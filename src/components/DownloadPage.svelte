@@ -77,6 +77,9 @@
 		const removeShortcuts = [
 			addKeyboardShortcut(['ShiftLeft', 'KeyA'], () => downloader.toggleAllBooks()),
 			addKeyboardShortcut(['ShiftRight', 'KeyA'], () => downloader.toggleAllBooks()),
+			addKeyboardShortcut(['Escape'], () => {
+				if (downloader.openedImages.length > 0) downloader.closeOpenedImages();
+			}),
 		];
 
 		return () => {
