@@ -63,7 +63,7 @@
 					<p class="label text-wrap! whitespace-pre">{setting.description}</p>
 				{/if}
 
-				<div class="flex w-full flex-row items-start justify-center gap-2">
+				<div class="flex w-full min-w-0 flex-row items-start justify-center gap-2">
 					{#if setting.type === 'text'}
 						<input bind:value={setting.value} class="input w-full" type="text" />
 					{:else if setting.type === 'textarea'}
@@ -94,8 +94,8 @@
 							/>
 						</div>
 					{:else if setting.type === 'file-system-folder-picker'}
-						<div class="flex w-full flex-row items-center gap-2">
-							<div class="input flex flex-1 flex-row items-center gap-2 overflow-hidden">
+						<div class="flex w-full min-w-0 flex-row items-center gap-2">
+							<div class="input flex min-w-0 flex-1 flex-row items-center gap-2 overflow-hidden">
 								{#if fs.hasFolder}
 									<FolderOpen class="text-success size-4 shrink-0" />
 								{:else}
@@ -115,13 +115,13 @@
 								data-tip={fs.supported ? 'Pick folder' : (fs.support.reason ?? undefined)}
 							>
 								<button
-									class="btn btn-soft"
+									class="btn btn-soft sm:rounded-btn aspect-square rounded-full px-0 sm:aspect-auto sm:px-4"
 									class:btn-success={fs.hasFolder}
 									onclick={pickFolder}
 									disabled={!fs.supported}
 								>
 									<Folder class="size-4" />
-									{fs.hasFolder ? 'Change' : 'Pick'}
+									<span class="hidden sm:inline">{fs.hasFolder ? 'Change' : 'Pick'}</span>
 								</button>
 							</div>
 
