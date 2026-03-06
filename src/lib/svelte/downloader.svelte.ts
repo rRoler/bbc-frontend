@@ -185,6 +185,7 @@ class Downloader {
 
 		if (width >= 880 && width <= 964 && height === 1200) return 120;
 		if (width >= 220 && width <= 241 && height === 300) return 30;
+		if (width === 2056 && height === 2560) return 256;
 		if (height > 4000 && aspect >= 0.73 && aspect < 0.8) return -355;
 		if (width > 2000 && height > 2000 && aspect >= 0.73 && aspect < 0.8) return -211;
 		if (width < 2000 && height > 2000 && aspect >= 0.73 && aspect < 0.8) return -224;
