@@ -24,6 +24,7 @@ export interface BBCResult<T> {
 
 export interface BBCSeries {
 	id: string;
+	url: string;
 	type: 'series' | 'book';
 	title: string;
 	thumbnail: string;
@@ -33,6 +34,7 @@ export interface BBCSeries {
 
 export interface BBCBook {
 	id: string;
+	url: string;
 	title: string;
 	cover: string;
 	volume: { type: 'volume' | 'chapter'; number: string | null };

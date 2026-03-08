@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Search, LayoutGrid, X } from 'lucide-svelte';
+	import { Search, LayoutGrid, X, ExternalLink } from 'lucide-svelte';
 	import BBC_API, { type BBCSeries } from '../lib/apis/bbc.ts';
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
@@ -238,6 +238,14 @@
 												Book
 											</div>
 										{/if}
+
+										<a
+											href={series.url}
+											class="btn btn-circle btn-neutral btn-xs sm:btn-sm shadow-sm"
+											target="_blank"
+										>
+											<ExternalLink class="size-3 sm:size-4" />
+										</a>
 									</div>
 
 									<figure class="h-36 overflow-hidden sm:h-58">

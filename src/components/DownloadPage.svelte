@@ -7,6 +7,7 @@
 		Download,
 		EllipsisVertical,
 		Expand,
+		ExternalLink,
 		Shrink,
 		SquareCheckBig,
 		SquareDashed,
@@ -253,6 +254,14 @@
 									class="size-3"
 								/>
 							</button>
+
+							<a
+								href={book.url}
+								class="btn btn-circle btn-neutral btn-sm shadow-sm"
+								target="_blank"
+							>
+								<ExternalLink class="size-3" />
+							</a>
 						</div>
 
 						<div class="flex flex-row justify-between px-2 py-1">
