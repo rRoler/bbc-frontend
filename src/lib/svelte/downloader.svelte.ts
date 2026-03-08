@@ -10,6 +10,7 @@ import {
 	getLocaleName,
 	natsort,
 	replaceTextVariables,
+	sleep,
 } from '../utils.ts';
 import {
 	textVariables,
@@ -833,7 +834,7 @@ class Downloader {
 					for (const [fullPath, imageBuffer] of Object.entries(imagesToSave)) {
 						const filename = fullPath.split('/').pop();
 						fileSaver.saveAs(new Blob([new Uint8Array(imageBuffer)]), filename || 'cover.jpg');
-						await new Promise((r) => setTimeout(r, 100));
+						await sleep(100);
 					}
 				} else {
 					await saveZip();

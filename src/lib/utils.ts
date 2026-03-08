@@ -78,19 +78,75 @@ export function filterFilename(
 }
 
 export function addKeyboardShortcut(keyCodes: string[], callback: () => void): () => void {
-	let pressedKeys: string[] = [];
+	const pressedKeys = new Set<string>();
+	const sortedKeyCodes = [...keyCodes].sort().join(',');
 
 	const keyDown = (event: KeyboardEvent) => {
-		pressedKeys.push(event.code);
-
-		if (pressedKeys.sort().join(',') === keyCodes.sort().join(',')) callback();
+		pressedKeys.add(event.code);
+		if ([...pressedKeys].sort().join(',') === sortedKeyCodes) {
+			event.preventDefault();
+			callback();
+		}
 	};
-	const keyUp = () => (pressedKeys = []);
+
+	const keyUp = (event: KeyboardEvent) => pressedKeys.delete(event.code);
 
 	window.addEventListener('keydown', keyDown);
 	window.addEventListener('keyup', keyUp);
 
 	return () => {
+		window.removeEventListener('keydown', keyDown);
+		window.removeEventListener('keyup', keyUp);
+	};
+}
+
+export function addKeyHold(
+	keyCodes: string[],
+	{
+		onStart,
+		onEnd,
+		interval = 100,
+	}: { onStart: () => void; onEnd?: () => void; interval?: number | 'once' }
+): () => void {
+	const pressedKeys = new Set<string>();
+	const sortedKeyCodes = [...keyCodes].sort().join(',');
+	let intervalId: number | null = null;
+	let active = false;
+
+	const isComboActive = () => [...pressedKeys].sort().join(',') === sortedKeyCodes;
+
+	const start = () => {
+		if (active) return;
+		active = true;
+		onStart();
+		if (interval !== 'once') intervalId = window.setInterval(onStart, interval);
+	};
+
+	const stop = () => {
+		if (!active) return;
+		active = false;
+		if (intervalId !== null) {
+			window.clearInterval(intervalId);
+			intervalId = null;
+		}
+		onEnd?.();
+	};
+
+	const keyDown = (event: KeyboardEvent) => {
+		pressedKeys.add(event.code);
+		if (isComboActive()) start();
+	};
+
+	const keyUp = (event: KeyboardEvent) => {
+		pressedKeys.delete(event.code);
+		if (!isComboActive()) stop();
+	};
+
+	window.addEventListener('keydown', keyDown);
+	window.addEventListener('keyup', keyUp);
+
+	return () => {
+		stop();
 		window.removeEventListener('keydown', keyDown);
 		window.removeEventListener('keyup', keyUp);
 	};

@@ -6,6 +6,7 @@
 	import { type Provider } from '../lib/apis/providers.ts';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import {
+		addKeyHold,
 		getSvelteSearchParam,
 		hasSvelteSearchParam,
 		setSvelteSearchParam,
@@ -102,6 +103,24 @@
 		setSvelteSearchParam('q', searchQuery);
 		updateLocationStorage();
 	});
+
+	$effect(() => {
+		const keyToggleAutoMatchOptions = {
+			onStart: () => {
+				resultAutoMatchEnabled = !resultAutoMatchEnabled;
+			},
+			onEnd: () => {
+				resultAutoMatchEnabled = !resultAutoMatchEnabled;
+			},
+			interval: 'once' as const,
+		};
+		const removeShortcuts = [
+			addKeyHold(['ControlLeft'], keyToggleAutoMatchOptions),
+			addKeyHold(['ControlRight'], keyToggleAutoMatchOptions),
+		];
+
+		return () => removeShortcuts.forEach((rm) => rm());
+	});
 </script>
 
 <div class="relative flex h-full w-full flex-col items-center lg:w-5/6">
@@ -127,7 +146,8 @@
 				type="checkbox"
 				class="checkbox checkbox-primary"
 			/>
-			Automatically match results
+			<span>Automatically match results</span>
+			<kbd class="kbd hidden sm:inline-flex">ctrl</kbd>
 		</label>
 	</div>
 
