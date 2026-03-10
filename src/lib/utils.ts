@@ -1,4 +1,15 @@
 import { SvelteURLSearchParams } from 'svelte/reactivity';
+import { fileTypeFromBuffer } from 'file-type';
+import WsrvApi from './apis/wsrv.ts';
+
+export interface ImageInfo {
+	format: string;
+	width: number;
+	height: number;
+	chromaSubsampling: string | undefined;
+}
+
+export const wsrvApi = new WsrvApi();
 
 export function natsort(a: string, b: string) {
 	return a.localeCompare(b, undefined, {
@@ -170,4 +181,78 @@ export function sleep(ms: number): Promise<void> {
 export function getLocaleName(locale: string): string {
 	const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });
 	return langDisplayNames.of(locale) || locale;
+}
+
+function parseJpegChromaSubsampling(bytes: Uint8Array): string | undefined {
+	if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return undefined; // not JPEG
+
+	let i = 2;
+	while (i + 3 < bytes.length) {
+		if (bytes[i] !== 0xff) break;
+
+		const marker = bytes[i + 1];
+		const segLen = (bytes[i + 2] << 8) | bytes[i + 3];
+
+		// SOF0, SOF1, SOF2
+		if (marker >= 0xc0 && marker <= 0xc2) {
+			// SOF layout: FF Cx [len 2] [precision 1] [height 2] [width 2] [nComponents 1]
+			//             then per component: [id 1] [samplingFactors 1] [qtable 1]
+			const nComponents = bytes[i + 9];
+			if (nComponents < 3) return undefined;
+
+			const comp: Array<{ h: number; v: number }> = [];
+			for (let c = 0; c < nComponents; c++) {
+				const sf = bytes[i + 10 + c * 3 + 1];
+				comp.push({ h: (sf >> 4) & 0xf, v: sf & 0xf });
+			}
+
+			const yH = comp[0].h,
+				yV = comp[0].v;
+			const cbH = comp[1].h,
+				cbV = comp[1].v;
+
+			if (cbH === yH && cbV === yV) return '4:4:4';
+			if (cbH === yH / 2 && cbV === yV) return '4:2:2';
+			if (cbH === yH / 2 && cbV === yV / 2) return '4:2:0';
+			return undefined;
+		}
+
+		i += 2 + segLen;
+	}
+
+	return undefined;
+}
+
+async function getImageInfoLocally(url: string): Promise<ImageInfo> {
+	const res = await fetch(url);
+	const buffer = await res.arrayBuffer();
+	const bytes = new Uint8Array(buffer);
+
+	const fileType = await fileTypeFromBuffer(bytes);
+	if (!fileType || !fileType.mime.startsWith('image/')) {
+		throw new Error(`Not a valid image: ${fileType?.mime ?? 'unknown'}`);
+	}
+
+	const bitmap = await createImageBitmap(new Blob([buffer], { type: fileType.mime }));
+	const { width, height } = bitmap;
+	bitmap.close();
+
+	const format = fileType.ext === 'jpg' ? 'jpeg' : fileType.ext;
+	const chromaSubsampling = format === 'jpeg' ? parseJpegChromaSubsampling(bytes) : undefined;
+
+	return { format, width, height, chromaSubsampling };
+}
+
+export async function getImageInfo(url: string): Promise<ImageInfo> {
+	try {
+		const res = await wsrvApi.getInfo(url);
+		return {
+			format: res.format,
+			width: res.width,
+			height: res.height,
+			chromaSubsampling: res.chromaSubsampling || undefined,
+		};
+	} catch {
+		return getImageInfoLocally(url);
+	}
 }

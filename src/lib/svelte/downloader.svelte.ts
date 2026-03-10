@@ -2,7 +2,7 @@ import { appState, addAppError } from './app.svelte.ts';
 import type { BBCBook, BBCBookPage, BBCSeries } from '../apis/bbc.ts';
 import allProviders, { type Provider } from '../apis/providers.ts';
 import BBC_API, { type BBCSort } from '../apis/bbc.ts';
-import WsrvApi from '../apis/wsrv.ts';
+import { wsrvApi, getImageInfo } from '../utils';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
 import {
 	filterFilename,
@@ -72,7 +72,6 @@ class Downloader {
 	} as const;
 
 	private readonly api = new BBC_API();
-	private readonly imageApi = new WsrvApi();
 
 	isFetching = $state<boolean>(false);
 	allSeriesIds = $state<Record<string, string[]>>({});
@@ -432,7 +431,7 @@ class Downloader {
 										displayText: this.parseVolumeName(book, {
 											forcePrefix: provider.volumePrefix,
 										}),
-										thumbnail: this.imageApi.getUrl(book.cover, this.THUMBNAIL_DATA).href,
+										thumbnail: wsrvApi.getUrl(book.cover, this.THUMBNAIL_DATA).href,
 									};
 
 									data.displayText = this.parseTextVariables(bookDisplayTextSetting.value, {
@@ -483,7 +482,7 @@ class Downloader {
 								if (selectedPage) {
 									data.selectedPage = selectedPage.number;
 									data.cover = selectedPage.url;
-									data.thumbnail = this.imageApi.getUrl(data.cover, this.THUMBNAIL_DATA).href;
+									data.thumbnail = wsrvApi.getUrl(data.cover, this.THUMBNAIL_DATA).href;
 								}
 							}
 
@@ -494,11 +493,11 @@ class Downloader {
 					await Promise.all(
 						newBooks.map(async (book) => {
 							try {
-								const response = await this.imageApi.getInfo(book.cover);
-								book.coverFormat = response.format;
-								book.coverHeight = response.height;
-								book.coverWidth = response.width;
-								book.chromaSubsampling = response.chromaSubsampling;
+								const info = await getImageInfo(book.cover);
+								book.coverFormat = info.format;
+								book.coverHeight = info.height;
+								book.coverWidth = info.width;
+								book.chromaSubsampling = info.chromaSubsampling;
 								book.coverQualityScore = this.getCoverQualityScore(book);
 							} catch (e) {
 								if (!book.provider.ignoreErrors) {
@@ -635,7 +634,7 @@ class Downloader {
 			const absoluteCropAmount = Math.abs(cropAmount);
 			const croppedWidth = book.coverWidth - absoluteCropAmount;
 
-			const cropUrl = this.imageApi.getUrl(book.cover, {
+			const cropUrl = wsrvApi.getUrl(book.cover, {
 				output: cropFormatSetting.value,
 				quality: cropQualitySetting.value,
 				width: book.coverWidth,
@@ -649,7 +648,7 @@ class Downloader {
 			);
 			const thumbnailCroppedWidth = this.THUMBNAIL_DATA.width - thumbnailAbsoluteCropAmount;
 
-			const thumbnailCropUrl = this.imageApi.getUrl(book.cover, {
+			const thumbnailCropUrl = wsrvApi.getUrl(book.cover, {
 				...this.THUMBNAIL_DATA,
 				cw: cropAmount > 0 ? thumbnailCroppedWidth : undefined,
 				cx: cropAmount < 0 ? thumbnailAbsoluteCropAmount : undefined,

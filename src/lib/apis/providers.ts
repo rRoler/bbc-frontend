@@ -180,6 +180,18 @@ export const eBookJapan: Provider = {
 	},
 };
 
+export const cmoa: Provider = {
+	id: 'cmoa',
+	name: 'Cmoa',
+	icon: '/images/providers/cmoa.svg',
+	locale: 'ja',
+	colors: {
+		primary: '#dd763f',
+		secondary: '#ea5505',
+	},
+	supportsBookPages: true,
+};
+
 export const aladin: Provider = {
 	id: 'aladin',
 	name: 'Aladin',
@@ -207,6 +219,7 @@ const allProviders: Provider[] = [
 	amazonMexico,
 	amazonGermany,
 	eBookJapan,
+	cmoa,
 	aladin,
 ];
 
