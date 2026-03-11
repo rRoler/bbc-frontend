@@ -1,6 +1,6 @@
 import { appState, addAppError } from './app.svelte.ts';
 import type { BBCBook, BBCBookPage, BBCSeries } from '../apis/bbc.ts';
-import allProviders, { type Provider } from './providers.svelte.ts';
+import allProviders, { sortProviders, type Provider } from './providers.svelte.ts';
 import BBC_API, { type BBCSort } from '../apis/bbc.ts';
 import { wsrvApi, getImageInfo } from '../utils';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
@@ -859,6 +859,8 @@ class Downloader {
 		this.allSeriesIds = {};
 		this.allBookIds = {};
 
+		allProviders.load();
+
 		for (const provider of allProviders.updated) {
 			const series = getAllSvelteSearchParams(`series(${provider.id})`);
 			const books = getAllSvelteSearchParams(`book(${provider.id})`);
@@ -867,6 +869,9 @@ class Downloader {
 
 			this.providers.push(provider);
 			this.selectedProviders.push(provider);
+
+			sortProviders(this.providers);
+			sortProviders(this.selectedProviders);
 
 			if (series.length) this.allSeriesIds[provider.id] = series;
 			if (books.length) this.allBookIds[provider.id] = books;

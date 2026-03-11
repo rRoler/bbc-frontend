@@ -1,5 +1,9 @@
 <script lang="ts">
-	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
+	import allProviders, {
+		sortProviders,
+		getEnabledProviders,
+		type Provider,
+	} from '../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import { GripVertical, Settings2, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
@@ -14,7 +18,7 @@
 		onchange?: (providers: Provider[]) => void | Promise<void>;
 	} = $props();
 
-	let enabledProviders = $derived(providers.filter((p) => p.enabled));
+	let enabledProviders = $derived(getEnabledProviders(providers));
 	let dialogEl = $state<HTMLDialogElement>();
 	let workingList = $state<Provider[]>([]);
 
@@ -28,7 +32,7 @@
 			...providers.map((p) => ({ ...p })),
 			...allProviders.sorted.filter((p) => !allIds.has(p.id)),
 		];
-		workingList = merged.sort((a, b) => a.priority - b.priority);
+		workingList = sortProviders(merged);
 		dialogEl?.showModal();
 	}
 

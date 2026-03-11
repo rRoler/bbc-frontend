@@ -209,4 +209,12 @@ const allProviders: Provider[] = [
 	aladin,
 ];
 
-export default allProviders.sort((a, b) => a.priority - b.priority);
+export default sortProviders(allProviders);
+
+export function sortProviders(providers: Provider[]) {
+	return providers.sort((a, b) => a.priority - b.priority);
+}
+
+export function getEnabledProviders(providers: Provider[]) {
+	return providers.filter((p) => p.enabled);
+}

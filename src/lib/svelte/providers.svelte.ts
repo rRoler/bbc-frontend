@@ -1,8 +1,9 @@
-import allProviders, { type Provider } from '../providers.ts';
+import allProviders, { sortProviders, getEnabledProviders, type Provider } from '../providers.ts';
 import { configuredProvidersSetting } from './settings.svelte.ts';
 import { SvelteSet } from 'svelte/reactivity';
 
 export type { Provider };
+export { sortProviders, getEnabledProviders };
 
 export class Providers {
 	load = () => configuredProvidersSetting.load();
@@ -16,9 +17,9 @@ export class Providers {
 		return [...configuredProvidersSetting.value, ...newProviders];
 	});
 
-	sorted: Provider[] = $derived([...this.updated].sort((a, b) => a.priority - b.priority));
+	sorted: Provider[] = $derived(sortProviders([...this.updated]));
 
-	enabled: Provider[] = $derived([...this.sorted].filter((p) => p.enabled));
+	enabled: Provider[] = $derived(getEnabledProviders([...this.sorted]));
 }
 
 export default new Providers();

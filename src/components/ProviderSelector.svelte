@@ -1,5 +1,5 @@
 <script lang="ts">
-	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
+	import allProviders, { sortProviders, type Provider } from '../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import {
 		appendSvelteSearchParam,
@@ -31,7 +31,7 @@
 	let searchInput = $state<HTMLInputElement>();
 	let dropdownEl = $state<HTMLElement>();
 
-	let sortedProviders = $derived([...providers].sort((a, b) => a.priority - b.priority));
+	let sortedProviders = $derived(sortProviders([...providers]));
 
 	let filteredProviders = $derived(
 		search.trim() === ''
@@ -85,7 +85,7 @@
 			return;
 		}
 
-		newSelection.sort((a, b) => a.priority - b.priority);
+		sortProviders(newSelection);
 
 		pendingSelection = newSelection;
 
