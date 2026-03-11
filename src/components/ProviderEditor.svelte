@@ -45,6 +45,8 @@
 	let dragIndex = $state<number | null>(null);
 	let dragOverIndex = $state<number | null>(null);
 
+	// ── Mouse / pointer drag (desktop) ──────────────────────────────────────
+
 	function onDragStart(e: DragEvent, index: number) {
 		if (e.dataTransfer) {
 			e.dataTransfer.effectAllowed = 'move';
@@ -65,19 +67,57 @@
 			dragOverIndex = null;
 			return;
 		}
-		const reordered = [...workingList];
-		const [moved] = reordered.splice(dragIndex, 1);
-		reordered.splice(dropIndex, 0, moved);
-		workingList = reordered.map((p, i) => ({ ...p, priority: i + 1 }));
-		providers = [...workingList];
-		onchange?.([...providers]);
-		dragIndex = null;
-		dragOverIndex = null;
+		reorder(dragIndex, dropIndex);
 	}
 
 	function onDragEnd() {
 		dragIndex = null;
 		dragOverIndex = null;
+	}
+
+	// ── Touch drag (mobile) ──────────────────────────────────────────────────
+
+	function gripTouchDrag(node: HTMLElement, index: number) {
+		const handler = () => {
+			dragIndex = index;
+		};
+		node.addEventListener('touchstart', handler, { passive: true });
+	}
+
+	function listTouchDrag(node: HTMLElement) {
+		function onTouchMove(e: TouchEvent) {
+			if (dragIndex === null) return;
+			e.preventDefault();
+			const touch = e.touches[0];
+			const el = document.elementFromPoint(touch.clientX, touch.clientY);
+			const li = (el as HTMLElement)?.closest<HTMLElement>('li[data-index]');
+			if (li) {
+				const idx = Number(li.dataset.index);
+				if (!isNaN(idx)) dragOverIndex = idx;
+			}
+		}
+
+		function onTouchEnd() {
+			if (dragIndex !== null && dragOverIndex !== null && dragIndex !== dragOverIndex) {
+				reorder(dragIndex, dragOverIndex);
+			}
+			dragIndex = null;
+			dragOverIndex = null;
+		}
+
+		node.addEventListener('touchmove', onTouchMove, { passive: false });
+		node.addEventListener('touchend', onTouchEnd);
+	}
+
+	// ── Shared reorder logic ─────────────────────────────────────────────────
+
+	function reorder(fromIndex: number, toIndex: number) {
+		const reordered = [...workingList];
+		const [moved] = reordered.splice(fromIndex, 1);
+		reordered.splice(toIndex, 0, moved);
+		workingList = reordered.map((p, i) => ({ ...p, priority: i + 1 }));
+		providers = [...workingList];
+		onchange?.([...providers]);
 	}
 </script>
 
@@ -109,9 +149,10 @@
 
 		<h3 class="text-lg font-bold">Edit Providers</h3>
 
-		<ul class="flex flex-col gap-0.5 overflow-y-auto p-2">
+		<ul class="flex flex-col gap-0.5 overflow-y-auto p-2" use:listTouchDrag>
 			{#each workingList as provider, i (provider.id)}
 				<li
+					data-index={i}
 					ondragover={(e) => onDragOver(e, i)}
 					ondrop={(e) => onDrop(e, i)}
 					ondragend={onDragEnd}
@@ -125,11 +166,12 @@
 					<button
 						draggable="true"
 						tabindex="-1"
+						use:gripTouchDrag={i}
 						ondragstart={(e) => {
 							dragIndex = i;
 							onDragStart(e, i);
 						}}
-						class="text-base-content/60 active:text-base-content cursor-grab px-2 py-2 active:cursor-grabbing"
+						class="text-base-content/60 active:text-base-content cursor-grab touch-none px-2 py-2 active:cursor-grabbing"
 					>
 						<GripVertical class="size-4 shrink-0" />
 					</button>
