@@ -51,7 +51,7 @@
 
 			{#each field.settings as setting, settingIndex (setting.id)}
 				<label id={setting.id} class="label text-base-content text-base">
-					<span>{setting.name}</span>
+					<a href="#{setting.id}">{setting.name}</a>
 					{#if setting.tooltip}
 						<div class="tooltip" data-tip={setting.tooltip}>
 							<Info class="size-4 cursor-help" />
