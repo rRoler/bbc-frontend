@@ -69,7 +69,7 @@ export default class BBC_API {
 
 	async search(
 		query: string,
-		providers: Provider[] = allProviders.sorted
+		providers: Provider[] = allProviders.updated
 	): Promise<BBCResult<BBCSeries>> {
 		const allData: BBCResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
 

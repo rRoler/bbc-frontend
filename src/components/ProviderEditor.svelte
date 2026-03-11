@@ -2,6 +2,7 @@
 	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import { GripVertical, Settings2, X } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 
 	let {
 		class: className = '',
@@ -16,6 +17,10 @@
 	let enabledProviders = $derived(providers.filter((p) => p.enabled));
 	let dialogEl = $state<HTMLDialogElement>();
 	let workingList = $state<Provider[]>([]);
+
+	onMount(() => {
+		allProviders.load();
+	});
 
 	function openModal() {
 		const allIds = new Set(providers.map((p) => p.id));

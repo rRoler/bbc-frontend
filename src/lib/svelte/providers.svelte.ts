@@ -5,6 +5,8 @@ import { SvelteSet } from 'svelte/reactivity';
 export type { Provider };
 
 export class Providers {
+	load = () => configuredProvidersSetting.load();
+
 	updated: Provider[] = $derived.by(() => {
 		if (!configuredProvidersSetting?.value) return allProviders;
 

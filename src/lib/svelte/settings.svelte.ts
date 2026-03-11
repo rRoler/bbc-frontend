@@ -214,9 +214,9 @@ export const themeSetting = new Setting<SelectSetting<SelectOption<'light' | 'da
 });
 
 export const configuredProvidersSetting = new Setting<ProviderEditorSetting>({
-	id: 'configure-providers',
+	id: 'configured-providers',
 	type: 'provider-editor',
-	name: 'Configure Providers',
+	name: 'Providers',
 	description:
 		'Change the provider priority order and whether they are used by default when searching',
 	defaultValue: allProviders,

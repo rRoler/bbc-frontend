@@ -74,6 +74,7 @@
 	onMount(() => {
 		appState.loading = true;
 
+		allProviders.load();
 		searchSettings.load();
 
 		selectedProviders = allProviders.enabled;
