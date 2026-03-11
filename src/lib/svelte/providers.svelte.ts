@@ -1,17 +1,17 @@
 import allProviders, { type Provider } from '../providers.ts';
-import { defaultSearchProvidersSetting } from './settings.svelte.ts';
+import { configuredProvidersSetting } from './settings.svelte.ts';
 import { SvelteSet } from 'svelte/reactivity';
 
 export type { Provider };
 
 export class Providers {
 	updated: Provider[] = $derived.by(() => {
-		if (!defaultSearchProvidersSetting?.value) return allProviders;
+		if (!configuredProvidersSetting?.value) return allProviders;
 
-		const storedIds = new SvelteSet(defaultSearchProvidersSetting.value.map((p) => p.id));
+		const storedIds = new SvelteSet(configuredProvidersSetting.value.map((p) => p.id));
 		const newProviders = allProviders.filter((p) => !storedIds.has(p.id));
 
-		return [...defaultSearchProvidersSetting.value, ...newProviders];
+		return [...configuredProvidersSetting.value, ...newProviders];
 	});
 
 	sorted: Provider[] = $derived([...this.updated].sort((a, b) => a.priority - b.priority));

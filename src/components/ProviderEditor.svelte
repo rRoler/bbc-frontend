@@ -83,7 +83,7 @@
 			<img src={provider.icon} class="size-4" alt="{provider.name} Logo" />
 		{/each}
 	{:else}
-		Configure Providers
+		Edit Providers
 	{/if}
 </button>
 

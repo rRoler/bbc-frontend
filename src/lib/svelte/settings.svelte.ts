@@ -213,17 +213,18 @@ export const themeSetting = new Setting<SelectSetting<SelectOption<'light' | 'da
 	],
 });
 
-export const generalSettings = new SettingsField({
-	name: 'General',
-	settings: [themeSetting],
+export const configuredProvidersSetting = new Setting<ProviderEditorSetting>({
+	id: 'configure-providers',
+	type: 'provider-editor',
+	name: 'Configure Providers',
+	description:
+		'Change the provider priority order and whether they are used by default when searching',
+	defaultValue: allProviders,
 });
 
-export const defaultSearchProvidersSetting = new Setting<ProviderEditorSetting>({
-	id: 'default-search-providers',
-	type: 'provider-editor',
-	name: 'Search Providers',
-	description: 'The providers to use by default when searching',
-	defaultValue: allProviders,
+export const generalSettings = new SettingsField({
+	name: 'General',
+	settings: [themeSetting, configuredProvidersSetting],
 });
 
 export const autoMatchResultsSetting = new Setting<ToggleSetting>({
@@ -236,7 +237,7 @@ export const autoMatchResultsSetting = new Setting<ToggleSetting>({
 
 export const searchSettings = new SettingsField({
 	name: 'Search',
-	settings: [defaultSearchProvidersSetting, autoMatchResultsSetting],
+	settings: [autoMatchResultsSetting],
 });
 
 export const bookSortOrderSetting = new Setting<SelectSetting<SelectOption<BBCSort>>>({
