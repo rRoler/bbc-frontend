@@ -70,7 +70,7 @@
 						<textarea bind:value={setting.value} class="textarea w-full"></textarea>
 					{:else if setting.type === 'provider-editor'}
 						<div class="flex w-full flex-row justify-center sm:justify-start">
-							<ProviderEditor bind:selected={setting.value} />
+							<ProviderEditor bind:providers={setting.value} />
 						</div>
 					{:else if setting.type === 'toggle'}
 						<input bind:checked={setting.value} class="toggle" type="checkbox" />
