@@ -1,6 +1,5 @@
 <script lang="ts">
-	import allProviders from '../lib/apis/providers.ts';
-	import type { Provider } from '../lib/apis/providers.ts';
+	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import {
 		appendSvelteSearchParam,
@@ -12,7 +11,7 @@
 
 	let {
 		class: className = '',
-		providers = [...allProviders],
+		providers = allProviders.sorted,
 		selected = $bindable([]),
 		onchange,
 		paramsEnabled = true,
@@ -32,20 +31,24 @@
 	let searchInput = $state<HTMLInputElement>();
 	let dropdownEl = $state<HTMLElement>();
 
+	let sortedProviders = $derived([...providers].sort((a, b) => a.priority - b.priority));
+
 	let filteredProviders = $derived(
 		search.trim() === ''
-			? providers
-			: providers.filter((p) => p.name.toLowerCase().trim().includes(search.toLowerCase().trim()))
+			? sortedProviders
+			: sortedProviders.filter((p) =>
+					p.name.toLowerCase().trim().includes(search.toLowerCase().trim())
+				)
 	);
 
 	onMount(() => {
-		if (paramsEnabled) {
-			const providerIds = getAllSvelteSearchParams('provider');
-			if (providerIds.length > 0) {
-				const paramProviders = providers.filter((p) => providerIds.includes(p.id));
-				if (paramProviders.length > 0) {
-					selected = paramProviders;
-				}
+		if (!paramsEnabled) return;
+
+		const providerIds = getAllSvelteSearchParams('provider');
+		if (providerIds.length > 0) {
+			const paramProviders = providers.filter((p) => providerIds.includes(p.id));
+			if (paramProviders.length > 0) {
+				selected = paramProviders;
 			}
 		}
 	});
@@ -82,11 +85,7 @@
 			return;
 		}
 
-		newSelection.sort((a, b) => {
-			const aIndex = providers.findIndex((p) => p.id === a.id);
-			const bIndex = providers.findIndex((p) => p.id === b.id);
-			return aIndex - bIndex;
-		});
+		newSelection.sort((a, b) => a.priority - b.priority);
 
 		pendingSelection = newSelection;
 
@@ -159,7 +158,11 @@
 	class="dropdown sm:dropdown-start dropdown-center {className}"
 	onkeydown={handleKeydown}
 >
-	<div tabindex="0" role="button" class="btn btn-primary btn-outline h-fit flex-wrap px-4 py-1">
+	<div
+		tabindex="0"
+		role="button"
+		class="btn btn-primary btn-outline h-fit max-w-full flex-wrap px-4 py-1"
+	>
 		{#if selected.length > 0}
 			<span>Providers:</span>
 			{#each selected as provider (provider.id)}

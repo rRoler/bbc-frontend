@@ -4,7 +4,7 @@
 		themeSetting,
 		fileSystemFolderSetting,
 	} from '../lib/svelte/settings.svelte.ts';
-	import ProviderSelector from './ProviderSelector.svelte';
+	import ProviderEditor from './ProviderEditor.svelte';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { onMount } from 'svelte';
@@ -68,9 +68,9 @@
 						<input bind:value={setting.value} class="input w-full" type="text" />
 					{:else if setting.type === 'textarea'}
 						<textarea bind:value={setting.value} class="textarea w-full"></textarea>
-					{:else if setting.type === 'provider-select'}
+					{:else if setting.type === 'provider-editor'}
 						<div class="flex w-full flex-row justify-center sm:justify-start">
-							<ProviderSelector bind:selected={setting.value} paramsEnabled={false} delayMs={0} />
+							<ProviderEditor bind:selected={setting.value} />
 						</div>
 					{:else if setting.type === 'toggle'}
 						<input bind:checked={setting.value} class="toggle" type="checkbox" />

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Provider } from '../lib/apis/providers.ts';
+	import type { Provider } from '../lib/providers.ts';
 
 	let {
 		provider,

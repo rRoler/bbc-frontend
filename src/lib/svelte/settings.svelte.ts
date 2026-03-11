@@ -1,5 +1,5 @@
 import { getTextVariableName } from '../utils.ts';
-import { defaultProviders, type Provider } from '../apis/providers.ts';
+import allProviders, { type Provider } from '../providers.ts';
 import type { WsrvOptions } from '../apis/wsrv.ts';
 import type { BBCSort } from '../apis/bbc.ts';
 
@@ -16,6 +16,10 @@ export interface SettingBase<T> {
 
 export interface ProviderSelectSetting extends SettingBase<Provider[]> {
 	type: 'provider-select';
+}
+
+export interface ProviderEditorSetting extends SettingBase<Provider[]> {
+	type: 'provider-editor';
 }
 
 export interface TextSetting extends SettingBase<string> {
@@ -55,6 +59,7 @@ export interface FileSystemFolderPickerSetting extends SettingBase<string | null
 
 export type SettingType =
 	| ProviderSelectSetting
+	| ProviderEditorSetting
 	| TextSetting
 	| TextAreaSetting
 	| ToggleSetting
@@ -213,12 +218,12 @@ export const generalSettings = new SettingsField({
 	settings: [themeSetting],
 });
 
-export const defaultSearchProvidersSetting = new Setting<ProviderSelectSetting>({
+export const defaultSearchProvidersSetting = new Setting<ProviderEditorSetting>({
 	id: 'default-search-providers',
-	type: 'provider-select',
+	type: 'provider-editor',
 	name: 'Search Providers',
 	description: 'The providers to use by default when searching',
-	defaultValue: defaultProviders,
+	defaultValue: allProviders,
 });
 
 export const autoMatchResultsSetting = new Setting<ToggleSetting>({

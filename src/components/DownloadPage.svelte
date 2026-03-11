@@ -217,7 +217,7 @@
 					)}
 
 					<div
-						class="card bg-base-100 group content-visibility-auto relative w-36 shrink-0 shadow-sm sm:w-42"
+						class="card bg-base-100 group content-visibility-auto focus-within:outline-primary relative w-36 shrink-0 shadow-sm focus-within:outline-1 sm:w-42"
 						class:bg-primary={isSelected}
 						class:text-primary-content={isSelected}
 						class:outline-primary={isSelected}
@@ -235,6 +235,7 @@
 							class="absolute top-7 right-0 flex flex-row gap-1 p-1 opacity-80 group-hover:opacity-100 group-focus:opacity-100 sm:opacity-0"
 						>
 							<button
+								tabindex="-1"
 								onclick={() => downloader.openCoverImages([book])}
 								class="btn btn-circle btn-neutral btn-sm shadow-sm"
 							>
@@ -242,6 +243,7 @@
 							</button>
 
 							<button
+								tabindex="-1"
 								onclick={() => downloader.copyCoverLink(book)}
 								class="btn btn-circle btn-neutral btn-sm shadow-sm"
 							>
@@ -256,6 +258,7 @@
 							</button>
 
 							<a
+								tabindex="-1"
 								href={book.url}
 								class="btn btn-circle btn-neutral btn-sm shadow-sm"
 								target="_blank"

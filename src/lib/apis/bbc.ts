@@ -1,5 +1,5 @@
 import { unzipSync } from 'fflate';
-import allProviders, { type Provider } from './providers.ts';
+import allProviders, { type Provider } from '../svelte/providers.svelte.ts';
 
 export class BBC_API_Error extends Error {
 	constructor(message: string) {
@@ -67,7 +67,10 @@ export default class BBC_API {
 		return result;
 	}
 
-	async search(query: string, providers: Provider[] = allProviders): Promise<BBCResult<BBCSeries>> {
+	async search(
+		query: string,
+		providers: Provider[] = allProviders.sorted
+	): Promise<BBCResult<BBCSeries>> {
 		const allData: BBCResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
 
 		await Promise.all(

@@ -3,22 +3,13 @@
 	import BBC_API, { type BBCSeries } from '../lib/apis/bbc.ts';
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
-	import { type Provider } from '../lib/apis/providers.ts';
+	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import {
-		addKeyHold,
-		getSvelteSearchParam,
-		hasSvelteSearchParam,
-		setSvelteSearchParam,
-	} from '../lib/utils.ts';
+	import { addKeyHold, getSvelteSearchParam, setSvelteSearchParam } from '../lib/utils.ts';
 	import Image from './Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
-	import {
-		defaultSearchProvidersSetting,
-		searchSettings,
-		autoMatchResultsSetting,
-	} from '../lib/svelte/settings.svelte.ts';
+	import { searchSettings, autoMatchResultsSetting } from '../lib/svelte/settings.svelte.ts';
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
 
@@ -85,9 +76,7 @@
 
 		searchSettings.load();
 
-		if (!hasSvelteSearchParam('provider'))
-			selectedProviders = [...defaultSearchProvidersSetting.value];
-
+		selectedProviders = allProviders.enabled;
 		resultAutoMatchEnabled = autoMatchResultsSetting.value;
 
 		const query = getSvelteSearchParam('q');
@@ -138,7 +127,11 @@
 	</label>
 
 	<div class="flex w-fit flex-col items-center justify-start gap-4 pt-4 sm:w-full sm:flex-row">
-		<ProviderSelector bind:selected={selectedProviders} onchange={handleSubmit} />
+		<ProviderSelector
+			providers={allProviders.sorted}
+			bind:selected={selectedProviders}
+			onchange={handleSubmit}
+		/>
 
 		<label class="label text-base-content">
 			<input
@@ -174,7 +167,7 @@
 								{@const isSelected = selectedSeries[provider.id]?.some((s) => s.id === series.id)}
 
 								<div
-									class="card bg-base-100 content-visibility-auto relative w-26 shrink-0 shadow-sm sm:w-42"
+									class="card bg-base-100 content-visibility-auto focus-within:outline-primary relative w-26 shrink-0 shadow-sm focus-within:outline-1 sm:w-42"
 									class:bg-primary={isSelected}
 									class:text-primary-content={isSelected}
 									class:outline-primary={isSelected}
@@ -240,6 +233,7 @@
 										{/if}
 
 										<a
+											tabindex="-1"
 											href={series.url}
 											class="btn btn-circle btn-neutral btn-xs sm:btn-sm shadow-sm"
 											target="_blank"
