@@ -78,10 +78,16 @@
 	// ── Touch drag (mobile) ──────────────────────────────────────────────────
 
 	function gripTouchDrag(node: HTMLElement, index: number) {
+		let current = index;
 		const handler = () => {
-			dragIndex = index;
+			dragIndex = current;
 		};
 		node.addEventListener('touchstart', handler, { passive: true });
+		return {
+			update(i: number) {
+				current = i;
+			},
+		};
 	}
 
 	function listTouchDrag(node: HTMLElement) {
