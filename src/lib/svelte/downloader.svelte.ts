@@ -709,7 +709,9 @@ class Downloader {
 				}
 
 				const scaleFactor =
-					(book.coverWidth || 1) >= maxDisplayWidth ? 1 : maxDisplayWidth / (book.coverWidth || 1);
+					!book.coverWidth || book.coverWidth >= maxDisplayWidth
+						? 1
+						: maxDisplayWidth / book.coverWidth;
 
 				this.openedImages.push({
 					url,
