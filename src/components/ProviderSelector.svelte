@@ -1,3 +1,7 @@
+<script module lang="ts">
+	export const PROVIDER_PARAM_KEY = 'provider';
+</script>
+
 <script lang="ts">
 	import allProviders, { sortProviders, type Provider } from '../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
@@ -44,7 +48,7 @@
 	onMount(() => {
 		if (!paramsEnabled) return;
 
-		const providerIds = getAllSvelteSearchParams('provider');
+		const providerIds = getAllSvelteSearchParams(PROVIDER_PARAM_KEY);
 		if (providerIds.length > 0) {
 			const paramProviders = providers.filter((p) => providerIds.includes(p.id));
 			if (paramProviders.length > 0) {
@@ -61,9 +65,9 @@
 		for (const provider of providers) {
 			const isSelected = selectedIds.includes(provider.id);
 			if (isSelected) {
-				appendSvelteSearchParam('provider', provider.id);
+				appendSvelteSearchParam(PROVIDER_PARAM_KEY, provider.id);
 			} else {
-				removeSvelteSearchParam('provider', provider.id);
+				removeSvelteSearchParam(PROVIDER_PARAM_KEY, provider.id);
 			}
 		}
 	});

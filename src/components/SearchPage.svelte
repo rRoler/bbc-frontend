@@ -5,10 +5,15 @@
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
 	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { addKeyHold, getSvelteSearchParam, setSvelteSearchParam } from '../lib/utils.ts';
+	import {
+		addKeyHold,
+		getSvelteSearchParam,
+		hasSvelteSearchParam,
+		setSvelteSearchParam,
+	} from '../lib/utils.ts';
 	import Image from './Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
-	import ProviderSelector from './ProviderSelector.svelte';
+	import ProviderSelector, { PROVIDER_PARAM_KEY } from './ProviderSelector.svelte';
 	import { searchSettings, autoMatchResultsSetting } from '../lib/svelte/settings.svelte.ts';
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
@@ -74,10 +79,12 @@
 	onMount(() => {
 		appState.loading = true;
 
-		allProviders.load();
-		searchSettings.load();
+		if (!hasSvelteSearchParam(PROVIDER_PARAM_KEY)) {
+			allProviders.load();
+			selectedProviders = allProviders.enabled;
+		}
 
-		selectedProviders = allProviders.enabled;
+		searchSettings.load();
 		resultAutoMatchEnabled = autoMatchResultsSetting.value;
 
 		const query = getSvelteSearchParam('q');
