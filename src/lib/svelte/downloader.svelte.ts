@@ -60,6 +60,7 @@ export interface OpenedImage {
 	percentage: number;
 	provider: Provider;
 	name: string;
+	scaleFactor: number;
 }
 
 class Downloader {
@@ -688,6 +689,12 @@ class Downloader {
 
 			const totalImages = urls.filter(Boolean).length;
 			const widthPercentage = totalImages > 0 ? 100 / totalImages : 100;
+			const isSmallDisplay = window.matchMedia('(width <= 64rem)').matches;
+			const maxBookWidth = Math.max(1, ...books.values().map((b) => b?.coverWidth || 1));
+			const displayWidth = isSmallDisplay
+				? window.innerWidth
+				: (widthPercentage / 100) * window.innerWidth;
+			const maxDisplayWidth = Math.min(maxBookWidth, displayWidth);
 
 			for (const [index, book] of books.entries()) {
 				const url = urls[index];
@@ -701,11 +708,15 @@ class Downloader {
 					continue;
 				}
 
+				const scaleFactor =
+					(book.coverWidth || 1) >= maxDisplayWidth ? 1 : maxDisplayWidth / (book.coverWidth || 1);
+
 				this.openedImages.push({
 					url,
 					percentage: widthPercentage,
 					provider: book.provider,
 					name: book.title,
+					scaleFactor,
 				});
 			}
 		} catch (e) {

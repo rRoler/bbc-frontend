@@ -133,7 +133,10 @@
 					smoothing={downloader.openedImageData.smoothing}
 					bind:targetOffsetX={downloader.openedImageData.targetOffsetX}
 					bind:targetOffsetY={downloader.openedImageData.targetOffsetY}
-					bind:targetScale={downloader.openedImageData.targetScale}
+					bind:targetScale={
+						() => downloader.openedImageData.targetScale * image.scaleFactor,
+						(v) => (downloader.openedImageData.targetScale = v / image.scaleFactor)
+					}
 					bind:minScale={downloader.openedImageData.minScale}
 					bind:maxScale={downloader.openedImageData.maxScale}
 				/>
