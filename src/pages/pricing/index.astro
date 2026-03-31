@@ -1,0 +1,90 @@
+---
+import { Check } from 'lucide-svelte';
+import { pricingLocation } from '../../lib/locations';
+import PageLayout from '../../layouts/PageLayout.astro';
+
+const plans: {
+	name: string;
+	price: string;
+	features: string[];
+	best?: boolean;
+	disableSubscribe?: boolean;
+}[] = [
+	{
+		name: 'Free',
+		price: '0€',
+		features: ['10 covers per day'],
+		disableSubscribe: true,
+	},
+	{
+		name: 'Starter',
+		price: '5€',
+		features: ['100 covers per day', 'No Ads', 'No crypto miner', 'AI features', 'Free KitKats'],
+		best: true,
+	},
+	{
+		name: 'Pro',
+		price: '10€',
+		features: [
+			'1000 covers per day',
+			'No Ads',
+			'No crypto miner',
+			'AI features',
+			'Priority support',
+			'Uncensored BBC',
+			'Free KitKats',
+		],
+	},
+	{
+		name: 'Enterprise',
+		price: '50%',
+		features: [
+			'Unlimited covers per day',
+			'No Ads',
+			'No crypto miner',
+			'AI features',
+			'Enterprise support',
+			'Uncensored BBC',
+			'Free KitKats',
+		],
+	},
+];
+---
+
+<PageLayout title={pricingLocation.label}>
+	<div class="flex h-full w-full flex-col gap-4 p-4 xl:flex-row xl:items-center xl:justify-center">
+		{
+			plans.map((p, i) => (
+				<div class="card bg-base-100 w-96 max-w-full shadow-sm">
+					<div class="card-body">
+						{p.best && <span class="badge badge-xs badge-warning">Most Popular</span>}
+
+						<div class="flex justify-between">
+							<h2 class="text-3xl font-bold">{p.name}</h2>
+							<span class="text-xl">{p.price}/mo</span>
+						</div>
+
+						<ul class="mt-6 flex flex-col gap-2 text-xs">
+							{p.features.map((f) => (
+								<li>
+									<Check class="text-success me-2 inline-block size-4" />
+									<span>{f}</span>
+								</li>
+							))}
+						</ul>
+
+						<div class="mt-6">
+							<button
+								onclick={`window.open('https://roler.dev/subscribe?plan=${i}', '_blank');`}
+								class="btn btn-primary btn-block"
+								disabled={p.disableSubscribe}
+							>
+								Subscribe
+							</button>
+						</div>
+					</div>
+				</div>
+			))
+		}
+	</div>
+</PageLayout>

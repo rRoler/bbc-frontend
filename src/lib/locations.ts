@@ -1,4 +1,13 @@
-import { Download, Info, Search, Settings, FolderGit2, Heart, type Icon } from 'lucide-svelte';
+import {
+	Download,
+	Info,
+	Search,
+	Settings,
+	FolderGit2,
+	Heart,
+	HandCoins,
+	type Icon,
+} from 'lucide-svelte';
 
 interface DockLocation {
 	path: string;
@@ -52,9 +61,16 @@ export const donationLocation: DockLocation = {
 	label: 'Support Me',
 };
 
+export const pricingLocation: DockLocation = {
+	path: '/pricing',
+	Icon: HandCoins,
+	label: 'Pricing',
+};
+
 export const dockLocations: DockLocation[] = [
 	searchLocation,
 	downloadLocation,
 	aboutLocation,
 	settingsLocation,
+	pricingLocation,
 ];

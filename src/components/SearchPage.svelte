@@ -17,6 +17,10 @@
 	import { searchSettings, autoMatchResultsSetting } from '../lib/svelte/settings.svelte.ts';
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
+	import { areAdsDisabled, getRandomAd } from '../lib/ads.ts';
+
+	let adsDisabled = $state(false);
+	const bannerAd = getRandomAd('banner');
 
 	const maxSelectedSeries = 10;
 	const api = new BBC_API();
@@ -78,6 +82,8 @@
 
 	onMount(() => {
 		appState.loading = true;
+
+		adsDisabled = areAdsDisabled();
 
 		if (!hasSvelteSearchParam(PROVIDER_PARAM_KEY)) {
 			allProviders.load();
@@ -152,6 +158,25 @@
 		</label>
 	</div>
 
+	{#if !adsDisabled}
+		<div
+			class="flex h-30 w-full items-center justify-center overflow-hidden py-4 sm:h-38 md:h-48 lg:h-58"
+		>
+			<a
+				href={bannerAd.url}
+				title="Click Me"
+				target="_blank"
+				class="relative h-full w-fit overflow-hidden rounded-sm"
+			>
+				<div class="badge badge-neutral badge-xs sm:badge-sm absolute top-2 right-2 shadow-sm">
+					Ad
+				</div>
+
+				<Image src={bannerAd.image} alt="Advertisement" class="h-full w-fit" loading="lazy" />
+			</a>
+		</div>
+	{/if}
+
 	{#if searching}
 		<div class="flex size-full items-center justify-center">
 			<span class="loading loading-spinner loading-xl size-24"></span>
@@ -173,6 +198,38 @@
 						<div class="flex flex-row gap-2 overflow-x-auto p-1">
 							{#each allSeries as series, index (index)}
 								{@const isSelected = selectedSeries[provider.id]?.some((s) => s.id === series.id)}
+
+								{#if !adsDisabled}
+									{#if index === Math.floor(Math.random() * 3)}
+										{@const coverAd = getRandomAd('cover')}
+
+										<div
+											class="card bg-base-100 content-visibility-auto focus-within:outline-primary relative w-26 shrink-0 shadow-sm focus-within:outline-1 sm:w-42"
+										>
+											<a
+												href={coverAd.url}
+												class="absolute top-0 left-0 size-full cursor-pointer"
+												title="Click Me"
+												target="_blank"
+											></a>
+
+											<div
+												class="badge badge-neutral badge-xs sm:badge-sm absolute top-2 right-2 shadow-sm"
+											>
+												Ad
+											</div>
+
+											<figure class="h-full w-full">
+												<Image
+													src={coverAd.image}
+													alt="Advertisement"
+													class="h-fit w-fit"
+													loading="lazy"
+												/>
+											</figure>
+										</div>
+									{/if}
+								{/if}
 
 								<div
 									class="card bg-base-100 content-visibility-auto focus-within:outline-primary relative w-26 shrink-0 shadow-sm focus-within:outline-1 sm:w-42"

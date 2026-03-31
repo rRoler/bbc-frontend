@@ -10,6 +10,7 @@ import {
 	aboutLocation,
 	dockLocations,
 	donationLocation,
+	pricingLocation,
 	settingsLocation,
 	sourceCodeLocation,
 } from '../lib/locations.ts';
@@ -85,6 +86,14 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 						title={settingsLocation.label}
 					>
 						<settingsLocation.Icon class="size-6" />
+					</a>
+
+					<a
+						class="btn btn-ghost btn-circle"
+						href={pricingLocation.path}
+						title={pricingLocation.label}
+					>
+						<pricingLocation.Icon class="size-6" />
 					</a>
 				</div>
 			</div>

@@ -222,9 +222,17 @@ export const configuredProvidersSetting = new Setting<ProviderEditorSetting>({
 	defaultValue: allProviders,
 });
 
+export const disableApfAdsSetting = new Setting<ToggleSetting>({
+	id: 'disable-apf-ads',
+	type: 'toggle',
+	name: 'Disable Ads',
+	description: 'Disable April fools ads.',
+	defaultValue: false,
+});
+
 export const generalSettings = new SettingsField({
 	name: 'General',
-	settings: [themeSetting, configuredProvidersSetting],
+	settings: [themeSetting, configuredProvidersSetting, disableApfAdsSetting],
 });
 
 export const autoMatchResultsSetting = new Setting<ToggleSetting>({
