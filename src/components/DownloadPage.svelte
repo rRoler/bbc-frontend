@@ -37,10 +37,6 @@
 	import Downloader from '../lib/svelte/downloader.svelte.ts';
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { downloadLocation } from '../lib/locations.ts';
-	import { areAdsDisabled, getRandomAd } from '../lib/ads.ts';
-
-	let adsDisabled = $state(false);
-	const bannerAd = getRandomAd('banner');
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();
@@ -52,8 +48,6 @@
 
 	onMount(async () => {
 		appState.loading = true;
-
-		adsDisabled = areAdsDisabled();
 
 		downloadSettings.load();
 
@@ -211,25 +205,6 @@
 			{/if}
 		</div>
 
-		{#if !adsDisabled}
-			<div
-				class="flex h-30 w-full items-center justify-center overflow-hidden py-4 sm:h-38 md:h-48 lg:h-58"
-			>
-				<a
-					href={bannerAd.url}
-					title="Click Me"
-					target="_blank"
-					class="relative h-full w-fit overflow-hidden rounded-sm"
-				>
-					<div class="badge badge-neutral badge-xs sm:badge-sm absolute top-2 right-2 shadow-sm">
-						Ad
-					</div>
-
-					<Image src={bannerAd.image} alt="Advertisement" class="h-full w-fit" loading="lazy" />
-				</a>
-			</div>
-		{/if}
-
 		{#if downloader.sortedFilteredBooks.length > 0}
 			<Pagination
 				page={downloader.page}
@@ -243,38 +218,6 @@
 					{@const isSelected = downloader.selectedBooks.some(
 						(b) => b.id === book.id && b.provider.id === book.provider.id
 					)}
-
-					{#if !adsDisabled}
-						{#if index === Math.floor(Math.random() * downloader.filteredBooks.length)}
-							{@const coverAd = getRandomAd('cover')}
-
-							<div
-								class="card bg-base-100 group content-visibility-auto focus-within:outline-primary relative w-36 shrink-0 shadow-sm focus-within:outline-1 sm:w-42"
-							>
-								<a
-									href={coverAd.url}
-									class="absolute top-0 left-0 size-full cursor-pointer"
-									title="Click Me"
-									target="_blank"
-								></a>
-
-								<div
-									class="badge badge-neutral badge-xs sm:badge-sm absolute top-2 right-2 shadow-sm"
-								>
-									Ad
-								</div>
-
-								<figure class="h-full w-full">
-									<Image
-										src={coverAd.image}
-										alt="Advertisement"
-										class="h-fit w-fit"
-										loading="lazy"
-									/>
-								</figure>
-							</div>
-						{/if}
-					{/if}
 
 					<div
 						class="card bg-base-100 group content-visibility-auto focus-within:outline-primary relative w-36 shrink-0 shadow-sm focus-within:outline-1 sm:w-42"
