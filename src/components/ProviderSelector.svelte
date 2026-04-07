@@ -46,13 +46,15 @@
 	);
 
 	onMount(() => {
+		allProviders.load();
+
 		if (!paramsEnabled) return;
 
 		const providerIds = getAllSvelteSearchParams(PROVIDER_PARAM_KEY);
 		if (providerIds.length > 0) {
 			const paramProviders = providers.filter((p) => providerIds.includes(p.id));
 			if (paramProviders.length > 0) {
-				selected = paramProviders;
+				selected = sortProviders([...paramProviders]);
 			}
 		}
 	});
@@ -98,7 +100,7 @@
 		}
 
 		debounceTimer = setTimeout(() => {
-			selected = [...pendingSelection];
+			selected = sortProviders([...pendingSelection]);
 			onchange?.(selected);
 			debounceTimer = undefined;
 		}, delayMs) as unknown as number;

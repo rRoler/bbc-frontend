@@ -74,7 +74,6 @@
 	onMount(() => {
 		appState.loading = true;
 
-		allProviders.load();
 		if (selectedProviders.length === 0) {
 			selectedProviders = allProviders.enabled;
 		}

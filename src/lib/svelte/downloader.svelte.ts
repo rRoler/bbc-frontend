@@ -358,13 +358,8 @@ class Downloader {
 
 		this.isFetching = true;
 
-		const allIds = {
-			...this.allBookIds,
-			...this.allSeriesIds,
-		};
-
 		try {
-			const response = await this.api.getSeries(allIds);
+			const response = await this.api.getSeries(this.allSeriesIds, this.allBookIds);
 
 			if (response.errors.length > 0) response.errors.forEach((e) => addAppError(e));
 
