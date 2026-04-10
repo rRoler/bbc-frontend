@@ -805,10 +805,7 @@ class Downloader {
 
 			const imagesToSaveTotal = Object.keys(imagesToSave).length;
 
-			if (imagesToSaveTotal === 0) {
-				console.debug('No covers to download');
-				return;
-			}
+			if (imagesToSaveTotal === 0) throw new Error('No covers to download!');
 
 			const saveZip = async () => {
 				const zipped = zipSync(imagesToSave, { level: 0 });

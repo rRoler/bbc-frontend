@@ -212,6 +212,12 @@
 											<div class="badge badge-primary badge-xs sm:badge-sm shadow-sm">Manga</div>
 										{:else if series.bookType === 'novel'}
 											<div class="badge badge-secondary badge-xs sm:badge-sm shadow-sm">Novel</div>
+										{:else if series.bookType === 'webtoon'}
+											<div class="badge badge-accent badge-xs sm:badge-sm shadow-sm">Webtoon</div>
+										{:else if series.bookType === 'audiobook'}
+											<div class="badge badge-neutral badge-xs sm:badge-sm shadow-sm">
+												Audiobook
+											</div>
 										{/if}
 
 										{#if series.publicationType === 'digital'}

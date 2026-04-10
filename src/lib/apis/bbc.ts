@@ -28,7 +28,7 @@ export interface BBCSeries {
 	type: 'series' | 'book';
 	title: string;
 	thumbnail: string;
-	bookType?: 'manga' | 'novel';
+	bookType?: 'manga' | 'novel' | 'webtoon' | 'audiobook';
 	publicationType?: 'physical' | 'digital';
 }
 

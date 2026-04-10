@@ -49,7 +49,7 @@ export const bookWalkerReader: Provider = {
 export const bookWalkerGlobal: Provider = {
 	id: 'bw-g',
 	name: 'BookWalker Global',
-	icon: '/images/providers/bw.svg',
+	icon: '/images/providers/bwg.svg',
 	locale: 'en',
 	colors: { primary: '#3498db', secondary: '#3498db' },
 	priority: 4,
@@ -59,7 +59,7 @@ export const bookWalkerGlobal: Provider = {
 export const bookWalkerGlobalReader: Provider = {
 	id: 'bw-gr',
 	name: 'BookWalker Global Preview',
-	icon: '/images/providers/bw.svg',
+	icon: '/images/providers/bwg.svg',
 	locale: 'en',
 	colors: { primary: '#3498db', secondary: '#6db5e5' },
 	priority: 5,
