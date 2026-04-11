@@ -14,6 +14,12 @@ export interface Provider {
 	volumePrefix?: string;
 }
 
+export interface ProviderStorageEntry {
+	id: Provider['id'];
+	enabled: Provider['enabled'];
+	priority: Provider['priority'];
+}
+
 export const bookLive: Provider = {
 	id: 'bl',
 	name: 'BookLive',

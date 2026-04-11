@@ -1,5 +1,5 @@
 import { getTextVariableName } from '../utils.ts';
-import allProviders, { type Provider } from '../providers.ts';
+import allProviders, { type ProviderStorageEntry } from '../providers.ts';
 import type { WsrvOptions } from '../apis/wsrv.ts';
 import type { BBCSort } from '../apis/bbc.ts';
 
@@ -14,11 +14,11 @@ export interface SettingBase<T> {
 	defaultValue: T;
 }
 
-export interface ProviderSelectSetting extends SettingBase<Provider[]> {
+export interface ProviderSelectSetting extends SettingBase<ProviderStorageEntry[]> {
 	type: 'provider-select';
 }
 
-export interface ProviderEditorSetting extends SettingBase<Provider[]> {
+export interface ProviderEditorSetting extends SettingBase<ProviderStorageEntry[]> {
 	type: 'provider-editor';
 }
 

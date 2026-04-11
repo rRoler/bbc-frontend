@@ -1,8 +1,13 @@
-import allProviders, { sortProviders, getEnabledProviders, type Provider } from '../providers.ts';
+import allProviders, {
+	sortProviders,
+	getEnabledProviders,
+	type Provider,
+	type ProviderStorageEntry,
+} from '../providers.ts';
 import { configuredProvidersSetting } from './settings.svelte.ts';
-import { SvelteSet } from 'svelte/reactivity';
+import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
-export type { Provider };
+export type { Provider, ProviderStorageEntry };
 export { sortProviders, getEnabledProviders };
 
 export class Providers {
@@ -11,10 +16,14 @@ export class Providers {
 	updated: Provider[] = $derived.by(() => {
 		if (!configuredProvidersSetting?.value) return allProviders;
 
-		const storedIds = new SvelteSet(configuredProvidersSetting.value.map((p) => p.id));
+		const providerDataMap = new SvelteMap(allProviders.map((p) => [p.id, p]));
+		const allStoredProviders = configuredProvidersSetting.value
+			.map((p) => providerDataMap.get(p.id))
+			.filter((p) => !!p);
+		const storedIds = new SvelteSet(allStoredProviders.map((p) => p.id));
 		const newProviders = allProviders.filter((p) => !storedIds.has(p.id));
 
-		return [...configuredProvidersSetting.value, ...newProviders];
+		return [...allStoredProviders, ...newProviders];
 	});
 
 	sorted: Provider[] = $derived(sortProviders([...this.updated]));
