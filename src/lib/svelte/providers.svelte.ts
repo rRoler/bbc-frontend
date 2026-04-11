@@ -13,18 +13,25 @@ export { sortProviders, getEnabledProviders };
 export class Providers {
 	load = () => configuredProvidersSetting.load();
 
-	updated: Provider[] = $derived.by(() => {
-		if (!configuredProvidersSetting?.value) return allProviders;
-
+	expandStoreEntries = (entries: ProviderStorageEntry[]): Provider[] => {
 		const providerDataMap = new SvelteMap(allProviders.map((p) => [p.id, p]));
-		const allStoredProviders = configuredProvidersSetting.value
-			.map((p) => providerDataMap.get(p.id))
-			.filter((p) => !!p);
-		const storedIds = new SvelteSet(allStoredProviders.map((p) => p.id));
-		const newProviders = allProviders.filter((p) => !storedIds.has(p.id));
+		const mapped = entries
+			.map((entry) => {
+				const p = providerDataMap.get(entry.id);
+				if (!p) return null;
+				return { ...p, enabled: entry.enabled, priority: entry.priority };
+			})
+			.filter((p) => !!p) as Provider[];
+		const mappedIds = new SvelteSet(mapped.map((p) => p.id));
+		const rest = allProviders.filter((p) => !mappedIds.has(p.id));
+		return [...mapped, ...rest];
+	};
 
-		return [...allStoredProviders, ...newProviders];
-	});
+	updated: Provider[] = $derived(
+		configuredProvidersSetting?.value
+			? this.expandStoreEntries(configuredProvidersSetting.value)
+			: allProviders
+	);
 
 	sorted: Provider[] = $derived(sortProviders([...this.updated]));
 

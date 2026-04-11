@@ -224,3 +224,7 @@ export function sortProviders(providers: Provider[]) {
 export function getEnabledProviders(providers: Provider[]) {
 	return providers.filter((p) => p.enabled);
 }
+
+export function mapToStoreEntries(providers: Provider[]): ProviderStorageEntry[] {
+	return providers.map(({ id, enabled, priority }) => ({ id, enabled, priority }));
+}

@@ -1,5 +1,5 @@
 import { getTextVariableName } from '../utils.ts';
-import allProviders, { type ProviderStorageEntry } from '../providers.ts';
+import allProviders, { mapToStoreEntries, type ProviderStorageEntry } from '../providers.ts';
 import type { WsrvOptions } from '../apis/wsrv.ts';
 import type { BBCSort } from '../apis/bbc.ts';
 
@@ -219,7 +219,7 @@ export const configuredProvidersSetting = new Setting<ProviderEditorSetting>({
 	name: 'Providers',
 	description:
 		'Change the provider priority order and whether they are used by default when searching',
-	defaultValue: allProviders,
+	defaultValue: mapToStoreEntries(allProviders),
 });
 
 export const generalSettings = new SettingsField({

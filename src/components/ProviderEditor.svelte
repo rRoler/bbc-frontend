@@ -1,45 +1,50 @@
 <script lang="ts">
 	import allProviders, {
-		sortProviders,
 		getEnabledProviders,
 		type Provider,
+		type ProviderStorageEntry,
 	} from '../lib/svelte/providers.svelte.ts';
+	import { mapToStoreEntries } from '../lib/providers.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import { GripVertical, Settings2, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
 	let {
 		class: className = '',
-		providers = $bindable<Provider[]>(allProviders.sorted),
+		providers = $bindable<ProviderStorageEntry[]>(mapToStoreEntries(allProviders.sorted)),
 		onchange,
 	}: {
 		class?: string;
-		providers?: Provider[];
-		onchange?: (providers: Provider[]) => void | Promise<void>;
+		providers?: ProviderStorageEntry[];
+		onchange?: (providers: ProviderStorageEntry[]) => void | Promise<void>;
 	} = $props();
 
-	let enabledProviders = $derived(getEnabledProviders(providers));
+	let workingList = $state<Provider[]>(allProviders.sorted);
+	let enabledProviders = $derived(getEnabledProviders(workingList));
 	let dialogEl = $state<HTMLDialogElement>();
-	let workingList = $state<Provider[]>([]);
 
 	onMount(() => {
-		allProviders.load();
+		reset();
 	});
 
+	function reset() {
+		allProviders.load();
+		workingList = allProviders.sorted;
+	}
+
 	function openModal() {
-		const allIds = new Set(providers.map((p) => p.id));
-		const merged = [
-			...providers.map((p) => ({ ...p })),
-			...allProviders.sorted.filter((p) => !allIds.has(p.id)),
-		];
-		workingList = sortProviders(merged);
+		workingList = allProviders.expandStoreEntries(providers);
 		dialogEl?.showModal();
+	}
+
+	function commit() {
+		providers = mapToStoreEntries(workingList);
+		onchange?.(providers);
 	}
 
 	function toggleCheck(index: number) {
 		workingList[index] = { ...workingList[index], enabled: !workingList[index].enabled };
-		providers = [...workingList];
-		onchange?.([...providers]);
+		commit();
 	}
 
 	let dragIndex = $state<number | null>(null);
@@ -122,8 +127,7 @@
 		const [moved] = reordered.splice(fromIndex, 1);
 		reordered.splice(toIndex, 0, moved);
 		workingList = reordered.map((p, i) => ({ ...p, priority: i + 1 }));
-		providers = [...workingList];
-		onchange?.([...providers]);
+		commit();
 	}
 </script>
 
@@ -193,6 +197,21 @@
 				</li>
 			{/each}
 		</ul>
+
+		<div class="modal-action">
+			<form method="dialog">
+				<button
+					class="btn"
+					onclick={() => {
+						reset();
+						dialogEl?.close();
+					}}
+				>
+					Cancel
+				</button>
+				<button class="btn btn-primary" onclick={() => dialogEl?.close()}> Done </button>
+			</form>
+		</div>
 	</div>
 
 	<form method="dialog" class="modal-backdrop">

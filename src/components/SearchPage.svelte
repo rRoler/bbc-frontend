@@ -74,11 +74,13 @@
 	onMount(() => {
 		appState.loading = true;
 
+		allProviders.load();
+		searchSettings.load();
+
 		if (selectedProviders.length === 0) {
 			selectedProviders = allProviders.enabled;
 		}
 
-		searchSettings.load();
 		resultAutoMatchEnabled = autoMatchResultsSetting.value;
 
 		const query = getSvelteSearchParam('q');
