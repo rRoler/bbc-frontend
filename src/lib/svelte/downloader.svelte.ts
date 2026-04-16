@@ -144,6 +144,17 @@ class Downloader {
 	isEditMode = $state<boolean>(false);
 	editedBooks = $state<Book[]>([]);
 
+	booksByVolumeCounts = $derived.by(() => {
+		const counts = new SvelteMap<string, number>();
+		const booksByVolume = this.getBooksByVolume(this.allBooks);
+
+		for (const [volumeName, volumeBooks] of booksByVolume) {
+			counts.set(volumeName, volumeBooks.length);
+		}
+
+		return counts;
+	});
+
 	private sortBookNaturally(a: Book, b: Book): number {
 		const sortBy = bookSortBySetting.value;
 		const order = this.sortOrder;
@@ -281,7 +292,7 @@ class Downloader {
 		return replaceTextVariables(text, vars);
 	}
 
-	private automaticallyPickCovers(books: Book[]): Book[] {
+	private getBooksByVolume(books: Book[]) {
 		const booksByVolume = new SvelteMap<string, Book[]>();
 		for (const book of books) {
 			if (!booksByVolume.has(book.volumeName)) {
@@ -289,6 +300,11 @@ class Downloader {
 			}
 			booksByVolume.get(book.volumeName)?.push(book);
 		}
+		return booksByVolume;
+	}
+
+	private automaticallyPickCovers(books: Book[]): Book[] {
+		const booksByVolume = this.getBooksByVolume(books);
 
 		const booksToKeep = new SvelteSet<Book>();
 		for (const [, volumeBooks] of booksByVolume) {

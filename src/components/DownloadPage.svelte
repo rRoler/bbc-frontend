@@ -238,7 +238,7 @@
 						></button>
 
 						<div
-							class="absolute top-7 right-0 flex flex-row gap-1 p-1 opacity-80 group-hover:opacity-100 group-focus:opacity-100 sm:opacity-0"
+							class="absolute top-7 right-0 m-1 flex flex-row gap-1 opacity-80 group-hover:opacity-100 group-focus:opacity-100 sm:opacity-0"
 						>
 							<button
 								tabindex="-1"
@@ -271,6 +271,14 @@
 							>
 								<ExternalLink class="size-3" />
 							</a>
+						</div>
+
+						<div class="absolute top-50 left-0 m-1 flex flex-row gap-1 opacity-80 sm:top-57">
+							{#if downloader.automaticCoverQualityEnabled}
+								<span class="badge badge-soft badge-sm sm:badge-md">
+									{downloader.booksByVolumeCounts.get(book.volumeName)}x
+								</span>
+							{/if}
 						</div>
 
 						<div class="flex flex-row justify-between px-2 py-1">
@@ -314,7 +322,7 @@
 									<input
 										type="text"
 										placeholder="Volume Number"
-										class="input"
+										class="input text-base-content"
 										value={book.volume.number}
 										oninput={(e) =>
 											downloader.editBook(book, { volumeNumber: e.currentTarget.value })}
