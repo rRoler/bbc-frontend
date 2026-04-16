@@ -1,17 +1,29 @@
 <script lang="ts">
-	import { Search, LayoutGrid, X, ExternalLink } from 'lucide-svelte';
+	import { Search, LayoutGrid, X, ExternalLink, EllipsisVertical } from 'lucide-svelte';
 	import BBC_API, { type BBCSeries } from '../lib/apis/bbc.ts';
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
 	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
-	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { addKeyHold, getSvelteSearchParam, setSvelteSearchParam } from '../lib/utils.ts';
+	import { SvelteDate, SvelteURLSearchParams } from 'svelte/reactivity';
+	import {
+		addKeyHold,
+		getLocaleName,
+		getSvelteSearchParam,
+		replaceTextVariables,
+		setSvelteSearchParam,
+	} from '../lib/utils.ts';
 	import Image from './Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
-	import { searchSettings, autoMatchResultsSetting } from '../lib/svelte/settings.svelte.ts';
+	import {
+		searchSettings,
+		autoMatchResultsSetting,
+		searchCopyFormatSetting,
+		textVariables,
+	} from '../lib/svelte/settings.svelte.ts';
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
+	import CopyIcon from './CopyIcon.svelte';
 
 	const maxSelectedSeries = 10;
 	const api = new BBC_API();
@@ -34,6 +46,7 @@
 		return `${basePath}?${params.toString()}`;
 	});
 	let resultAutoMatchEnabled = $state<boolean>(true);
+	let linksCopied = $state<boolean | null>(null);
 
 	function updateLocationStorage() {
 		if (searchLocation.storageKey)
@@ -69,6 +82,57 @@
 
 	function handleKeys(event: KeyboardEvent) {
 		if (event.key === 'Enter') handleSubmit();
+	}
+
+	function parseTextVariables(series: BBCSeries, { providerId }: { providerId?: string }) {
+		const vars: [string, string][] = [];
+		const provider = allProviders.updated.find((p) => p.id === providerId);
+		const currentDate = new SvelteDate();
+		const date = currentDate.toISOString().split('T')[0];
+		const time = currentDate.toISOString().split('T')[1].split('.')[0].replaceAll(':', '-');
+		const datetime = `${date}_${time}`;
+
+		vars.push([textVariables.date, date]);
+		vars.push([textVariables.time, time]);
+		vars.push([textVariables.datetime, datetime]);
+
+		vars.push([textVariables.seriesTitle, series.title]);
+		vars.push([textVariables.seriesThumbnailUrl, series.thumbnail]);
+		vars.push([textVariables.seriesPublicationType, series.publicationType || 'digital']);
+		vars.push([textVariables.seriesBookType, series.bookType || '']);
+		vars.push([textVariables.seriesType, series.type]);
+		vars.push([textVariables.seriesUrl, series.url]);
+		vars.push([textVariables.seriesId, series.id]);
+
+		if (provider) {
+			vars.push([textVariables.providerName, provider.name]);
+			vars.push([textVariables.providerId, provider.id]);
+			vars.push([textVariables.providerLanguageName, getLocaleName(provider.locale)]);
+			vars.push([textVariables.providerLanguageCode, provider.locale]);
+		}
+
+		return replaceTextVariables(searchCopyFormatSetting.value, vars);
+	}
+
+	async function copySelectedLinksToClipboard(): Promise<void> {
+		let text = '';
+
+		for (const [providerId, series] of Object.entries(selectedSeries)) {
+			for (const s of series) {
+				text += parseTextVariables(s, { providerId });
+			}
+		}
+
+		await navigator.clipboard.writeText(text).then(
+			() => {
+				console.debug('Copied links to clipboard');
+				linksCopied = true;
+			},
+			() => {
+				addAppError(new Error('Failed to copy links to clipboard'));
+				linksCopied = false;
+			}
+		);
 	}
 
 	onMount(() => {
@@ -287,6 +351,24 @@
 	{#if selectedSeriesCount > 0}
 		<div class="grow"></div>
 		<div class="sticky bottom-4 left-0 flex w-full flex-row items-center justify-center gap-2 pt-4">
+			<div class="dropdown dropdown-top">
+				<div tabindex="0" role="button" class="btn btn-lg btn-circle btn-soft">
+					<EllipsisVertical class="size-6" />
+				</div>
+
+				<ul
+					tabindex="-1"
+					class="dropdown-content menu bg-base-100 rounded-box z-1 w-36 min-w-fit p-2 shadow-sm"
+				>
+					<li>
+						<button onclick={() => copySelectedLinksToClipboard()}>
+							<CopyIcon bind:value={linksCopied} class="size-4" />
+							Copy Links
+						</button>
+					</li>
+				</ul>
+			</div>
+
 			<button onclick={() => (selectedSeries = {})} class="btn btn-lg btn-neutral shadow-lg">
 				<X class="text-error size-6" />
 				Clear

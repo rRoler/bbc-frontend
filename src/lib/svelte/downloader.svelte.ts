@@ -242,6 +242,7 @@ class Downloader {
 			vars.push([textVariables.volumeName, book.volumeName]);
 			vars.push([textVariables.volumeNumber, book.volume.number || '0']);
 			vars.push([textVariables.bookTitle, book.title]);
+			vars.push([textVariables.bookUrl, book.url]);
 			vars.push([textVariables.bookId, book.id]);
 			vars.push([textVariables.providerName, book.provider.name]);
 			vars.push([textVariables.providerId, book.provider.id]);

@@ -180,12 +180,14 @@ export const textVariables = {
 	bookPageName: 'BOOK_PAGE_NAME',
 	bookPageNumber: 'BOOK_PAGE_NUMBER',
 	bookTitle: 'BOOK_TITLE',
+	bookUrl: 'BOOK_URL',
 	bookId: 'BOOK_ID',
 	seriesTitle: 'SERIES_TITLE',
 	seriesThumbnailUrl: 'SERIES_THUMBNAIL_URL',
 	seriesPublicationType: 'SERIES_PUBLICATION_TYPE',
 	seriesBookType: 'SERIES_BOOK_TYPE',
 	seriesType: 'SERIES_TYPE',
+	seriesUrl: 'SERIES_URL',
 	seriesId: 'SERIES_ID',
 	providerName: 'PROVIDER_NAME',
 	providerId: 'PROVIDER_ID',
@@ -235,9 +237,37 @@ export const autoMatchResultsSetting = new Setting<ToggleSetting>({
 	defaultValue: true,
 });
 
+export const searchCopyFormatSetting = new Setting<TextAreaSetting>({
+	id: 'search-copy-format',
+	type: 'textarea',
+	name: 'Copy Format',
+	description: 'The format to use when copying search links',
+	tooltip:
+		'Available variables: ' +
+		[
+			textVariables.seriesTitle,
+			textVariables.seriesThumbnailUrl,
+			textVariables.seriesPublicationType,
+			textVariables.seriesBookType,
+			textVariables.seriesType,
+			textVariables.seriesUrl,
+			textVariables.seriesId,
+			textVariables.providerName,
+			textVariables.providerId,
+			textVariables.providerLanguageName,
+			textVariables.providerLanguageCode,
+			textVariables.date,
+			textVariables.time,
+			textVariables.datetime,
+		]
+			.map((v) => getTextVariableName(v))
+			.join(', '),
+	defaultValue: `${getTextVariableName(textVariables.seriesUrl)}\n`,
+});
+
 export const searchSettings = new SettingsField({
 	name: 'Search',
-	settings: [autoMatchResultsSetting],
+	settings: [autoMatchResultsSetting, searchCopyFormatSetting],
 });
 
 export const bookSortOrderSetting = new Setting<SelectSetting<SelectOption<BBCSort>>>({
@@ -324,6 +354,7 @@ export const bookDisplayTextSetting = new Setting<TextSetting>({
 			textVariables.bookPageName,
 			textVariables.bookPageNumber,
 			textVariables.bookTitle,
+			textVariables.bookUrl,
 			textVariables.bookId,
 			textVariables.seriesTitle,
 			textVariables.seriesPublicationType,
@@ -360,6 +391,7 @@ export const coverFilenameSetting = new Setting<TextSetting>({
 			textVariables.bookPageName,
 			textVariables.bookPageNumber,
 			textVariables.bookTitle,
+			textVariables.bookUrl,
 			textVariables.bookId,
 			textVariables.seriesTitle,
 			textVariables.seriesPublicationType,
@@ -397,6 +429,7 @@ export const coverPathSetting = new Setting<TextSetting>({
 			textVariables.bookPageName,
 			textVariables.bookPageNumber,
 			textVariables.bookTitle,
+			textVariables.bookUrl,
 			textVariables.bookId,
 			textVariables.seriesTitle,
 			textVariables.seriesPublicationType,
@@ -461,6 +494,7 @@ export const copyFormatSetting = new Setting<TextAreaSetting>({
 			textVariables.bookPageName,
 			textVariables.bookPageNumber,
 			textVariables.bookTitle,
+			textVariables.bookUrl,
 			textVariables.bookId,
 			textVariables.seriesTitle,
 			textVariables.seriesThumbnailUrl,
