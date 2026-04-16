@@ -141,6 +141,9 @@ class Downloader {
 		this.selectedProviders.some((p) => p.supportsBookPages) && this.maxBookPage > 0
 	);
 
+	isEditMode = $state<boolean>(false);
+	editedBooks = $state<Book[]>([]);
+
 	private sortBookNaturally(a: Book, b: Book): number {
 		const sortBy = bookSortBySetting.value;
 		const order = this.sortOrder;
@@ -857,6 +860,64 @@ class Downloader {
 
 	async copyCoverLink(book: Book): Promise<void> {
 		await this.copyLinksToClipboard([book], `book-${book.provider.id}-${book.id}`);
+	}
+
+	toggleEditMode() {
+		this.isEditMode = !this.isEditMode;
+	}
+
+	editBook(book: Book, { volumeNumber }: { volumeNumber?: string }) {
+		if (!this.isEditMode) return;
+
+		const bookCopy = { ...book };
+
+		if (volumeNumber && volumeNumber !== book.volume.number) {
+			bookCopy.volume = {
+				...bookCopy.volume,
+				number: volumeNumber,
+			};
+			bookCopy.volumeName = this.parseVolumeName(bookCopy, {
+				forcePrefix: bookCopy.provider.volumePrefix,
+			});
+			bookCopy.displayText = this.parseTextVariables(bookDisplayTextSetting.value, {
+				book: bookCopy,
+			});
+		}
+
+		const editedBookIndex = this.editedBooks.findIndex(
+			(b) => b.id === bookCopy.id && b.provider.id === bookCopy.provider.id
+		);
+		const isSame = JSON.stringify(book) === JSON.stringify(bookCopy);
+
+		if (editedBookIndex > -1) {
+			if (isSame) this.editedBooks.splice(editedBookIndex, 1);
+			else this.editedBooks.splice(editedBookIndex, 1, bookCopy);
+		} else if (!isSame) {
+			this.editedBooks.push(bookCopy);
+		}
+
+		return bookCopy;
+	}
+
+	clearEdits() {
+		this.editedBooks = [];
+	}
+
+	cancelEdits() {
+		this.clearEdits();
+		this.isEditMode = false;
+	}
+
+	applyEdits() {
+		for (const editedBook of this.editedBooks) {
+			const bookIndex = this.allBooks.findIndex(
+				(b) => b.id === editedBook.id && b.provider.id === editedBook.provider.id
+			);
+			if (bookIndex > -1) this.allBooks.splice(bookIndex, 1, editedBook);
+			else this.allBooks.push(editedBook);
+		}
+		this.clearEdits();
+		this.isEditMode = false;
 	}
 
 	async initialize(): Promise<void> {

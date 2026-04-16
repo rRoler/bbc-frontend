@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Info, RotateCcw, Folder, FolderOpen, X } from 'lucide-svelte';
+	import { Info, RotateCcw, Folder, FolderOpen, X, Save } from 'lucide-svelte';
 	import allSettingsFields, {
 		themeSetting,
 		fileSystemFolderSetting,
@@ -167,6 +167,7 @@
 		class="btn btn-lg btn-primary shadow-lg"
 		disabled={!allSettingsFields.some((f) => f.isChanged)}
 	>
+		<Save class="size-6" />
 		Save
 	</button>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { appState } from '../lib/svelte/app.svelte.ts';
 	import {
+		Check,
 		ChevronDown,
 		ChevronUp,
 		Crop,
@@ -8,12 +9,14 @@
 		EllipsisVertical,
 		Expand,
 		ExternalLink,
+		Pencil,
 		Shrink,
 		SquareCheckBig,
 		SquareDashed,
 		SquareSplitHorizontal,
 		SquareSplitVertical,
 		Star,
+		X,
 	} from 'lucide-svelte';
 	import {
 		addKeyboardShortcut,
@@ -307,7 +310,18 @@
 
 						<div class="card-body items-center justify-between gap-1 p-1 text-center">
 							<div class="card-title line-clamp-2 grow text-sm">
-								<h3>{book.displayText}</h3>
+								{#if downloader.isEditMode}
+									<input
+										type="text"
+										placeholder="Volume Number"
+										class="input"
+										value={book.volume.number}
+										oninput={(e) =>
+											downloader.editBook(book, { volumeNumber: e.currentTarget.value })}
+									/>
+								{:else}
+									<h3>{book.displayText}</h3>
+								{/if}
 							</div>
 
 							<ProviderLabel
@@ -344,201 +358,245 @@
 			<div
 				class="sticky bottom-4 left-0 flex w-full flex-row items-center justify-center gap-2 pt-4 sm:gap-4"
 			>
-				<div class="dropdown dropdown-top xl:hidden">
-					<div tabindex="0" role="button" class="btn btn-lg btn-circle btn-soft xl:hidden">
-						<EllipsisVertical class="size-6" />
+				{#if downloader.isEditMode}
+					<button onclick={() => downloader.cancelEdits()} class="btn btn-lg btn-soft shadow-lg">
+						<X class="size-6" />
+						Cancel
+					</button>
+
+					<div class="indicator">
+						{#if downloader.editedBooks.length > 1}
+							<span class="indicator-item badge badge-primary badge-soft font-semibold">
+								{downloader.editedBooks.length}
+							</span>
+						{/if}
+						<div>
+							<button
+								onclick={() => downloader.applyEdits()}
+								class="btn btn-lg btn-primary shadow-lg"
+								disabled={!(downloader.editedBooks.length > 0)}
+							>
+								<Check class="size-6" />
+								Apply
+							</button>
+						</div>
 					</div>
+				{:else}
+					<div class="dropdown dropdown-top xl:hidden">
+						<div tabindex="0" role="button" class="btn btn-lg btn-circle btn-soft xl:hidden">
+							<EllipsisVertical class="size-6" />
+						</div>
 
-					<ul
-						tabindex="-1"
-						class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
-					>
-						<li>
-							<button
-								onclick={() => unfocusAndExecute(() => downloader.toggleSortOrder())}
-								class="disabled:opacity-50 xl:hidden"
-							>
-								{#if downloader.sortOrder === 'asc'}
-									<ChevronUp class="size-4" />
-									Ascending
-								{:else}
-									<ChevronDown class="size-4" />
-									Descending
-								{/if}
-							</button>
-						</li>
-
-						<li>
-							<button
-								onclick={() => unfocusAndExecute(() => downloader.toggleAllBooks())}
-								class="disabled:opacity-50 lg:hidden"
-							>
-								{#if downloader.isAllSelected}
-									<SquareCheckBig class="size-4" />
-									Deselect All
-								{:else}
-									<SquareDashed class="size-4" />
-									Select All
-								{/if}
-							</button>
-						</li>
-
-						{#if downloader.croppingAvailable}
+						<ul
+							tabindex="-1"
+							class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+						>
 							<li>
 								<button
-									onclick={() =>
-										unfocusAndExecute(() =>
-											downloader.toggleCropCovers(downloader.selectedBooks, downloader.shouldCrop)
-										)}
-									class="disabled:opacity-50 md:hidden"
-									disabled={!downloader.isSomeSelected}
+									onclick={() => unfocusAndExecute(() => downloader.toggleEditMode())}
+									class="disabled:opacity-50 xl:hidden"
 								>
-									<Crop class="size-4" />
-									{#if downloader.shouldCrop}
-										Crop
+									<Pencil class="size-4" />
+									Edit
+								</button>
+							</li>
+
+							<li>
+								<button
+									onclick={() => unfocusAndExecute(() => downloader.toggleSortOrder())}
+									class="disabled:opacity-50 xl:hidden"
+								>
+									{#if downloader.sortOrder === 'asc'}
+										<ChevronUp class="size-4" />
+										Ascending
 									{:else}
-										Uncrop
+										<ChevronDown class="size-4" />
+										Descending
 									{/if}
 								</button>
 							</li>
-						{/if}
 
-						<li>
+							<li>
+								<button
+									onclick={() => unfocusAndExecute(() => downloader.toggleAllBooks())}
+									class="disabled:opacity-50 lg:hidden"
+								>
+									{#if downloader.isAllSelected}
+										<SquareCheckBig class="size-4" />
+										Deselect All
+									{:else}
+										<SquareDashed class="size-4" />
+										Select All
+									{/if}
+								</button>
+							</li>
+
+							{#if downloader.croppingAvailable}
+								<li>
+									<button
+										onclick={() =>
+											unfocusAndExecute(() =>
+												downloader.toggleCropCovers(downloader.selectedBooks, downloader.shouldCrop)
+											)}
+										class="disabled:opacity-50 md:hidden"
+										disabled={!downloader.isSomeSelected}
+									>
+										<Crop class="size-4" />
+										{#if downloader.shouldCrop}
+											Crop
+										{:else}
+											Uncrop
+										{/if}
+									</button>
+								</li>
+							{/if}
+
+							<li>
+								<button
+									onclick={() => unfocusAndExecute(() => downloader.openSelectedCovers())}
+									class="disabled:opacity-50 sm:hidden"
+									disabled={!downloader.isSomeSelected}
+								>
+									{#if downloader.selectedBooksToCompare.length > 1}
+										<SquareSplitVertical class="size-4" />
+										Compare ({downloader.selectedBooksToCompare
+											.length}/{downloader.maxCompareBooks})
+									{:else}
+										<Expand class="size-4" />
+										Open
+									{/if}
+								</button>
+							</li>
+
+							<li>
+								<button
+									onclick={() => unfocusAndExecute(() => downloader.copySelectedLinks())}
+									class="disabled:opacity-50 sm:hidden"
+									disabled={!downloader.isSomeSelected}
+								>
+									<CopyIcon
+										bind:value={
+											() => downloader.copyValues.get('selected-links') || null,
+											(v) => downloader.copyValues.set('selected-links', v || null)
+										}
+										class="size-4"
+									/>
+									Copy Links
+								</button>
+							</li>
+						</ul>
+					</div>
+
+					<button
+						onclick={() => downloader.toggleEditMode()}
+						class="btn btn-lg btn-soft hidden shadow-lg xl:inline-flex"
+					>
+						<Pencil class="size-6" />
+						<span>Edit</span>
+					</button>
+
+					<button
+						onclick={() => downloader.toggleSortOrder()}
+						class="btn btn-lg btn-soft hidden w-44 shadow-lg xl:inline-flex"
+					>
+						{#if downloader.sortOrder === 'asc'}
+							<ChevronUp class="size-6" />
+							<span class="w-full">Ascending</span>
+						{:else}
+							<ChevronDown class="size-6" />
+							<span class="w-full">Descending</span>
+						{/if}
+					</button>
+
+					<button
+						onclick={() => downloader.toggleAllBooks()}
+						class="btn btn-lg btn-soft hidden w-44 shadow-lg lg:inline-flex"
+					>
+						{#if downloader.isAllSelected}
+							<SquareCheckBig class="text-primary size-6" />
+							<span class="w-full">Deselect All</span>
+						{:else}
+							<SquareDashed class="size-6" />
+							<span class="w-full">Select All</span>
+						{/if}
+					</button>
+
+					{#if downloader.croppingAvailable}
+						<button
+							onclick={() =>
+								downloader.toggleCropCovers(downloader.selectedBooks, downloader.shouldCrop)}
+							class="btn btn-lg btn-soft hidden w-36 shadow-lg md:inline-flex"
+							disabled={!downloader.selectedCanBeCropped}
+						>
+							<Crop class="size-6" />
+							{#if downloader.shouldCrop}
+								<span class="w-full">Crop</span>
+							{:else}
+								<span class="w-full">Uncrop</span>
+							{/if}
+						</button>
+					{/if}
+
+					<div class="indicator hidden sm:inline-flex">
+						{#if downloader.selectedBooksToCompare.length > 1}
+							<span
+								class="indicator-item badge badge-soft badge-sm font-semibold"
+								class:badge-warning={downloader.selectedBooksToCompare.length >=
+									downloader.maxCompareBooks}
+							>
+								{downloader.selectedBooksToCompare.length}/{downloader.maxCompareBooks}
+							</span>
+						{/if}
+						<div>
 							<button
-								onclick={() => unfocusAndExecute(() => downloader.openSelectedCovers())}
-								class="disabled:opacity-50 sm:hidden"
+								onclick={() => downloader.openSelectedCovers()}
+								class="btn btn-lg btn-soft w-36 shadow-lg"
 								disabled={!downloader.isSomeSelected}
 							>
 								{#if downloader.selectedBooksToCompare.length > 1}
-									<SquareSplitVertical class="size-4" />
-									Compare ({downloader.selectedBooksToCompare.length}/{downloader.maxCompareBooks})
+									<SquareSplitHorizontal class="size-6" />
+									Compare
 								{:else}
-									<Expand class="size-4" />
+									<Expand class="size-6" />
 									Open
 								{/if}
 							</button>
-						</li>
+						</div>
+					</div>
 
-						<li>
+					<button
+						onclick={() => downloader.copySelectedLinks()}
+						class="btn btn-lg btn-soft hidden shadow-lg sm:inline-flex"
+						disabled={!downloader.isSomeSelected}
+					>
+						<CopyIcon
+							bind:value={
+								() => downloader.copyValues.get('selected-links') || null,
+								(v) => downloader.copyValues.set('selected-links', v || null)
+							}
+							class="size-6"
+						/>
+						Copy Links
+					</button>
+
+					<div class="indicator">
+						{#if downloader.selectedBooks.length > 1}
+							<span class="indicator-item badge badge-primary badge-soft font-semibold">
+								{downloader.selectedBooks.length}
+							</span>
+						{/if}
+						<div>
 							<button
-								onclick={() => unfocusAndExecute(() => downloader.copySelectedLinks())}
-								class="disabled:opacity-50 sm:hidden"
+								onclick={() => downloader.downloadSelectedCovers()}
+								class="btn btn-lg btn-primary shadow-lg"
 								disabled={!downloader.isSomeSelected}
 							>
-								<CopyIcon
-									bind:value={
-										() => downloader.copyValues.get('selected-links') || null,
-										(v) => downloader.copyValues.set('selected-links', v || null)
-									}
-									class="size-4"
-								/>
-								Copy Links
+								<Download class="size-6" />
+								Download
 							</button>
-						</li>
-					</ul>
-				</div>
-
-				<button
-					onclick={() => downloader.toggleSortOrder()}
-					class="btn btn-lg btn-soft hidden w-44 shadow-lg xl:inline-flex"
-				>
-					{#if downloader.sortOrder === 'asc'}
-						<ChevronUp class="size-6" />
-						<span class="w-full">Ascending</span>
-					{:else}
-						<ChevronDown class="size-6" />
-						<span class="w-full">Descending</span>
-					{/if}
-				</button>
-
-				<button
-					onclick={() => downloader.toggleAllBooks()}
-					class="btn btn-lg btn-soft hidden w-44 shadow-lg lg:inline-flex"
-				>
-					{#if downloader.isAllSelected}
-						<SquareCheckBig class="text-primary size-6" />
-						<span class="w-full">Deselect All</span>
-					{:else}
-						<SquareDashed class="size-6" />
-						<span class="w-full">Select All</span>
-					{/if}
-				</button>
-
-				{#if downloader.croppingAvailable}
-					<button
-						onclick={() =>
-							downloader.toggleCropCovers(downloader.selectedBooks, downloader.shouldCrop)}
-						class="btn btn-lg btn-soft hidden w-36 shadow-lg md:inline-flex"
-						disabled={!downloader.selectedCanBeCropped}
-					>
-						<Crop class="size-6" />
-						{#if downloader.shouldCrop}
-							<span class="w-full">Crop</span>
-						{:else}
-							<span class="w-full">Uncrop</span>
-						{/if}
-					</button>
+						</div>
+					</div>
 				{/if}
-
-				<div class="indicator hidden sm:inline-flex">
-					{#if downloader.selectedBooksToCompare.length > 1}
-						<span
-							class="indicator-item badge badge-soft badge-sm font-semibold"
-							class:badge-warning={downloader.selectedBooksToCompare.length >=
-								downloader.maxCompareBooks}
-						>
-							{downloader.selectedBooksToCompare.length}/{downloader.maxCompareBooks}
-						</span>
-					{/if}
-					<div>
-						<button
-							onclick={() => downloader.openSelectedCovers()}
-							class="btn btn-lg btn-soft w-36 shadow-lg"
-							disabled={!downloader.isSomeSelected}
-						>
-							{#if downloader.selectedBooksToCompare.length > 1}
-								<SquareSplitHorizontal class="size-6" />
-								Compare
-							{:else}
-								<Expand class="size-6" />
-								Open
-							{/if}
-						</button>
-					</div>
-				</div>
-
-				<button
-					onclick={() => downloader.copySelectedLinks()}
-					class="btn btn-lg btn-soft hidden shadow-lg sm:inline-flex"
-					disabled={!downloader.isSomeSelected}
-				>
-					<CopyIcon
-						bind:value={
-							() => downloader.copyValues.get('selected-links') || null,
-							(v) => downloader.copyValues.set('selected-links', v || null)
-						}
-						class="size-6"
-					/>
-					Copy Links
-				</button>
-
-				<div class="indicator">
-					{#if downloader.selectedBooks.length > 1}
-						<span class="indicator-item badge badge-primary badge-soft font-semibold">
-							{downloader.selectedBooks.length}
-						</span>
-					{/if}
-					<div>
-						<button
-							onclick={() => downloader.downloadSelectedCovers()}
-							class="btn btn-lg btn-primary shadow-lg"
-							disabled={!downloader.isSomeSelected}
-						>
-							<Download class="size-6" />
-							Download
-						</button>
-					</div>
-				</div>
 			</div>
 		{:else if !downloader.isFetching}
 			<p class="w-full text-center text-lg font-semibold">No covers found</p>
