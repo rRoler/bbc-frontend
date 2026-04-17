@@ -22,6 +22,7 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
     "@astrojs/svelte": "^7.2.5",
+    "@floating-ui/dom": "^1.7.6",
     "@fontsource-variable/nunito": "^5.2.7",
     "@fontsource/zen-maru-gothic": "^5.2.8",
     "@tailwindcss/vite": "^4.2.2",

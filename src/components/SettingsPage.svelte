@@ -8,6 +8,7 @@
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { onMount } from 'svelte';
+	import Tooltip from './Tooltip.svelte';
 
 	const fs = new FileSystem();
 
@@ -53,9 +54,9 @@
 				<label id={setting.id} class="label text-base-content text-base">
 					<a href="#{setting.id}">{setting.name}</a>
 					{#if setting.tooltip}
-						<div class="tooltip" data-tip={setting.tooltip}>
+						<Tooltip position="top" tip={setting.tooltip}>
 							<Info class="size-4 cursor-help" />
-						</div>
+						</Tooltip>
 					{/if}
 				</label>
 
@@ -110,9 +111,9 @@
 								</span>
 							</div>
 
-							<div
-								class="tooltip tooltip-top"
-								data-tip={fs.supported ? 'Pick folder' : (fs.support.reason ?? undefined)}
+							<Tooltip
+								position="top"
+								tip={fs.supported ? 'Pick folder' : (fs.support.reason ?? 'Not supported')}
 							>
 								<button
 									class="btn btn-soft sm:rounded-btn aspect-square rounded-full px-0 sm:aspect-auto sm:px-4"
@@ -123,7 +124,7 @@
 									<Folder class="size-4" />
 									<span class="hidden sm:inline">{fs.hasFolder ? 'Change' : 'Pick'}</span>
 								</button>
-							</div>
+							</Tooltip>
 
 							{#if fs.hasFolder}
 								<button class="btn btn-soft btn-error btn-square" onclick={clearFolder}>
@@ -133,7 +134,7 @@
 						</div>
 					{/if}
 
-					<div class="tooltip tooltip-top" data-tip="Reset">
+					<Tooltip position="top" tip="Reset">
 						<button
 							class="btn btn-circle btn-soft"
 							disabled={setting.isDefault}
@@ -144,7 +145,7 @@
 						>
 							<RotateCcw class="size-6" />
 						</button>
-					</div>
+					</Tooltip>
 				</div>
 
 				{#if settingIndex < field.settings.length - 1}

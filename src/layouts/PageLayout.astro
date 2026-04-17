@@ -13,6 +13,7 @@ import {
 	settingsLocation,
 	sourceCodeLocation,
 } from '../lib/locations.ts';
+import Tooltip from '../components/Tooltip.svelte';
 
 const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: boolean };
 ---
@@ -29,9 +30,11 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 				]}
 			>
 				<div class="navbar-start gap-2">
-					<a id="nav-back" class="btn btn-ghost btn-circle" href="../" title="Go Back">
-						<ArrowLeft class="size-6" />
-					</a>
+					<Tooltip client:load position="bottom" tip="Go Back">
+						<a id="nav-back" class="btn btn-ghost btn-circle" href="../">
+							<ArrowLeft class="size-6" />
+						</a>
+					</Tooltip>
 				</div>
 
 				<div class="navbar-center gap-2">
@@ -57,35 +60,37 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 						)
 					}
 
-					<a
-						href={donationLocation.path}
-						target="_blank"
-						class="btn btn-ghost btn-circle hidden xl:inline-flex"
-						title={donationLocation.label}
-					>
-						<donationLocation.Icon class="fill-secondary text-secondary size-6" />
-					</a>
+					<Tooltip client:load position="bottom" tip={donationLocation.label}>
+						<a
+							href={donationLocation.path}
+							target="_blank"
+							class="btn btn-ghost btn-circle hidden xl:inline-flex"
+						>
+							<donationLocation.Icon class="fill-secondary text-secondary size-6" />
+						</a>
+					</Tooltip>
 
-					<a
-						href={sourceCodeLocation.path}
-						target="_blank"
-						class="btn btn-ghost btn-circle hidden lg:inline-flex"
-						title={sourceCodeLocation.label}
-					>
-						<sourceCodeLocation.Icon class="size-6" />
-					</a>
+					<Tooltip client:load position="bottom" tip={sourceCodeLocation.label}>
+						<a
+							href={sourceCodeLocation.path}
+							target="_blank"
+							class="btn btn-ghost btn-circle hidden lg:inline-flex"
+						>
+							<sourceCodeLocation.Icon class="size-6" />
+						</a>
+					</Tooltip>
 
-					<a class="btn btn-ghost btn-circle" href={aboutLocation.path} title={aboutLocation.label}>
-						<aboutLocation.Icon class="size-6" />
-					</a>
+					<Tooltip client:load position="bottom" tip={aboutLocation.label}>
+						<a class="btn btn-ghost btn-circle" href={aboutLocation.path}>
+							<aboutLocation.Icon class="size-6" />
+						</a>
+					</Tooltip>
 
-					<a
-						class="btn btn-ghost btn-circle"
-						href={settingsLocation.path}
-						title={settingsLocation.label}
-					>
-						<settingsLocation.Icon class="size-6" />
-					</a>
+					<Tooltip client:load position="bottom" tip={settingsLocation.label}>
+						<a class="btn btn-ghost btn-circle" href={settingsLocation.path}>
+							<settingsLocation.Icon class="size-6" />
+						</a>
+					</Tooltip>
 				</div>
 			</div>
 

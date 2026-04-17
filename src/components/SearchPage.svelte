@@ -24,6 +24,7 @@
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
 	import CopyIcon from './CopyIcon.svelte';
+	import Tooltip from './Tooltip.svelte';
 
 	const maxSelectedSeries = 10;
 	const api = new BBC_API();
@@ -243,7 +244,7 @@
 									class:hover:bg-base-300={!isSelected}
 								>
 									<button
-										class="absolute top-0 left-0 size-full cursor-pointer"
+										class="absolute top-0 left-0 z-10 size-full cursor-pointer"
 										onclick={() => {
 											if (resultAutoMatchEnabled) {
 												const isSelectedTemp = isSelected;
@@ -271,68 +272,73 @@
 										aria-label="Select {series.title} series"
 									></button>
 
-									<div
-										class="absolute top-0 right-0 flex w-fit max-w-full flex-row flex-wrap justify-end gap-0.5 p-0.5 sm:gap-1 sm:p-1"
-									>
-										{#if series.bookType === 'manga'}
-											<div class="badge badge-primary badge-xs sm:badge-sm shadow-sm">Manga</div>
-										{:else if series.bookType === 'novel'}
-											<div class="badge badge-secondary badge-xs sm:badge-sm shadow-sm">Novel</div>
-										{:else if series.bookType === 'webtoon'}
-											<div class="badge badge-accent badge-xs sm:badge-sm shadow-sm">Webtoon</div>
-										{:else if series.bookType === 'audiobook'}
-											<div class="badge badge-neutral badge-xs sm:badge-sm shadow-sm">
-												Audiobook
-											</div>
-										{/if}
-
-										{#if series.publicationType === 'digital'}
-											<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">
-												Digital
-											</div>
-										{:else if series.publicationType === 'physical'}
-											<div class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm">
-												Physical
-											</div>
-										{/if}
-
-										{#if series.type === 'series'}
-											<div class="badge badge-success badge-soft badge-xs sm:badge-sm shadow-sm">
-												Series
-											</div>
-										{:else if series.type === 'book'}
-											<div class="badge badge-warning badge-soft badge-xs sm:badge-sm shadow-sm">
-												Book
-											</div>
-										{/if}
-
-										<a
-											tabindex="-1"
-											href={series.url}
-											class="btn btn-circle btn-neutral btn-xs sm:btn-sm shadow-sm"
-											target="_blank"
+									<div class="relative h-36 overflow-hidden sm:h-58">
+										<div
+											class="absolute top-0 right-0 m-0.5 flex w-fit max-w-full flex-row flex-wrap justify-end gap-0.5 sm:m-1 sm:gap-1"
 										>
-											<ExternalLink class="size-3 sm:size-4" />
-										</a>
+											{#if series.bookType === 'manga'}
+												<div class="badge badge-primary badge-xs sm:badge-sm shadow-sm">Manga</div>
+											{:else if series.bookType === 'novel'}
+												<div class="badge badge-secondary badge-xs sm:badge-sm shadow-sm">
+													Novel
+												</div>
+											{:else if series.bookType === 'webtoon'}
+												<div class="badge badge-accent badge-xs sm:badge-sm shadow-sm">Webtoon</div>
+											{:else if series.bookType === 'audiobook'}
+												<div class="badge badge-neutral badge-xs sm:badge-sm shadow-sm">
+													Audiobook
+												</div>
+											{/if}
+
+											{#if series.publicationType === 'digital'}
+												<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">
+													Digital
+												</div>
+											{:else if series.publicationType === 'physical'}
+												<div
+													class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm"
+												>
+													Physical
+												</div>
+											{/if}
+
+											{#if series.type === 'series'}
+												<div class="badge badge-success badge-soft badge-xs sm:badge-sm shadow-sm">
+													Series
+												</div>
+											{:else if series.type === 'book'}
+												<div class="badge badge-warning badge-soft badge-xs sm:badge-sm shadow-sm">
+													Book
+												</div>
+											{/if}
+
+											<Tooltip class="z-20" position="top" tip="Open Series Page">
+												<a
+													tabindex="-1"
+													href={series.url}
+													class="btn btn-circle btn-neutral btn-xs sm:btn-sm shadow-sm"
+													target="_blank"
+												>
+													<ExternalLink class="size-3 sm:size-4" />
+												</a>
+											</Tooltip>
+										</div>
+
+										<figure class="z-0 size-full">
+											<Image
+												src={imageApi.getUrl(series.thumbnail, { width: 168 }).href}
+												alt="{series.title} series thumbnail"
+												class="w-full"
+												loading="lazy"
+											/>
+										</figure>
 									</div>
 
-									<figure class="h-36 overflow-hidden sm:h-58">
-										<Image
-											src={imageApi.getUrl(series.thumbnail, { width: 168 }).href}
-											alt="{series.title} series thumbnail"
-											class="w-full"
-											loading="lazy"
-										/>
-									</figure>
-
 									<div class="card-body items-center p-1 text-center">
-										<div class="tooltip tooltip-top">
-											<div class="tooltip-content max-w-full text-sm">
-												{series.title}
-											</div>
-											<div class="card-title line-clamp-2 text-sm">
+										<div class="card-title z-20 line-clamp-2 text-sm">
+											<Tooltip position="bottom" tip={series.title}>
 												<h3>{series.title}</h3>
-											</div>
+											</Tooltip>
 										</div>
 									</div>
 								</div>

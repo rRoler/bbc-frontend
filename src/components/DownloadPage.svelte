@@ -40,6 +40,7 @@
 	import Downloader from '../lib/svelte/downloader.svelte.ts';
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { downloadLocation } from '../lib/locations.ts';
+	import Tooltip from './Tooltip.svelte';
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();
@@ -105,7 +106,7 @@
 	<div>
 		<button
 			onclick={() => downloader.closeOpenedImages()}
-			class="btn btn-circle btn-neutral fixed top-4 right-4 z-30"
+			class="btn btn-circle btn-neutral fixed top-4 right-4 z-50"
 		>
 			<Shrink class="size-6" />
 		</button>
@@ -119,7 +120,7 @@
 			{@const topOffset = imagePercentageSum}
 
 			<div
-				class="bg-base-100 opened-image-panel fixed z-20 h-full select-none"
+				class="bg-base-100 opened-image-panel fixed z-40 h-full select-none"
 				style="
           --img-percentage: {image.percentage}%;
           --left-offset: {leftOffset}%;
@@ -229,71 +230,26 @@
 						class:outline-primary={isSelected}
 						class:outline-1={isSelected}
 						class:hover:bg-base-300={!isSelected}
-						title={book.displayText}
 					>
 						<button
 							onclick={(e) => downloader.shiftSelect(e, book)}
-							class="absolute top-0 left-0 size-full cursor-pointer"
+							class="absolute top-0 left-0 z-10 size-full cursor-pointer"
 							aria-label="Select {book.title} book"
 						></button>
 
-						<div
-							class="absolute top-7 right-0 m-1 flex flex-row gap-1 opacity-80 group-hover:opacity-100 group-focus:opacity-100 sm:opacity-0"
-						>
-							<button
-								tabindex="-1"
-								onclick={() => downloader.openCoverImages([book])}
-								class="btn btn-circle btn-neutral btn-sm shadow-sm"
-							>
-								<Expand class="size-3" />
-							</button>
-
-							<button
-								tabindex="-1"
-								onclick={() => downloader.copyCoverLink(book)}
-								class="btn btn-circle btn-neutral btn-sm shadow-sm"
-							>
-								<CopyIcon
-									bind:value={
-										() => downloader.copyValues.get(`book-${book.provider.id}-${book.id}`) || null,
-										(v) =>
-											downloader.copyValues.set(`book-${book.provider.id}-${book.id}`, v || null)
-									}
-									class="size-3"
-								/>
-							</button>
-
-							<a
-								tabindex="-1"
-								href={book.url}
-								class="btn btn-circle btn-neutral btn-sm shadow-sm"
-								target="_blank"
-							>
-								<ExternalLink class="size-3" />
-							</a>
-						</div>
-
-						<div class="absolute top-50 left-0 m-1 flex flex-row gap-1 opacity-80 sm:top-57">
-							{#if downloader.automaticCoverQualityEnabled}
-								<span class="badge badge-soft badge-sm sm:badge-md">
-									{downloader.booksByVolumeCounts.get(book.volumeName)}x
-								</span>
-							{/if}
-						</div>
-
-						<div class="flex flex-row justify-between px-2 py-1">
-							<div class="tooltip tooltip-top" data-tip="Quality Score">
+						<div class="z-20 flex flex-row justify-between px-2 py-1">
+							<Tooltip position="top" tip="Quality Score">
 								<div class="flex flex-row items-center gap-0.5 text-sm font-semibold">
 									{#if book.coverQualityScore}
 										{book.coverQualityScore}
 										<Star class="size-3 fill-current" />
 									{/if}
 								</div>
-							</div>
+							</Tooltip>
 
-							<div
-								class="tooltip tooltip-top"
-								data-tip={book.coverIsCropped ? 'Cropped Dimensions' : 'Dimensions'}
+							<Tooltip
+								position="top"
+								tip={book.coverIsCropped ? 'Cropped Dimensions' : 'Dimensions'}
 							>
 								<div class="flex flex-row items-center gap-0.5 text-sm font-semibold">
 									{#if book.coverIsCropped}
@@ -304,20 +260,81 @@
 										{book.coverWidth}x{book.coverHeight}
 									{/if}
 								</div>
-							</div>
+							</Tooltip>
 						</div>
 
-						<figure class="h-50 overflow-hidden sm:h-58">
-							<Image
-								src={book.thumbnail}
-								alt="{book.title} book cover"
-								class="w-full"
-								loading="lazy"
-							/>
-						</figure>
+						<div class="relative h-50 overflow-hidden sm:h-58">
+							<div
+								class="absolute top-0 right-0 z-20 m-1 flex flex-row gap-1 opacity-80 group-hover:opacity-100 group-focus:opacity-100 sm:opacity-0"
+							>
+								<Tooltip position="top" tip="Open Cover">
+									<button
+										tabindex="-1"
+										onclick={() => downloader.openCoverImages([book])}
+										class="btn btn-circle btn-neutral btn-sm shadow-sm"
+									>
+										<Expand class="size-3" />
+									</button>
+								</Tooltip>
+
+								<Tooltip position="top" tip="Copy Link">
+									<button
+										tabindex="-1"
+										onclick={() => downloader.copyCoverLink(book)}
+										class="btn btn-circle btn-neutral btn-sm shadow-sm"
+									>
+										<CopyIcon
+											bind:value={
+												() =>
+													downloader.copyValues.get(`book-${book.provider.id}-${book.id}`) || null,
+												(v) =>
+													downloader.copyValues.set(
+														`book-${book.provider.id}-${book.id}`,
+														v || null
+													)
+											}
+											class="size-3"
+										/>
+									</button>
+								</Tooltip>
+
+								<Tooltip position="top" tip="Open Product Page">
+									<a
+										tabindex="-1"
+										href={book.url}
+										class="btn btn-circle btn-neutral btn-sm shadow-sm"
+										target="_blank"
+									>
+										<ExternalLink class="size-3" />
+									</a>
+								</Tooltip>
+							</div>
+
+							<div class="absolute bottom-0 left-0 z-20 m-1 flex flex-row gap-1 opacity-80">
+								{#if downloader.automaticCoverQualityEnabled && (downloader.booksByVolumeCounts.get(book.volumeName) ?? 0) > 1}
+									<Tooltip
+										position="top"
+										tip="{downloader.booksByVolumeCounts.get(book.volumeName)} Covers Compared"
+									>
+										<span class="badge badge-soft badge-sm sm:badge-md">
+											{downloader.booksByVolumeCounts.get(book.volumeName)}x
+										</span>
+									</Tooltip>
+								{/if}
+							</div>
+
+							<figure class="z-0 size-full">
+								<Image
+									src={book.thumbnail}
+									alt="{book.title} book cover"
+									class="w-full"
+									loading="lazy"
+								/>
+							</figure>
+						</div>
 
 						<div class="card-body items-center justify-between gap-1 p-1 text-center">
-							<div class="card-title line-clamp-2 grow text-sm">
+							<div class="card-title z-20 line-clamp-2 grow text-sm">
 								{#if downloader.isEditMode}
 									<input
 										type="text"
@@ -328,13 +345,15 @@
 											downloader.editBook(book, { volumeNumber: e.currentTarget.value })}
 									/>
 								{:else}
-									<h3>{book.displayText}</h3>
+									<Tooltip position="top" tip={book.displayText}>
+										<h3>{book.displayText}</h3>
+									</Tooltip>
 								{/if}
 							</div>
 
 							<ProviderLabel
 								provider={book.provider}
-								class="grow-0"
+								class="z-0 grow-0"
 								textClass={isSelected ? 'text-primary-content!' : ''}
 							/>
 						</div>
