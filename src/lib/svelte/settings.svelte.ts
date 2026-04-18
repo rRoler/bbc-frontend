@@ -11,6 +11,7 @@ export interface SettingBase<T> {
 	type: string;
 	currentValue?: T;
 	storedValue?: T;
+	loginOnly?: boolean;
 	defaultValue: T;
 }
 
@@ -57,6 +58,10 @@ export interface FileSystemFolderPickerSetting extends SettingBase<string | null
 	type: 'file-system-folder-picker';
 }
 
+export interface LoginSetting extends SettingBase<string | null> {
+	type: 'login';
+}
+
 export type SettingType =
 	| ProviderSelectSetting
 	| ProviderEditorSetting
@@ -65,7 +70,8 @@ export type SettingType =
 	| ToggleSetting
 	| SelectSetting
 	| RangeSetting
-	| FileSystemFolderPickerSetting;
+	| FileSystemFolderPickerSetting
+	| LoginSetting;
 
 export interface SettingsFieldType<T extends readonly Setting<SettingType>[]> {
 	name: string;
@@ -83,6 +89,7 @@ export class Setting<T extends SettingType> {
 	readonly min?: RangeSetting['min'];
 	readonly max?: RangeSetting['max'];
 	readonly step?: RangeSetting['step'];
+	readonly loginOnly?: T['loginOnly'];
 	currentValue: T['currentValue'];
 	storedValue: T['storedValue'];
 
@@ -92,6 +99,7 @@ export class Setting<T extends SettingType> {
 		this.description = setting.description;
 		this.tooltip = setting.tooltip;
 		this.type = setting.type;
+		this.loginOnly = setting.loginOnly;
 		this.defaultValue = setting.defaultValue;
 		this.currentValue = $state(setting.currentValue);
 		this.storedValue = $state(setting.storedValue);
@@ -546,6 +554,30 @@ export const downloadSettings = new SettingsField({
 	],
 });
 
-const allSettingsFields = [generalSettings, searchSettings, downloadSettings];
+export const userLoginSetting = new Setting<LoginSetting>({
+	id: 'user-login',
+	type: 'login',
+	name: 'Mod Login',
+	tooltip: 'You must be a MangaBaka contributor or staff member to login',
+	description: 'Login as moderator',
+	defaultValue: null,
+});
+
+export const editAutoSyncSetting = new Setting<ToggleSetting>({
+	id: 'edit-auto-sync',
+	type: 'toggle',
+	name: 'Auto-Sync Edits',
+	tooltip: 'Edits can take up to one day to apply',
+	description: 'Automatically sync volume edits to the server when applied',
+	defaultValue: true,
+	loginOnly: true,
+});
+
+export const userSettings = new SettingsField({
+	name: 'User',
+	settings: [userLoginSetting, editAutoSyncSetting],
+});
+
+const allSettingsFields = [generalSettings, searchSettings, downloadSettings, userSettings];
 
 export default allSettingsFields;

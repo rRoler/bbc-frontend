@@ -159,3 +159,8 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 		}
 	}
 </script>
+
+<script>
+	import userState from '../lib/svelte/user.svelte.ts';
+	userState.init();
+</script>

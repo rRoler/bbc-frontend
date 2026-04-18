@@ -1,7 +1,7 @@
 import { appState, addAppError } from './app.svelte.ts';
-import type { BBCBook, BBCBookPage, BBCSeries } from '../apis/bbc.ts';
+import BBC_API from '../apis/bbc.ts';
+import type { BBCBook, BBCBookPage, BBCSeries, BBCSort } from '../apis/bbc.ts';
 import allProviders, { sortProviders, type Provider } from './providers.svelte.ts';
-import BBC_API, { type BBCSort } from '../apis/bbc.ts';
 import { wsrvApi, getImageInfo } from '../utils';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
 import {
@@ -24,11 +24,14 @@ import {
 	zipFilenameSetting,
 	copyFormatSetting,
 	zipThreshold,
+	userSettings,
+	editAutoSyncSetting,
 } from './settings.svelte.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
+import userState from './user.svelte.ts';
 
 export interface Series extends BBCSeries {
 	provider: Provider;
@@ -143,6 +146,7 @@ class Downloader {
 
 	isEditMode = $state<boolean>(false);
 	editedBooks = $state<Book[]>([]);
+	applyingEdits = $state<boolean>(false);
 
 	booksByVolumeCounts = $derived.by(() => {
 		const counts = new SvelteMap<string, number>();
@@ -924,16 +928,33 @@ class Downloader {
 		this.isEditMode = false;
 	}
 
-	applyEdits() {
+	async applyEdits() {
+		this.applyingEdits = true;
+
+		userSettings.load();
+
 		for (const editedBook of this.editedBooks) {
 			const bookIndex = this.allBooks.findIndex(
 				(b) => b.id === editedBook.id && b.provider.id === editedBook.provider.id
 			);
+
 			if (bookIndex > -1) this.allBooks.splice(bookIndex, 1, editedBook);
 			else this.allBooks.push(editedBook);
 		}
+
+		if (userState.session && editAutoSyncSetting.value) {
+			const result = await this.api.editBooks(
+				this.editedBooks.map((book) => ({ providerId: book.provider.id, book }))
+			);
+
+			for (const error of result.errors) {
+				addAppError(error);
+			}
+		}
+
 		this.clearEdits();
 		this.isEditMode = false;
+		this.applyingEdits = false;
 	}
 
 	async initialize(): Promise<void> {

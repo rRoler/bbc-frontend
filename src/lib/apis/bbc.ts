@@ -1,5 +1,7 @@
 import { unzipSync } from 'fflate';
 import allProviders, { type Provider } from '../svelte/providers.svelte.ts';
+import userState from '../svelte/user.svelte.ts';
+import { BBC_API_URL } from '../constants.ts';
 
 export class BBC_API_Error extends Error {
 	constructor(message: string) {
@@ -53,7 +55,7 @@ export interface BBCBookPage {
 export type BBCSort = 'asc' | 'desc';
 
 export default class BBC_API {
-	readonly apiUrl = 'https://c.roler.dev';
+	readonly apiUrl = BBC_API_URL.origin;
 	readonly bookPagesMaxCount = 12;
 	readonly zipMaxCount = 6;
 
@@ -254,5 +256,33 @@ export default class BBC_API {
 		);
 
 		return allImages;
+	}
+
+	async editBooks(books: { providerId: string; book: BBCBook }[]): Promise<BBCResult<BBCBook>> {
+		const allData: BBCResult<BBCBook> = { data: {}, count: 0, pages: 0, errors: [] };
+
+		try {
+			const res = await fetch(`${this.apiUrl}/edit/books`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json', ...userState.headers },
+				body: JSON.stringify({
+					books: books.map(({ providerId, book }) => ({
+						providerId,
+						id: book.id,
+						volume: { number: book.volume.number },
+					})),
+				}),
+			});
+
+			const { data } = await res.json();
+
+			for (const f of data.failed) {
+				allData.errors.push(new BBC_API_Error(`${f.providerId}/${f.id}: ${f.message}`));
+			}
+		} catch (e) {
+			allData.errors.push(new BBC_API_Error(`${e}`));
+		}
+
+		return allData;
 	}
 }

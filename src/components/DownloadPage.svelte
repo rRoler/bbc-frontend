@@ -403,7 +403,11 @@
 								class="btn btn-lg btn-primary shadow-lg"
 								disabled={!(downloader.editedBooks.length > 0)}
 							>
-								<Check class="size-6" />
+								{#if downloader.applyingEdits}
+									<span class="loading loading-spinner loading-sm"></span>
+								{:else}
+									<Check class="size-6" />
+								{/if}
 								Apply
 							</button>
 						</div>

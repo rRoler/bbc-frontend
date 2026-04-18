@@ -9,6 +9,7 @@
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { onMount } from 'svelte';
 	import Tooltip from './Tooltip.svelte';
+	import userState from '../lib/svelte/user.svelte.ts';
 
 	const fs = new FileSystem();
 
@@ -41,16 +42,22 @@
 		fileSystemFolderSetting.value = null;
 		fileSystemFolderSetting.save();
 	}
+
+	function filterSettings(settings: (typeof allSettingsFields)[number]['settings'][number][]) {
+		return settings.filter((s) => !s.loginOnly || (s.loginOnly && userState.session));
+	}
 </script>
 
 <div class="flex w-full flex-col gap-2 sm:w-2xl">
 	{#each allSettingsFields as field, fieldIndex (fieldIndex)}
+		{@const filteredSettings = filterSettings(field.settings)}
+
 		<fieldset class="fieldset border-accent w-full rounded-2xl border p-4">
 			<legend class="fieldset-legend text-2xl">
 				{field.name}
 			</legend>
 
-			{#each field.settings as setting, settingIndex (setting.id)}
+			{#each filteredSettings as setting, settingIndex (setting.id)}
 				<label id={setting.id} class="label text-base-content text-base">
 					<a href="#{setting.id}">{setting.name}</a>
 					{#if setting.tooltip}
@@ -132,6 +139,33 @@
 								</button>
 							{/if}
 						</div>
+					{:else if setting.type === 'login'}
+						<div class="flex w-full min-w-0 flex-row items-center">
+							{#if userState.session}
+								<div class="join min-w-0">
+									<p
+										class="join-item bg-neutral flex min-w-0 items-center justify-center truncate px-8 text-lg"
+									>
+										{userState.session.username}
+									</p>
+									<button
+										class="btn btn-soft btn-error join-item shrink-0"
+										onclick={() => userState.logout()}
+									>
+										Logout
+									</button>
+								</div>
+							{:else}
+								<button class="btn btn-soft btn-primary" onclick={() => userState.login()}>
+									Login with MangaBaka
+									<img
+										alt="MangaBaka Logo"
+										src="https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://mangabaka.org&size=64"
+										class="size-6"
+									/>
+								</button>
+							{/if}
+						</div>
 					{/if}
 
 					<Tooltip position="top" tip="Reset">
@@ -148,7 +182,7 @@
 					</Tooltip>
 				</div>
 
-				{#if settingIndex < field.settings.length - 1}
+				{#if settingIndex < filteredSettings.length - 1}
 					<div class="divider divider-accent"></div>
 				{/if}
 			{/each}
