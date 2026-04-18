@@ -112,10 +112,10 @@ export class Setting<T extends SettingType> {
 	}
 
 	get value(): T['defaultValue'] {
-		return this.currentValue ?? this.defaultValue;
+		return this.currentValue === undefined ? this.defaultValue : this.currentValue;
 	}
 	set value(value: T['currentValue']) {
-		this.currentValue = this.cloneValue(value ?? this.defaultValue);
+		this.currentValue = this.cloneValue(value === undefined ? this.defaultValue : value);
 	}
 
 	get isChanged() {
@@ -136,7 +136,7 @@ export class Setting<T extends SettingType> {
 		const storedData = localStorage.getItem('settings');
 		if (storedData) {
 			const parsedData = JSON.parse(storedData);
-			if (parsedData[this.id] !== undefined && parsedData[this.id] !== null) {
+			if (parsedData[this.id] !== undefined) {
 				this.storedValue = this.cloneValue(parsedData[this.id]);
 				this.value = this.storedValue;
 			}

@@ -192,7 +192,21 @@
 
 <div class="grow"></div>
 
-<div class="sticky bottom-0 left-0 flex w-full flex-row items-center justify-center p-4 sm:w-2xl">
+<div
+	class="sticky bottom-0 left-0 flex w-full flex-row items-center justify-center gap-2 p-4 sm:w-2xl"
+>
+	<button
+		onclick={() => {
+			allSettingsFields.forEach((f) => f.load());
+			if (fs.hasFolder) clearFolder();
+		}}
+		class="btn btn-lg btn-neutral shadow-lg"
+		disabled={!allSettingsFields.some((f) => f.isChanged)}
+	>
+		<X class="size-6" />
+		Cancel
+	</button>
+
 	<button
 		onclick={() => {
 			const shouldReload = [themeSetting].some((s) => s.isChanged);
