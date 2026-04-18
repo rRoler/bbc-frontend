@@ -49,9 +49,8 @@ export class UserState {
 		try {
 			const res = await fetch(`${this.apiUrl}/user/me`, { headers: this.headers });
 			if (!res.ok) {
-				this.session = null;
 				if (res.status === 401) this.token = null;
-				return;
+				throw new Error("You've been logged out. Please login again.");
 			}
 			const { data } = await res.json();
 			this.session = data;
