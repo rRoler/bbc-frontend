@@ -84,7 +84,7 @@
 						<input bind:checked={setting.value} class="toggle" type="checkbox" />
 						<div class="grow"></div>
 					{:else if setting.type === 'select'}
-						<select bind:value={setting.value} class="select inline-block w-full">
+						<select bind:value={setting.value} class="select w-full">
 							{#each setting.options as option, index (index)}
 								<option value={option.value}>{option.label}</option>
 							{/each}
