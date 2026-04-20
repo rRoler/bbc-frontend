@@ -260,29 +260,34 @@ export default class BBC_API {
 
 	async editBooks(books: { providerId: string; book: BBCBook }[]): Promise<BBCResult<BBCBook>> {
 		const allData: BBCResult<BBCBook> = { data: {}, count: 0, pages: 0, errors: [] };
+		const chunks = this.chopArray(books, 40);
 
-		try {
-			const res = await fetch(`${this.apiUrl}/edit/books`, {
-				method: 'PATCH',
-				headers: { 'Content-Type': 'application/json', ...userState.headers },
-				body: JSON.stringify({
-					books: books.map(({ providerId, book }) => ({
-						providerId,
-						id: book.id,
-						seriesId: book.seriesId,
-						volume: { number: book.volume.number },
-					})),
-				}),
-			});
+		await Promise.all(
+			chunks.map(async (chunk) => {
+				try {
+					const res = await fetch(`${this.apiUrl}/edit/books`, {
+						method: 'PATCH',
+						headers: { 'Content-Type': 'application/json', ...userState.headers },
+						body: JSON.stringify({
+							books: chunk.map(({ providerId, book }) => ({
+								providerId,
+								id: book.id,
+								seriesId: book.seriesId,
+								volume: { number: book.volume.number },
+							})),
+						}),
+					});
 
-			const { data } = await res.json();
+					const { data } = await res.json();
 
-			for (const f of data.failed) {
-				allData.errors.push(new BBC_API_Error(`${f.providerId}/${f.id}: ${f.message}`));
-			}
-		} catch (e) {
-			allData.errors.push(new BBC_API_Error(`${e}`));
-		}
+					for (const f of data.failed) {
+						allData.errors.push(new BBC_API_Error(`${f.providerId}/${f.id}: ${f.message}`));
+					}
+				} catch (e) {
+					allData.errors.push(new BBC_API_Error(`${e}`));
+				}
+			})
+		);
 
 		return allData;
 	}
