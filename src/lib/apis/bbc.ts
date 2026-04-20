@@ -269,6 +269,7 @@ export default class BBC_API {
 					books: books.map(({ providerId, book }) => ({
 						providerId,
 						id: book.id,
+						seriesId: book.seriesId,
 						volume: { number: book.volume.number },
 					})),
 				}),
