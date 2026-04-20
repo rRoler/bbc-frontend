@@ -42,23 +42,20 @@
 		fileSystemFolderSetting.value = null;
 		fileSystemFolderSetting.save();
 	}
-
-	function filterSettings(settings: (typeof allSettingsFields)[number]['settings'][number][]) {
-		return settings.filter((s) => !s.loginOnly || (s.loginOnly && userState.session));
-	}
 </script>
 
 <div class="flex w-full flex-col gap-2 sm:w-2xl">
 	{#each allSettingsFields as field, fieldIndex (fieldIndex)}
-		{@const filteredSettings = filterSettings(field.settings)}
-
 		<fieldset class="fieldset border-accent w-full rounded-2xl border p-4">
 			<legend class="fieldset-legend text-2xl">
 				{field.name}
 			</legend>
 
-			{#each filteredSettings as setting, settingIndex (setting.id)}
-				<label id={setting.id} class="label text-base-content text-base">
+			{#each field.settings as setting, settingIndex (setting.id)}
+				{@const isDisabled = setting.loginOnly && !userState.session}
+				{@const disabledClass = isDisabled ? 'cursor-not-allowed opacity-50' : ''}
+
+				<label id={setting.id} class="label text-base-content text-base {disabledClass}">
 					<a href="#{setting.id}">{setting.name}</a>
 					{#if setting.tooltip}
 						<Tooltip position="top" tip={setting.tooltip}>
@@ -68,10 +65,13 @@
 				</label>
 
 				{#if setting.description}
-					<p class="label text-wrap! whitespace-pre">{setting.description}</p>
+					<p class="label text-wrap! whitespace-pre {disabledClass}">{setting.description}</p>
 				{/if}
 
-				<div class="flex w-full min-w-0 flex-row items-start justify-center gap-2">
+				<div
+					class="flex w-full min-w-0 flex-row items-start justify-center gap-2 {disabledClass}"
+					inert={isDisabled}
+				>
 					{#if setting.type === 'text'}
 						<input bind:value={setting.value} class="input w-full" type="text" />
 					{:else if setting.type === 'textarea'}
@@ -182,8 +182,8 @@
 					</Tooltip>
 				</div>
 
-				{#if settingIndex < filteredSettings.length - 1}
-					<div class="divider divider-accent"></div>
+				{#if settingIndex < field.settings.length - 1}
+					<div class="divider divider-accent {disabledClass}"></div>
 				{/if}
 			{/each}
 		</fieldset>
@@ -198,7 +198,6 @@
 	<button
 		onclick={() => {
 			allSettingsFields.forEach((f) => f.load());
-			if (fs.hasFolder) clearFolder();
 		}}
 		class="btn btn-lg btn-neutral shadow-lg"
 		disabled={!allSettingsFields.some((f) => f.isChanged)}
