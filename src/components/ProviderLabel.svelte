@@ -24,12 +24,12 @@
 	class="flex w-fit flex-row items-center justify-center gap-3 {className || ''}"
 	title="{provider.name} ({getLocaleName(provider.locale)})"
 >
-	<div class="indicator">
+	<div class="indicator shrink-0">
 		{#if Flag}
 			<span
-				class="indicator-item indicator-bottom indicator-end badge badge-xs overflow-hidden p-0"
+				class="indicator-item indicator-bottom indicator-end badge badge-xs size-fit overflow-hidden p-0"
 			>
-				<Flag size={flagSize} />
+				<Flag style="width: {flagSize}px; height: fit-content;" size="fit-content" />
 			</span>
 		{/if}
 		<img

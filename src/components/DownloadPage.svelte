@@ -148,7 +148,7 @@
 				<div class="absolute bottom-2 left-2 lg:bottom-4 lg:left-4">
 					<ProviderLabel
 						provider={image.provider}
-						class="bg-neutral/80 line-clamp-1 w-fit rounded-md p-0.5 text-xs lg:p-1 lg:text-sm"
+						class="bg-neutral/80 line-clamp-1 w-fit rounded-md p-1 text-xs lg:text-sm"
 					/>
 				</div>
 			</div>
