@@ -2,7 +2,7 @@ import { SvelteURLSearchParams } from 'svelte/reactivity';
 import type { Component } from 'svelte';
 import { fileTypeFromBuffer } from 'file-type';
 import WsrvApi from './apis/wsrv.ts';
-import * as Icon from 'svelte-flags';
+import { Us, Jp, De, It, Es, Mx, Kr } from 'svelte-flags';
 
 export interface ImageInfo {
 	format: string;
@@ -186,13 +186,23 @@ export function getLocaleName(locale: string): string {
 }
 
 export function langToFlag(lang: string): Component | undefined {
-	try {
-		const region = new Intl.Locale(lang).maximize().region;
-		if (!region) return undefined;
-		const key = region[0] + region[1].toLowerCase();
-		return (Icon as unknown as Record<string, Component>)[key];
-	} catch {
-		return undefined;
+	switch (lang) {
+		case 'en':
+			return Us;
+		case 'ja':
+			return Jp;
+		case 'de':
+			return De;
+		case 'it':
+			return It;
+		case 'es':
+			return Es;
+		case 'es-mx':
+			return Mx;
+		case 'ko':
+			return Kr;
+		default:
+			return undefined;
 	}
 }
 
