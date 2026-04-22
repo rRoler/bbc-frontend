@@ -56,6 +56,9 @@ importers:
       svelte:
         specifier: ^5.55.4
         version: 5.55.4(@typescript-eslint/types@8.58.2)
+      svelte-flags:
+        specifier: ^3.0.1
+        version: 3.0.1(svelte@5.55.4(@typescript-eslint/types@8.58.2))
       svelte-image-viewer:
         specifier: ^6.0.0
         version: 6.0.0(svelte@5.55.4(@typescript-eslint/types@8.58.2))
@@ -5013,6 +5016,11 @@ packages:
     peerDependenciesMeta:
       svelte:
         optional: true
+
+  svelte-flags@3.0.1:
+    resolution: {integrity: sha512-Si45+tj25EZL16hCQPikg9Tywie/IInha+t7B5WoUkV9EEqvBwnv7ko5nVSwXLq4z3r8JpicM8yFuYSFklvT+g==}
+    peerDependencies:
+      svelte: ^5.0.0
 
   svelte-image-viewer@6.0.0:
     resolution: {integrity: sha512-YN9/bacfpRkbnyWtZIoH3y02Pt5D1VHtaPhViEeEMWHGGujTJMaOamTooIuNXveIG9s++SkeWOE9NeBCcv8m4Q==}
@@ -11438,6 +11446,10 @@ snapshots:
       postcss-selector-parser: 7.1.1
       semver: 7.7.4
     optionalDependencies:
+      svelte: 5.55.4(@typescript-eslint/types@8.58.2)
+
+  svelte-flags@3.0.1(svelte@5.55.4(@typescript-eslint/types@8.58.2)):
+    dependencies:
       svelte: 5.55.4(@typescript-eslint/types@8.58.2)
 
   svelte-image-viewer@6.0.0(svelte@5.55.4(@typescript-eslint/types@8.58.2)):

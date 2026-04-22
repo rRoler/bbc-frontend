@@ -36,6 +36,7 @@
     "idb-keyval": "^6.2.2",
     "lucide-svelte": "^0.577.0",
     "svelte": "^5.55.4",
+    "svelte-flags": "^3.0.1",
     "svelte-image-viewer": "^6.0.0",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3"
