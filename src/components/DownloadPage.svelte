@@ -342,7 +342,7 @@
 										class="input text-base-content"
 										value={book.volume.number}
 										oninput={(e) =>
-											downloader.editBook(book, { volumeNumber: e.currentTarget.value })}
+											downloader.editBook(book, { volumeNumber: e.currentTarget.value || null })}
 									/>
 								{:else}
 									<Tooltip position="top" tip={book.displayText}>
@@ -386,7 +386,11 @@
 				class="sticky bottom-4 left-0 flex w-full flex-row items-center justify-center gap-2 pt-4 sm:gap-4"
 			>
 				{#if downloader.isEditMode}
-					<button onclick={() => downloader.cancelEdits()} class="btn btn-lg btn-soft shadow-lg">
+					<button
+						onclick={() => downloader.cancelEdits()}
+						class="btn btn-lg btn-soft shadow-lg"
+						disabled={downloader.applyingEdits}
+					>
 						<X class="size-6" />
 						Cancel
 					</button>

@@ -886,12 +886,12 @@ class Downloader {
 		this.isEditMode = !this.isEditMode;
 	}
 
-	editBook(book: Book, { volumeNumber }: { volumeNumber?: string }) {
+	editBook(book: Book, { volumeNumber }: { volumeNumber?: string | null }) {
 		if (!this.isEditMode) return;
 
 		const bookCopy = { ...book };
 
-		if (volumeNumber && volumeNumber !== book.volume.number) {
+		if (volumeNumber !== undefined && volumeNumber !== book.volume.number) {
 			bookCopy.volume = {
 				...bookCopy.volume,
 				number: volumeNumber,
@@ -929,6 +929,8 @@ class Downloader {
 	}
 
 	async applyEdits() {
+		if (this.applyingEdits) return;
+
 		this.applyingEdits = true;
 
 		userSettings.load();
