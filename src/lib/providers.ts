@@ -196,6 +196,17 @@ export const aladin: Provider = {
 	supportsBookPages: true,
 };
 
+export const ridibooks: Provider = {
+	id: 'ridi',
+	name: 'Ridibooks',
+	icon: '/images/providers/ridi.svg',
+	locale: 'ko',
+	colors: { primary: '#1E9EFF', secondary: '#1E9EFF' },
+	priority: 17,
+	enabled: false,
+	supportsBookPages: true,
+};
+
 const allProviders: Provider[] = [
 	bookLive,
 	bookWalker,
@@ -213,6 +224,7 @@ const allProviders: Provider[] = [
 	eBookJapan,
 	cmoa,
 	aladin,
+	ridibooks,
 ];
 
 export default sortProviders(allProviders);
