@@ -2,7 +2,7 @@ export interface Provider {
 	id: string;
 	name: string;
 	icon: string;
-	locale: 'en' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko';
+	locale: 'en' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko' | 'zh-TW';
 	colors: {
 		primary: string;
 		secondary: string;
@@ -207,6 +207,28 @@ export const ridibooks: Provider = {
 	supportsBookPages: true,
 };
 
+export const bookWalkerTaiwan: Provider = {
+	id: 'bw-tw',
+	name: 'BookWalker Taiwan',
+	icon: '/images/providers/bw.svg',
+	locale: 'zh-TW',
+	colors: { primary: '#b28a3d', secondary: '#b28a3d' },
+	priority: 18,
+	enabled: false,
+};
+
+export const bookWalkerTaiwanReader: Provider = {
+	id: 'bw-twr',
+	name: 'BookWalker Taiwan Preview',
+	icon: '/images/providers/bw.svg',
+	locale: 'zh-TW',
+	colors: { primary: '#b28a3d', secondary: '#846551' },
+	priority: 19,
+	enabled: false,
+	ignoreErrors: true,
+	supportsBookPages: true,
+};
+
 const allProviders: Provider[] = [
 	bookLive,
 	bookWalker,
@@ -225,6 +247,8 @@ const allProviders: Provider[] = [
 	cmoa,
 	aladin,
 	ridibooks,
+	bookWalkerTaiwan,
+	bookWalkerTaiwanReader,
 ];
 
 export default sortProviders(allProviders);
