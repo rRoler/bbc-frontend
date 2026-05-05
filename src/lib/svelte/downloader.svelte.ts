@@ -32,6 +32,7 @@ import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
 import userState from './user.svelte.ts';
+import { MAX_SELECTED_SEARCH_RESULTS } from '../constants.ts';
 
 export interface Series extends BBCSeries {
 	provider: Provider;
@@ -67,7 +68,7 @@ export interface OpenedImage {
 }
 
 class Downloader {
-	private readonly MAX_SELECTED_SERIES = 10;
+	private readonly MAX_SELECTED_SERIES = MAX_SELECTED_SEARCH_RESULTS;
 	private readonly MAX_COMPARE_BOOKS = 6;
 	private readonly THUMBNAIL_DATA = {
 		width: 336,

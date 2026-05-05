@@ -25,8 +25,8 @@
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
 	import CopyIcon from './CopyIcon.svelte';
 	import Tooltip from './Tooltip.svelte';
+	import { MAX_SELECTED_SEARCH_RESULTS } from '../lib/constants.ts';
 
-	const maxSelectedSeries = 10;
 	const api = new BBC_API();
 	const imageApi = new WsrvApi();
 
@@ -59,7 +59,8 @@
 		const seriesIndex = selectedSeries[providerId].indexOf(series);
 
 		if (seriesIndex === -1 && force !== false) {
-			if (selectedSeriesCount < maxSelectedSeries) selectedSeries[providerId].push(series);
+			if (selectedSeriesCount < MAX_SELECTED_SEARCH_RESULTS)
+				selectedSeries[providerId].push(series);
 		} else if (force !== true) {
 			selectedSeries[providerId].splice(seriesIndex, 1);
 		}
@@ -209,7 +210,7 @@
 				class="checkbox checkbox-primary"
 			/>
 			<span>Automatically match results</span>
-			<kbd class="kbd hidden sm:inline-flex">ctrl</kbd>
+			<kbd class="kbd hidden sm:inline-flex">HOLD ctrl</kbd>
 		</label>
 	</div>
 
@@ -384,9 +385,9 @@
 				{#if selectedSeriesCount > 1}
 					<span
 						class="indicator-item badge badge-primary badge-soft font-semibold"
-						class:!badge-error={selectedSeriesCount >= maxSelectedSeries}
+						class:!badge-error={selectedSeriesCount >= MAX_SELECTED_SEARCH_RESULTS}
 					>
-						{selectedSeriesCount}/{maxSelectedSeries}
+						{selectedSeriesCount}/{MAX_SELECTED_SEARCH_RESULTS}
 					</span>
 				{/if}
 				<div>
