@@ -2,7 +2,7 @@ export interface Provider {
 	id: string;
 	name: string;
 	icon: string;
-	locale: 'en' | 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko' | 'zh-TW';
+	locale: 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko' | 'zh-TW';
 	colors: {
 		primary: string;
 		secondary: string;
@@ -54,7 +54,7 @@ export const bookWalkerGlobal: Provider = {
 	id: 'bw-g',
 	name: 'BookWalker Global',
 	icon: '/images/providers/bwg.svg',
-	locale: 'en',
+	locale: 'en-US',
 	colors: { primary: '#3498db', secondary: '#3498db' },
 	priority: 4,
 	enabled: true,

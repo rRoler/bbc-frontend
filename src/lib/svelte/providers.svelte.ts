@@ -36,6 +36,18 @@ export class Providers {
 	sorted: Provider[] = $derived(sortProviders([...this.updated]));
 
 	enabled: Provider[] = $derived(getEnabledProviders([...this.sorted]));
+
+	byLocale: SvelteMap<Provider['locale'], Provider[]> = $derived.by(() => {
+		const map = new SvelteMap<Provider['locale'], Provider[]>();
+		for (const provider of this.sorted) {
+			const localeProviders = map.get(provider.locale) || [];
+			localeProviders.push(provider);
+			map.set(provider.locale, localeProviders);
+		}
+		return map;
+	});
+
+	locales: SvelteSet<Provider['locale']> = $derived(new SvelteSet(this.byLocale.keys()));
 }
 
 export default new Providers();

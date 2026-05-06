@@ -1,5 +1,6 @@
 <script module lang="ts">
 	export const PROVIDER_PARAM_KEY = 'provider';
+	export const PROVIDER_LOCALE_PARAM_KEY = 'providerLocale';
 </script>
 
 <script lang="ts">
@@ -8,15 +9,20 @@
 	import {
 		appendSvelteSearchParam,
 		getAllSvelteSearchParams,
+		getLocaleName,
+		langToFlag,
 		removeSvelteSearchParam,
 	} from '../lib/utils.ts';
 	import { onMount } from 'svelte';
 	import { Search } from 'lucide-svelte';
+	import Tooltip from './Tooltip.svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 
 	let {
 		class: className = '',
 		providers = allProviders.sorted,
 		selected = $bindable([]),
+		selectedLocales = $bindable(new SvelteSet()),
 		onchange,
 		paramsEnabled = true,
 		delayMs = 500,
@@ -24,6 +30,7 @@
 		class?: string;
 		providers?: Provider[];
 		selected?: Provider[];
+		selectedLocales?: SvelteSet<Provider['locale']>;
 		onchange?: (providers: Provider[]) => void | Promise<void>;
 		paramsEnabled?: boolean;
 		delayMs?: number;
@@ -34,16 +41,32 @@
 	let search = $state<string>('');
 	let searchInput = $state<HTMLInputElement>();
 	let dropdownEl = $state<HTMLElement>();
+	let selectedBeforeLocale = $state<Provider[]>([]);
 
 	let sortedProviders = $derived(sortProviders([...providers]));
 
-	let filteredProviders = $derived(
-		search.trim() === ''
-			? sortedProviders
-			: sortedProviders.filter((p) =>
-					p.name.toLowerCase().trim().includes(search.toLowerCase().trim())
-				)
+	let filteredProviders = $derived.by(() => {
+		let filtered = sortedProviders;
+
+		const formatedSearch = search.toLowerCase().trim();
+		if (formatedSearch.length > 0) {
+			filtered = filtered.filter((p) => p.name.toLowerCase().trim().includes(formatedSearch));
+		}
+
+		if (selectedLocales.size > 0) {
+			filtered = filtered.filter((p) => selectedLocales.has(p.locale));
+		}
+
+		return filtered;
+	});
+	let isAllFilteredSelected = $derived(
+		filteredProviders.length > 0 &&
+			filteredProviders.every((fp) => (pendingSelection || selected).some((s) => s.id === fp.id))
 	);
+	let isSomeFilteredSelected = $derived(
+		filteredProviders.some((fp) => (pendingSelection || selected).some((s) => s.id === fp.id))
+	);
+	let isFilteredIndeterminate = $derived(isSomeFilteredSelected && !isAllFilteredSelected);
 
 	onMount(() => {
 		allProviders.load();
@@ -56,6 +79,19 @@
 			if (paramProviders.length > 0) {
 				selected = sortProviders([...paramProviders]);
 			}
+		}
+
+		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY);
+		selectedLocales = new SvelteSet(localeIds as Provider['locale'][]);
+		if (selected.length === 0) {
+			selectedBeforeLocale = [...allProviders.sorted];
+			selected = allProviders.sorted.filter((p) => selectedLocales.has(p.locale));
+		} else {
+			selectedBeforeLocale = [...selected];
+		}
+
+		if (selected.length === 0) {
+			selectedLocales = new SvelteSet([]);
 		}
 	});
 
@@ -70,6 +106,19 @@
 				appendSvelteSearchParam(PROVIDER_PARAM_KEY, provider.id);
 			} else {
 				removeSvelteSearchParam(PROVIDER_PARAM_KEY, provider.id);
+			}
+		}
+	});
+
+	$effect(() => {
+		if (!paramsEnabled) return;
+
+		for (const locale of allProviders.locales) {
+			const isSelected = selectedLocales.has(locale);
+			if (isSelected) {
+				appendSvelteSearchParam(PROVIDER_LOCALE_PARAM_KEY, locale);
+			} else {
+				removeSvelteSearchParam(PROVIDER_LOCALE_PARAM_KEY, locale);
 			}
 		}
 	});
@@ -91,6 +140,10 @@
 			return;
 		}
 
+		updateSelection(newSelection);
+	}
+
+	function updateSelection(newSelection: Provider[]) {
 		sortProviders(newSelection);
 
 		pendingSelection = newSelection;
@@ -157,6 +210,22 @@
 
 		items[nextIndex]?.focus();
 	}
+
+	function toggleLocale(locale: Provider['locale']) {
+		if (selectedLocales.has(locale)) {
+			selectedLocales.delete(locale);
+			if (selectedLocales.size === 0) updateSelection(selectedBeforeLocale);
+			else updateSelection(filteredProviders);
+		} else {
+			if (selectedLocales.size === 0) selectedBeforeLocale = [...(pendingSelection || selected)];
+			selectedLocales.add(locale);
+			updateSelection(filteredProviders);
+		}
+	}
+
+	function toggleAll() {
+		updateSelection(isAllFilteredSelected ? [...filteredProviders] : []);
+	}
 </script>
 
 <div
@@ -179,11 +248,8 @@
 		{/if}
 	</div>
 
-	<ul
-		tabindex="-1"
-		class="dropdown-content menu bg-base-100 rounded-box z-1 w-full min-w-69 p-2 shadow-sm"
-	>
-		<li class="menu-title p-1">
+	<div class="dropdown-content bg-base-100 rounded-box z-1 w-fit max-w-96 min-w-69 shadow-sm">
+		<div class="w-full p-2">
 			<label class="input input-bordered flex w-full items-center gap-2 font-normal">
 				<Search class="size-5 shrink-0 opacity-80" />
 				<input
@@ -199,23 +265,60 @@
 					autocomplete="off"
 				/>
 			</label>
-		</li>
+		</div>
 
-		{#each filteredProviders as provider (provider.id)}
+		<div class="flex w-full max-w-80 flex-row flex-nowrap gap-2 overflow-x-auto px-2 pb-2">
+			{#each allProviders.locales as locale (locale)}
+				{@const Flag = langToFlag(locale)}
+				{@const isSelected = selectedLocales.has(locale)}
+
+				<Tooltip position="top" tip={getLocaleName(locale)}>
+					<button
+						class="btn btn-outline btn-accent btn-sm"
+						onclick={() => toggleLocale(locale)}
+						class:btn-active={isSelected}
+					>
+						<Flag class="size-4" />
+					</button>
+				</Tooltip>
+			{/each}
+		</div>
+
+		<ul tabindex="-1" class="menu h-fit max-h-96 w-full flex-nowrap overflow-y-auto">
 			<li>
 				<label class="label" tabindex="-1">
 					<input
-						onchange={(e) => changeProvider(e, provider)}
 						type="checkbox"
-						checked={isProviderSelected(provider.id)}
 						class="checkbox checkbox-xs"
 						tabindex="-1"
+						bind:indeterminate={isFilteredIndeterminate}
+						bind:checked={isAllFilteredSelected}
+						onchange={() => toggleAll()}
 					/>
-					<ProviderLabel {provider} />
+					{#if isAllFilteredSelected}
+						Deselect All
+					{:else}
+						Select All
+					{/if}
 				</label>
 			</li>
-		{:else}
-			<li class="menu-title text-center">No providers found</li>
-		{/each}
-	</ul>
+
+			{#each filteredProviders as provider (provider.id)}
+				<li>
+					<label class="label" tabindex="-1">
+						<input
+							onchange={(e) => changeProvider(e, provider)}
+							type="checkbox"
+							checked={isProviderSelected(provider.id)}
+							class="checkbox checkbox-xs"
+							tabindex="-1"
+						/>
+						<ProviderLabel {provider} />
+					</label>
+				</li>
+			{:else}
+				<li class="menu-title text-center">No providers found</li>
+			{/each}
+		</ul>
+	</div>
 </div>

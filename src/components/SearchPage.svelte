@@ -210,7 +210,7 @@
 				class="checkbox checkbox-primary"
 			/>
 			<span>Automatically match results</span>
-			<kbd class="kbd hidden sm:inline-flex">HOLD ctrl</kbd>
+			<kbd class="kbd hidden sm:inline-flex">ctrl (hold)</kbd>
 		</label>
 	</div>
 
