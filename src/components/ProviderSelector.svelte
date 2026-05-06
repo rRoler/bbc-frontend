@@ -85,7 +85,7 @@
 		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY);
 		selectedLocales = new SvelteSet(localeIds as Provider['locale'][]);
 		if (selected.length === 0) {
-			selectedBeforeLocale = [...allProviders.sorted];
+			selectedBeforeLocale = [...allProviders.enabled];
 			selected = allProviders.sorted.filter((p) => selectedLocales.has(p.locale));
 		} else {
 			selectedBeforeLocale = [...selected];
