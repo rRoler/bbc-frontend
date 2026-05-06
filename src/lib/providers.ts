@@ -2,7 +2,7 @@ export interface Provider {
 	id: string;
 	name: string;
 	icon: string;
-	locale: 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko' | 'zh-TW';
+	locale: 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-MX' | 'ko' | 'zh-TW';
 	colors: {
 		primary: string;
 		secondary: string;
@@ -142,7 +142,7 @@ export const amazonMexico: Provider = {
 	...amazonJapan,
 	id: 'amz-mx',
 	name: 'Amazon Mexico',
-	locale: 'es-mx',
+	locale: 'es-MX',
 	priority: 12,
 	enabled: false,
 };
