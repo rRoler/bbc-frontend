@@ -200,7 +200,7 @@ export function langToFlag(lang: string): Component | undefined {
 			return It;
 		case 'es':
 			return Es;
-		case 'es-mx':
+		case 'es-MX':
 			return Mx;
 		case 'ko':
 			return Kr;
