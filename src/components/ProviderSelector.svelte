@@ -42,6 +42,7 @@
 	let searchInput = $state<HTMLInputElement>();
 	let dropdownEl = $state<HTMLElement>();
 	let selectedBeforeLocale = $state<Provider[]>([]);
+	let flagContainer = $state<HTMLDivElement>();
 
 	let sortedProviders = $derived(sortProviders([...providers]));
 
@@ -93,6 +94,8 @@
 		if (selected.length === 0) {
 			selectedLocales = new SvelteSet([]);
 		}
+
+		dropdownEl?.addEventListener('keydown', handleKeydown);
 	});
 
 	$effect(() => {
@@ -166,6 +169,22 @@
 			return;
 		}
 
+		if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+			const flagButtons = Array.from(flagContainer?.querySelectorAll<HTMLElement>('button') ?? []);
+			const currentIndex = flagButtons.indexOf(document.activeElement as HTMLElement);
+
+			const nextIndex =
+				e.key === 'ArrowRight'
+					? currentIndex === -1
+						? 0
+						: (currentIndex + 1) % flagButtons.length
+					: currentIndex === -1
+						? flagButtons.length - 1
+						: (currentIndex - 1 + flagButtons.length) % flagButtons.length;
+			flagButtons[nextIndex]?.focus();
+			return;
+		}
+
 		if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
 			if (e.key === ' ' || e.key === 'Enter') {
 				const focused = document.activeElement;
@@ -228,11 +247,7 @@
 	}
 </script>
 
-<div
-	bind:this={dropdownEl}
-	class="dropdown sm:dropdown-start dropdown-center {className}"
-	onkeydown={handleKeydown}
->
+<div bind:this={dropdownEl} class="dropdown sm:dropdown-start dropdown-center {className}">
 	<div
 		tabindex="0"
 		role="button"
@@ -267,7 +282,10 @@
 			</label>
 		</div>
 
-		<div class="flex w-full max-w-80 flex-row flex-nowrap gap-2 overflow-x-auto px-2 pb-2">
+		<div
+			class="flex w-full max-w-80 flex-row flex-nowrap gap-2 overflow-x-auto p-2"
+			bind:this={flagContainer}
+		>
 			{#each allProviders.locales as locale (locale)}
 				{@const Flag = langToFlag(locale)}
 				{@const isSelected = selectedLocales.has(locale)}
