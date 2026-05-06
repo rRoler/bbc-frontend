@@ -2,7 +2,7 @@ import { SvelteURLSearchParams } from 'svelte/reactivity';
 import type { Component } from 'svelte';
 import { fileTypeFromBuffer } from 'file-type';
 import WsrvApi from './apis/wsrv.ts';
-import { Us, Jp, De, It, Es, Mx, Kr, Tw } from 'svelte-flags';
+import { Us, Jp, De, It, Es, Mx, Kr, Tw, Gb } from 'svelte-flags';
 
 export interface ImageInfo {
 	format: string;
@@ -188,7 +188,10 @@ export function getLocaleName(locale: string): string {
 export function langToFlag(lang: string): Component | undefined {
 	switch (lang) {
 		case 'en':
+		case 'en-US':
 			return Us;
+		case 'en-GB':
+			return Gb;
 		case 'ja':
 			return Jp;
 		case 'de':

@@ -2,7 +2,7 @@ export interface Provider {
 	id: string;
 	name: string;
 	icon: string;
-	locale: 'en' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko' | 'zh-TW';
+	locale: 'en' | 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-mx' | 'ko' | 'zh-TW';
 	colors: {
 		primary: string;
 		secondary: string;
@@ -41,13 +41,11 @@ export const bookWalker: Provider = {
 };
 
 export const bookWalkerReader: Provider = {
+	...bookWalker,
 	id: 'bw-r',
 	name: 'BookWalker Preview',
-	icon: '/images/providers/bw.svg',
-	locale: 'ja',
 	colors: { primary: '#009844', secondary: '#50aa7a' },
 	priority: 3,
-	enabled: true,
 	ignoreErrors: true,
 	supportsBookPages: true,
 };
@@ -63,22 +61,19 @@ export const bookWalkerGlobal: Provider = {
 };
 
 export const bookWalkerGlobalReader: Provider = {
+	...bookWalkerGlobal,
 	id: 'bw-gr',
 	name: 'BookWalker Global Preview',
-	icon: '/images/providers/bwg.svg',
-	locale: 'en',
 	colors: { primary: '#3498db', secondary: '#6db5e5' },
 	priority: 5,
-	enabled: true,
 	ignoreErrors: true,
 	supportsBookPages: true,
 };
 
 export const bookWalkerWayomi: Provider = {
+	...bookWalker,
 	id: 'bw-wa',
 	name: 'BookWalker Wayomi',
-	icon: '/images/providers/bw.svg',
-	locale: 'ja',
 	colors: { primary: '#00a4e5', secondary: '#00a4e5' },
 	priority: 6,
 	enabled: false,
@@ -86,82 +81,79 @@ export const bookWalkerWayomi: Provider = {
 };
 
 export const bookWalkerWayomiReader: Provider = {
+	...bookWalkerWayomi,
 	id: 'bw-war',
 	name: 'BookWalker Wayomi Preview',
-	icon: '/images/providers/bw.svg',
-	locale: 'ja',
 	colors: { primary: '#00a4e5', secondary: '#26bcfb' },
 	priority: 7,
-	enabled: false,
 	ignoreErrors: true,
 	supportsBookPages: true,
-	volumePrefix: 'Chapter',
 };
 
 export const amazon: Provider = {
 	id: 'amz',
 	name: 'Amazon',
 	icon: '/images/providers/amz.svg',
-	locale: 'en',
+	locale: 'en-US',
 	colors: { primary: '#ffa700', secondary: '#ffa700' },
 	priority: 8,
 	enabled: true,
 	ignoreErrors: true,
 };
 
+export const amazonUK: Provider = {
+	...amazon,
+	id: 'amz-uk',
+	name: 'Amazon UK',
+	locale: 'en-GB',
+	priority: 8.5,
+	enabled: false,
+};
+
 export const amazonJapan: Provider = {
+	...amazon,
 	id: 'amz-jp',
 	name: 'Amazon Japan',
-	icon: '/images/providers/amz.svg',
 	locale: 'ja',
 	colors: { primary: '#ffa700', secondary: '#fec254' },
 	priority: 9,
 	enabled: true,
-	ignoreErrors: true,
 };
 
 export const amazonItaly: Provider = {
+	...amazonJapan,
 	id: 'amz-it',
 	name: 'Amazon Italy',
-	icon: '/images/providers/amz.svg',
 	locale: 'it',
-	colors: { primary: '#ffa700', secondary: '#fec254' },
 	priority: 10,
 	enabled: false,
-	ignoreErrors: true,
 };
 
 export const amazonSpain: Provider = {
+	...amazonJapan,
 	id: 'amz-es',
 	name: 'Amazon Spain',
-	icon: '/images/providers/amz.svg',
 	locale: 'es',
-	colors: { primary: '#ffa700', secondary: '#fec254' },
 	priority: 11,
 	enabled: false,
-	ignoreErrors: true,
 };
 
 export const amazonMexico: Provider = {
+	...amazonJapan,
 	id: 'amz-mx',
 	name: 'Amazon Mexico',
-	icon: '/images/providers/amz.svg',
 	locale: 'es-mx',
-	colors: { primary: '#ffa700', secondary: '#fec254' },
 	priority: 12,
 	enabled: false,
-	ignoreErrors: true,
 };
 
 export const amazonGermany: Provider = {
+	...amazonJapan,
 	id: 'amz-de',
 	name: 'Amazon Germany',
-	icon: '/images/providers/amz.svg',
 	locale: 'de',
-	colors: { primary: '#ffa700', secondary: '#fec254' },
 	priority: 13,
 	enabled: false,
-	ignoreErrors: true,
 };
 
 export const eBookJapan: Provider = {
@@ -218,13 +210,12 @@ export const bookWalkerTaiwan: Provider = {
 };
 
 export const bookWalkerTaiwanReader: Provider = {
+	...bookWalkerTaiwan,
 	id: 'bw-twr',
 	name: 'BookWalker Taiwan Preview',
-	icon: '/images/providers/bw.svg',
 	locale: 'zh-TW',
 	colors: { primary: '#b28a3d', secondary: '#846551' },
 	priority: 19,
-	enabled: false,
 	ignoreErrors: true,
 	supportsBookPages: true,
 };
@@ -238,6 +229,7 @@ const allProviders: Provider[] = [
 	bookWalkerWayomi,
 	bookWalkerWayomiReader,
 	amazon,
+	amazonUK,
 	amazonJapan,
 	amazonItaly,
 	amazonSpain,
