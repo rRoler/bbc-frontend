@@ -30,6 +30,7 @@
 	{loading}
 	onload={() => (loaded = true)}
 	onerror={(e) => {
+		console.error(`Failed to load image "${src}":`, e);
 		errored = true;
 		setErrorImage(e);
 	}}
