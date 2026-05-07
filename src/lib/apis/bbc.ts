@@ -39,6 +39,7 @@ export interface BBCBook {
 	url: string;
 	title: string;
 	cover: string;
+	coverFallbacks?: string[];
 	volume: { type: 'volume' | 'chapter'; number: string | null };
 	seriesId: string | null;
 }

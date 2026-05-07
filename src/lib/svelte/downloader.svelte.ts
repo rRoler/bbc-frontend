@@ -378,6 +378,35 @@ class Downloader {
 		return this.MAX_COMPARE_BOOKS;
 	}
 
+	private throwOnSmallImage(width: number, height: number): void {
+		if (width <= 1 && height <= 1) throw new Error('Image is too small');
+	}
+
+	private async resolveImageInfo(book: Book): Promise<ReturnType<typeof getImageInfo> | null> {
+		try {
+			const info = await getImageInfo(book.cover);
+			this.throwOnSmallImage(info.width, info.height);
+			if (info) return info;
+		} catch (e) {
+			console.warn(`Downloader: failed to get info from "${book.cover}"`, e);
+		}
+
+		for (const fallbackUrl of book.coverFallbacks ?? []) {
+			try {
+				const info = await getImageInfo(fallbackUrl);
+				this.throwOnSmallImage(info.width, info.height);
+				book.cover = fallbackUrl;
+				book.thumbnail = wsrvApi.getUrl(book.cover, this.THUMBNAIL_DATA).href;
+				console.log(`Downloader: cover fallback succeeded for ${book.id} via ${fallbackUrl}`);
+				return info;
+			} catch (e) {
+				console.warn(`Downloader: failed to get info from "${fallbackUrl}"`, e);
+			}
+		}
+
+		return null;
+	}
+
 	async fetchSeries(): Promise<void> {
 		if (this.isFetching) return;
 
@@ -512,7 +541,8 @@ class Downloader {
 					await Promise.all(
 						newBooks.map(async (book) => {
 							try {
-								const info = await getImageInfo(book.cover);
+								const info = await this.resolveImageInfo(book);
+								if (!info) throw new Error('Failed to fetch cover info');
 								book.coverFormat = info.format;
 								book.coverHeight = info.height;
 								book.coverWidth = info.width;
