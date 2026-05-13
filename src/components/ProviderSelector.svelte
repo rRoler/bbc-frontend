@@ -88,11 +88,13 @@
 			if (!localeIds.includes('en-US')) localeIds.push('en-US');
 			if (!localeIds.includes('en-GB')) localeIds.push('en-GB');
 			localeIds.splice(enLocaleIndex, 1);
+			removeSvelteSearchParam(PROVIDER_LOCALE_PARAM_KEY, 'en');
 		}
 		const zhLocaleIndex = localeIds.indexOf('zh');
 		if (zhLocaleIndex > -1) {
 			if (!localeIds.includes('zh-TW')) localeIds.push('zh-TW');
 			localeIds.splice(zhLocaleIndex, 1);
+			removeSvelteSearchParam(PROVIDER_LOCALE_PARAM_KEY, 'zh');
 		}
 
 		selectedLocales = new SvelteSet(localeIds as Provider['locale'][]);
