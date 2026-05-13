@@ -26,7 +26,7 @@ export const bookLive: Provider = {
 	icon: '/images/providers/bl.svg',
 	locale: 'ja',
 	colors: { primary: '#F9A74A', secondary: '#F87313' },
-	priority: 1,
+	priority: 0,
 	enabled: true,
 };
 
@@ -36,7 +36,7 @@ export const bookWalker: Provider = {
 	icon: '/images/providers/bw.svg',
 	locale: 'ja',
 	colors: { primary: '#009844', secondary: '#009844' },
-	priority: 2,
+	priority: 0,
 	enabled: true,
 };
 
@@ -45,7 +45,7 @@ export const bookWalkerReader: Provider = {
 	id: 'bw-r',
 	name: 'BookWalker Preview',
 	colors: { primary: '#009844', secondary: '#50aa7a' },
-	priority: 3,
+	priority: 0,
 	ignoreErrors: true,
 	supportsBookPages: true,
 };
@@ -56,7 +56,7 @@ export const bookWalkerGlobal: Provider = {
 	icon: '/images/providers/bwg.svg',
 	locale: 'en-US',
 	colors: { primary: '#3498db', secondary: '#3498db' },
-	priority: 4,
+	priority: 0,
 	enabled: true,
 };
 
@@ -65,7 +65,7 @@ export const bookWalkerGlobalReader: Provider = {
 	id: 'bw-gr',
 	name: 'BookWalker Global Preview',
 	colors: { primary: '#3498db', secondary: '#6db5e5' },
-	priority: 5,
+	priority: 0,
 	ignoreErrors: true,
 	supportsBookPages: true,
 };
@@ -75,7 +75,7 @@ export const bookWalkerWayomi: Provider = {
 	id: 'bw-wa',
 	name: 'BookWalker Wayomi',
 	colors: { primary: '#00a4e5', secondary: '#00a4e5' },
-	priority: 6,
+	priority: 0,
 	enabled: false,
 	volumePrefix: 'Chapter',
 };
@@ -85,7 +85,28 @@ export const bookWalkerWayomiReader: Provider = {
 	id: 'bw-war',
 	name: 'BookWalker Wayomi Preview',
 	colors: { primary: '#00a4e5', secondary: '#26bcfb' },
-	priority: 7,
+	priority: 0,
+	ignoreErrors: true,
+	supportsBookPages: true,
+};
+
+export const bookWalkerTaiwan: Provider = {
+	id: 'bw-tw',
+	name: 'BookWalker Taiwan',
+	icon: '/images/providers/bw.svg',
+	locale: 'zh-TW',
+	colors: { primary: '#b28a3d', secondary: '#b28a3d' },
+	priority: 0,
+	enabled: false,
+};
+
+export const bookWalkerTaiwanReader: Provider = {
+	...bookWalkerTaiwan,
+	id: 'bw-twr',
+	name: 'BookWalker Taiwan Preview',
+	locale: 'zh-TW',
+	colors: { primary: '#b28a3d', secondary: '#846551' },
+	priority: 0,
 	ignoreErrors: true,
 	supportsBookPages: true,
 };
@@ -96,7 +117,7 @@ export const amazon: Provider = {
 	icon: '/images/providers/amz.svg',
 	locale: 'en-US',
 	colors: { primary: '#ffa700', secondary: '#ffa700' },
-	priority: 8,
+	priority: 0,
 	enabled: true,
 	ignoreErrors: true,
 };
@@ -106,7 +127,7 @@ export const amazonUK: Provider = {
 	id: 'amz-uk',
 	name: 'Amazon UK',
 	locale: 'en-GB',
-	priority: 8.5,
+	priority: 0,
 	enabled: false,
 };
 
@@ -116,7 +137,7 @@ export const amazonJapan: Provider = {
 	name: 'Amazon Japan',
 	locale: 'ja',
 	colors: { primary: '#ffa700', secondary: '#fec254' },
-	priority: 9,
+	priority: 0,
 	enabled: true,
 };
 
@@ -125,7 +146,7 @@ export const amazonItaly: Provider = {
 	id: 'amz-it',
 	name: 'Amazon Italy',
 	locale: 'it',
-	priority: 10,
+	priority: 0,
 	enabled: false,
 };
 
@@ -134,7 +155,7 @@ export const amazonSpain: Provider = {
 	id: 'amz-es',
 	name: 'Amazon Spain',
 	locale: 'es',
-	priority: 11,
+	priority: 0,
 	enabled: false,
 };
 
@@ -143,7 +164,7 @@ export const amazonMexico: Provider = {
 	id: 'amz-mx',
 	name: 'Amazon Mexico',
 	locale: 'es-MX',
-	priority: 12,
+	priority: 0,
 	enabled: false,
 };
 
@@ -152,7 +173,7 @@ export const amazonGermany: Provider = {
 	id: 'amz-de',
 	name: 'Amazon Germany',
 	locale: 'de',
-	priority: 13,
+	priority: 0,
 	enabled: false,
 };
 
@@ -162,7 +183,7 @@ export const eBookJapan: Provider = {
 	icon: '/images/providers/ebj.svg',
 	locale: 'ja',
 	colors: { primary: '#F8485E', secondary: '#dd3046' },
-	priority: 14,
+	priority: 0,
 	enabled: false,
 };
 
@@ -172,7 +193,7 @@ export const cmoa: Provider = {
 	icon: '/images/providers/cmoa.svg',
 	locale: 'ja',
 	colors: { primary: '#dd763f', secondary: '#ea5505' },
-	priority: 15,
+	priority: 0,
 	enabled: false,
 	supportsBookPages: true,
 };
@@ -183,7 +204,7 @@ export const aladin: Provider = {
 	icon: '/images/providers/aladin.ico',
 	locale: 'ko',
 	colors: { primary: '#fcaf17', secondary: '#ee3897' },
-	priority: 16,
+	priority: 0,
 	enabled: false,
 	supportsBookPages: true,
 };
@@ -194,29 +215,8 @@ export const ridibooks: Provider = {
 	icon: '/images/providers/ridi.svg',
 	locale: 'ko',
 	colors: { primary: '#1E9EFF', secondary: '#1E9EFF' },
-	priority: 17,
+	priority: 0,
 	enabled: false,
-	supportsBookPages: true,
-};
-
-export const bookWalkerTaiwan: Provider = {
-	id: 'bw-tw',
-	name: 'BookWalker Taiwan',
-	icon: '/images/providers/bw.svg',
-	locale: 'zh-TW',
-	colors: { primary: '#b28a3d', secondary: '#b28a3d' },
-	priority: 18,
-	enabled: false,
-};
-
-export const bookWalkerTaiwanReader: Provider = {
-	...bookWalkerTaiwan,
-	id: 'bw-twr',
-	name: 'BookWalker Taiwan Preview',
-	locale: 'zh-TW',
-	colors: { primary: '#b28a3d', secondary: '#846551' },
-	priority: 19,
-	ignoreErrors: true,
 	supportsBookPages: true,
 };
 
@@ -228,6 +228,8 @@ const allProviders: Provider[] = [
 	bookWalkerGlobalReader,
 	bookWalkerWayomi,
 	bookWalkerWayomiReader,
+	bookWalkerTaiwan,
+	bookWalkerTaiwanReader,
 	amazon,
 	amazonUK,
 	amazonJapan,
@@ -239,11 +241,9 @@ const allProviders: Provider[] = [
 	cmoa,
 	aladin,
 	ridibooks,
-	bookWalkerTaiwan,
-	bookWalkerTaiwanReader,
 ];
 
-export default sortProviders(allProviders);
+export default sortProviders(allProviders.map((p, i) => ({ ...p, priority: i + 1 })));
 
 export function sortProviders(providers: Provider[]) {
 	return providers.sort((a, b) => a.priority - b.priority);

@@ -83,6 +83,18 @@
 		}
 
 		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY);
+		const enLocaleIndex = localeIds.indexOf('en');
+		if (enLocaleIndex > -1) {
+			if (!localeIds.includes('en-US')) localeIds.push('en-US');
+			if (!localeIds.includes('en-GB')) localeIds.push('en-GB');
+			localeIds.splice(enLocaleIndex, 1);
+		}
+		const zhLocaleIndex = localeIds.indexOf('zh');
+		if (zhLocaleIndex > -1) {
+			if (!localeIds.includes('zh-TW')) localeIds.push('zh-TW');
+			localeIds.splice(zhLocaleIndex, 1);
+		}
+
 		selectedLocales = new SvelteSet(localeIds as Provider['locale'][]);
 		if (selected.length === 0) {
 			selectedBeforeLocale = [...allProviders.enabled];
