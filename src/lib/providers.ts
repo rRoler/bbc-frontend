@@ -2,7 +2,7 @@ export interface Provider {
 	id: string;
 	name: string;
 	icon: string;
-	locale: 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-MX' | 'ko' | 'zh-TW';
+	locale: 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-MX' | 'ko' | 'zh-TW' | 'fr' | 'nl';
 	colors: {
 		primary: string;
 		secondary: string;
@@ -177,6 +177,24 @@ export const amazonGermany: Provider = {
 	enabled: false,
 };
 
+export const amazonNetherlands: Provider = {
+	...amazonJapan,
+	id: 'amz-nl',
+	name: 'Amazon Netherlands',
+	locale: 'nl',
+	priority: 0,
+	enabled: false,
+};
+
+export const amazonFrance: Provider = {
+	...amazonJapan,
+	id: 'amz-fr',
+	name: 'Amazon France',
+	locale: 'fr',
+	priority: 0,
+	enabled: false,
+};
+
 export const eBookJapan: Provider = {
 	id: 'ebj',
 	name: 'eBookJapan',
@@ -237,6 +255,8 @@ const allProviders: Provider[] = [
 	amazonSpain,
 	amazonMexico,
 	amazonGermany,
+	amazonNetherlands,
+	amazonFrance,
 	eBookJapan,
 	cmoa,
 	aladin,
