@@ -18,6 +18,8 @@
 	const flagSize = $derived(
 		Math.round((Number(iconClass?.match(/(?:size|w|h)-(\d+)/)?.[1]) || 4) * 4 * 0.75)
 	);
+	// Safari (iOS) does not support `fit-content` on SVG dimensions, use explicit px values
+	const flagHeight = $derived(Math.round(flagSize * 0.75));
 </script>
 
 <div
@@ -29,7 +31,7 @@
 			<span
 				class="indicator-item indicator-bottom indicator-end badge badge-xs size-fit overflow-hidden p-0"
 			>
-				<Flag style="width: {flagSize}px; height: fit-content;" size="fit-content" />
+				<Flag style="width: {flagSize}px; height: {flagHeight}px;" />
 			</span>
 		{/if}
 		<img
