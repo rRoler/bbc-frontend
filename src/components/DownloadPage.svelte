@@ -54,11 +54,14 @@
 	onMount(async () => {
 		appState.loading = true;
 
-		downloadSettings.load();
-
 		if (matureContentSetting.value === 'hide') {
-			if (!confirm('Mature content is disabled. Continue?')) window.location.href = '/';
+			if (!confirm('Mature content is disabled. Continue?')) {
+				window.location.href = '/';
+				return;
+			}
 		}
+
+		downloadSettings.load();
 
 		if (fileSystemFolderSetting.value) {
 			await fs.restore();
