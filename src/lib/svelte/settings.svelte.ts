@@ -232,9 +232,22 @@ export const configuredProvidersSetting = new Setting<ProviderEditorSetting>({
 	defaultValue: mapToStoreEntries(allProviders),
 });
 
+export const matureContentSetting = new Setting<SelectSetting>({
+	id: 'mature-content',
+	type: 'select',
+	name: 'Mature Content',
+	description: 'Choose how mature/pornographic content will be displayed',
+	defaultValue: 'hide',
+	options: [
+		{ label: 'Hide', value: 'hide' },
+		{ label: 'Blur', value: 'blur' },
+		{ label: 'Display', value: 'display' },
+	],
+});
+
 export const generalSettings = new SettingsField({
 	name: 'General',
-	settings: [themeSetting, configuredProvidersSetting],
+	settings: [themeSetting, configuredProvidersSetting, matureContentSetting],
 });
 
 export const autoMatchResultsSetting = new Setting<ToggleSetting>({

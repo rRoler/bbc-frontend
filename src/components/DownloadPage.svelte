@@ -33,6 +33,7 @@
 		bookSortOrderSetting,
 		downloadSettings,
 		fileSystemFolderSetting,
+		matureContentSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import CopyIcon from './CopyIcon.svelte';
 	import Pagination from './Pagination.svelte';
@@ -54,6 +55,10 @@
 		appState.loading = true;
 
 		downloadSettings.load();
+
+		if (matureContentSetting.value === 'hide') {
+			if (!confirm('Mature content is disabled. Continue?')) window.location.href = '/';
+		}
 
 		if (fileSystemFolderSetting.value) {
 			await fs.restore();
@@ -222,6 +227,7 @@
 					{@const isSelected = downloader.selectedBooks.some(
 						(b) => b.id === book.id && b.provider.id === book.provider.id
 					)}
+					{@const bookSeries = downloader.getBookSeries(book)}
 
 					<div
 						class="card bg-base-100 group content-visibility-auto focus-within:outline-primary relative w-36 shrink-0 shadow-sm focus-within:outline-1 sm:w-42"
@@ -327,7 +333,9 @@
 								<Image
 									src={book.thumbnail}
 									alt="{book.title} book cover"
-									class="w-full"
+									class="w-full {bookSeries?.isMature && matureContentSetting.value === 'blur'
+										? 'blur-lg'
+										: ''}"
 									loading="lazy"
 								/>
 							</figure>

@@ -20,6 +20,7 @@
 		autoMatchResultsSetting,
 		searchCopyFormatSetting,
 		textVariables,
+		matureContentSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
@@ -72,7 +73,9 @@
 		searching = true;
 
 		try {
-			const response = await api.search(searchQuery, selectedProviders);
+			const response = await api.search(searchQuery, selectedProviders, {
+				include_mature: matureContentSetting.value !== 'hide',
+			});
 			searchResults = response.data;
 			updateLocationStorage();
 		} catch (e) {
@@ -329,7 +332,9 @@
 											<Image
 												src={imageApi.getUrl(series.thumbnail, { width: 168 }).href}
 												alt="{series.title} series thumbnail"
-												class="w-full"
+												class="w-full {series.isMature && matureContentSetting.value === 'blur'
+													? 'blur-lg'
+													: ''}"
 												loading="lazy"
 											/>
 										</figure>

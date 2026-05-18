@@ -32,6 +32,7 @@ export interface BBCSeries {
 	thumbnail: string;
 	bookType?: 'manga' | 'novel' | 'webtoon' | 'audiobook';
 	publicationType?: 'physical' | 'digital';
+	isMature: boolean;
 }
 
 export interface BBCBook {
@@ -72,7 +73,8 @@ export default class BBC_API {
 
 	async search(
 		query: string,
-		providers: Provider[] = allProviders.updated
+		providers: Provider[] = allProviders.updated,
+		options?: { include_mature?: boolean }
 	): Promise<BBCResult<BBCSeries>> {
 		const allData: BBCResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
 
@@ -84,6 +86,7 @@ export default class BBC_API {
 
 				searchUrl.searchParams.set('q', query);
 				searchUrl.searchParams.append('provider', provider.id);
+				searchUrl.searchParams.append('include_mature', options?.include_mature ? 'true' : 'false');
 
 				try {
 					const res = await fetch(searchUrl);

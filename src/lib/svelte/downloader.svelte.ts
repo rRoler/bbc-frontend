@@ -241,6 +241,10 @@ class Downloader {
 		return Math.round(totalScore / 2);
 	}
 
+	getBookSeries(book: Book) {
+		return this.allSeries.find((s) => s.id === book.seriesId && s.provider.id === book.provider.id);
+	}
+
 	private parseTextVariables(
 		text: string,
 		options: { book?: Book; extension?: string } = {}
@@ -270,9 +274,7 @@ class Downloader {
 			vars.push([textVariables.bookPageNumber, (book.selectedPage || 0).toString()]);
 			vars.push([textVariables.bookPageName, book.selectedPage ? `Page ${book.selectedPage}` : '']);
 
-			const bookSeries = this.allSeries.find(
-				(s) => s.id === book.seriesId && s.provider.id === book.provider.id
-			);
+			const bookSeries = this.getBookSeries(book);
 			if (bookSeries) {
 				vars.push([textVariables.seriesTitle, bookSeries.title]);
 				vars.push([textVariables.seriesThumbnailUrl, bookSeries.thumbnail]);

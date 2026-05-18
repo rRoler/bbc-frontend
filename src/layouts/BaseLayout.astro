@@ -62,8 +62,8 @@ const imageHeight = (props.imageHeight || 630).toString();
 </html>
 
 <script>
-	import { themeSetting } from '../lib/svelte/settings.svelte.ts';
-	themeSetting.load();
+	import { generalSettings, themeSetting } from '../lib/svelte/settings.svelte.ts';
+	generalSettings.load();
 	if (themeSetting.value === 'system') document.documentElement.removeAttribute('data-theme');
 	else document.documentElement.setAttribute('data-theme', themeSetting.value);
 </script>
