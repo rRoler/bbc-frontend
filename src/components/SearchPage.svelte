@@ -332,7 +332,9 @@
 											<Image
 												src={imageApi.getUrl(series.thumbnail, { width: 168 }).href}
 												alt="{series.title} series thumbnail"
-												class="w-full {series.isMature && matureContentSetting.value === 'blur'
+												class="w-full {series.isMature &&
+												matureContentSetting.value === 'blur' &&
+												!isSelected
 													? 'blur-lg'
 													: ''}"
 												loading="lazy"

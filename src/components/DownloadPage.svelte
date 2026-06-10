@@ -336,7 +336,9 @@
 								<Image
 									src={book.thumbnail}
 									alt="{book.title} book cover"
-									class="w-full {bookSeries?.isMature && matureContentSetting.value === 'blur'
+									class="w-full {bookSeries?.isMature &&
+									matureContentSetting.value === 'blur' &&
+									!isSelected
 										? 'blur-lg'
 										: ''}"
 									loading="lazy"
