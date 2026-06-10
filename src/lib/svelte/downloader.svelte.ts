@@ -160,6 +160,13 @@ class Downloader {
 		return counts;
 	});
 
+	volumeNatSort(a: string, b: string): number {
+		const tabOrder = (title: string) => (title.toLowerCase().startsWith('volume') ? 0 : 1);
+		const tabDiff = tabOrder(a) - tabOrder(b);
+		if (tabDiff !== 0) return tabDiff;
+		return natsort(a, b);
+	}
+
 	private sortBookNaturally(a: Book, b: Book): number {
 		const sortBy = bookSortBySetting.value;
 		const order = this.sortOrder;
@@ -167,7 +174,7 @@ class Downloader {
 		let compareResult: number;
 		switch (sortBy) {
 			case 'volume':
-				compareResult = natsort(a.volumeName, b.volumeName);
+				compareResult = this.volumeNatSort(a.volumeName, b.volumeName);
 				break;
 			case 'title':
 				compareResult = natsort(a.title, b.title);
