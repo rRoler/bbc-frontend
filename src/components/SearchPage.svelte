@@ -4,7 +4,7 @@
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
 	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
-	import { SvelteDate, SvelteURLSearchParams } from 'svelte/reactivity';
+	import { SvelteDate, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
 	import {
 		addKeyHold,
 		getLocaleName,
@@ -28,10 +28,13 @@
 	import Tooltip from './Tooltip.svelte';
 	import { MAX_SELECTED_SEARCH_RESULTS } from '../lib/constants.ts';
 
+	const MAX_SEARCH_TIME = 10000;
+
 	const api = new BBC_API();
 	const imageApi = new WsrvApi();
 
 	let selectedProviders = $state<Provider[]>([]);
+	let loadingProviders = $state<SvelteSet<string>>();
 	let searching = $state<boolean>(false);
 	let searchQuery = $state<string>('');
 	let searchResults = $state<Record<string, BBCSeries[]>>({});
@@ -71,17 +74,27 @@
 		if (searching) return;
 
 		searching = true;
+		let timer;
 
 		try {
-			const response = await api.search(searchQuery, selectedProviders, {
+			loadingProviders = new SvelteSet(selectedProviders.map((p) => p.id));
+			timer = setTimeout(() => (searching = false), MAX_SEARCH_TIME);
+			await api.search(searchQuery, selectedProviders, {
 				include_mature: matureContentSetting.value !== 'hide',
+				callback: (response) => {
+					response.errors.forEach((e) => addAppError(e));
+					searchResults = response.data;
+					for (let searchResultsKey in searchResults) {
+						loadingProviders?.delete(searchResultsKey);
+					}
+					updateLocationStorage();
+				},
 			});
-			searchResults = response.data;
-			updateLocationStorage();
 		} catch (e) {
 			addAppError(e);
 		}
 
+		if (timer) clearTimeout(timer);
 		searching = false;
 	}
 
@@ -218,8 +231,9 @@
 	</div>
 
 	{#if searching}
-		<div class="flex size-full items-center justify-center">
+		<div class="flex size-full flex-col items-center justify-center gap-4 p-4">
 			<span class="loading loading-spinner loading-xl size-24"></span>
+			<p class="text-xl font-semibold">Searching...</p>
 		</div>
 	{:else if Object.keys(searchResults).length > 0}
 		<div class="flex size-full flex-col items-baseline pt-8">
@@ -234,7 +248,12 @@
 						iconClass="size-6"
 					/>
 
-					{#if allSeries.length > 0}
+					{#if loadingProviders?.has(provider.id)}
+						<div class="flex flex-col items-center justify-center gap-2 p-4">
+							<span class="loading loading-spinner loading-xl size-12"></span>
+							<p class="font-semibold">Searching provider...</p>
+						</div>
+					{:else if allSeries.length > 0}
 						<div class="flex flex-row gap-2 overflow-x-auto p-1">
 							{#each allSeries as series, index (index)}
 								{@const isSelected = selectedSeries[provider.id]?.some((s) => s.id === series.id)}

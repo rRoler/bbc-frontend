@@ -74,14 +74,12 @@ export default class BBC_API {
 	async search(
 		query: string,
 		providers: Provider[] = allProviders.updated,
-		options?: { include_mature?: boolean }
+		options?: { include_mature?: boolean; callback?: (result: BBCResult<BBCSeries>) => void }
 	): Promise<BBCResult<BBCSeries>> {
 		const allData: BBCResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
 
 		await Promise.all(
 			providers.map(async (provider) => {
-				if (!allData.data[provider.id]) allData.data[provider.id] = [];
-
 				const searchUrl = new URL(`${this.apiUrl}/search`);
 
 				searchUrl.searchParams.set('q', query);
@@ -92,6 +90,8 @@ export default class BBC_API {
 					const res = await fetch(searchUrl);
 					const data: BBCResponse<BBCSeries> = await res.json();
 
+					if (!allData.data[provider.id]) allData.data[provider.id] = [];
+
 					if (data.error) {
 						allData.errors.push(new BBC_API_Error(`${provider.name}: ${data.error}`));
 					} else {
@@ -100,9 +100,14 @@ export default class BBC_API {
 					}
 				} catch (e) {
 					allData.errors.push(new BBC_API_Error(`${provider.name}: ${e}`));
+				} finally {
+					if (!allData.data[provider.id]) allData.data[provider.id] = [];
+					if (options?.callback) options.callback(allData);
 				}
 			})
 		);
+
+		if (options?.callback) options.callback(allData);
 
 		return allData;
 	}
