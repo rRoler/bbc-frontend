@@ -120,6 +120,7 @@ export const amazon: Provider = {
 	priority: 0,
 	enabled: true,
 	ignoreErrors: true,
+	supportsBookPages: true,
 };
 
 export const amazonUK: Provider = {
