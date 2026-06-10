@@ -52,6 +52,7 @@
 	});
 	let resultAutoMatchEnabled = $state<boolean>(true);
 	let linksCopied = $state<boolean | null>(null);
+	let abortController = $state<AbortController>();
 
 	function updateLocationStorage() {
 		if (searchLocation.storageKey)
@@ -71,16 +72,21 @@
 	}
 
 	async function handleSubmit() {
-		if (searching) return;
-
 		searching = true;
 		let timer;
 
+		if (abortController) abortController.abort();
+		const currentAbortController = new AbortController();
+		abortController = currentAbortController;
+
 		try {
 			loadingProviders = new SvelteSet(selectedProviders.map((p) => p.id));
-			timer = setTimeout(() => (searching = false), MAX_SEARCH_TIME);
+			timer = setTimeout(() => {
+				if (!currentAbortController.signal.aborted) searching = false;
+			}, MAX_SEARCH_TIME);
 			await api.search(searchQuery, selectedProviders, {
 				include_mature: matureContentSetting.value !== 'hide',
+				abortSignal: currentAbortController.signal,
 				callback: (response) => {
 					response.errors.forEach((e) => addAppError(e));
 					searchResults = response.data;
@@ -91,11 +97,11 @@
 				},
 			});
 		} catch (e) {
-			addAppError(e);
+			if ((e as Error | undefined)?.name !== 'AbortError') addAppError(e);
 		}
 
 		if (timer) clearTimeout(timer);
-		searching = false;
+		if (!currentAbortController.signal.aborted) searching = false;
 	}
 
 	function handleKeys(event: KeyboardEvent) {

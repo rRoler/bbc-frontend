@@ -74,7 +74,11 @@ export default class BBC_API {
 	async search(
 		query: string,
 		providers: Provider[] = allProviders.updated,
-		options?: { include_mature?: boolean; callback?: (result: BBCResult<BBCSeries>) => void }
+		options?: {
+			include_mature?: boolean;
+			callback?: (result: BBCResult<BBCSeries>) => void;
+			abortSignal?: AbortController['signal'];
+		}
 	): Promise<BBCResult<BBCSeries>> {
 		const allData: BBCResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
 
@@ -87,7 +91,7 @@ export default class BBC_API {
 				searchUrl.searchParams.append('include_mature', options?.include_mature ? 'true' : 'false');
 
 				try {
-					const res = await fetch(searchUrl);
+					const res = await fetch(searchUrl, { signal: options?.abortSignal });
 					const data: BBCResponse<BBCSeries> = await res.json();
 
 					if (!allData.data[provider.id]) allData.data[provider.id] = [];
@@ -102,12 +106,12 @@ export default class BBC_API {
 					allData.errors.push(new BBC_API_Error(`${provider.name}: ${e}`));
 				} finally {
 					if (!allData.data[provider.id]) allData.data[provider.id] = [];
-					if (options?.callback) options.callback(allData);
+					if (!options?.abortSignal?.aborted && options?.callback) options.callback(allData);
 				}
 			})
 		);
 
-		if (options?.callback) options.callback(allData);
+		if (!options?.abortSignal?.aborted && options?.callback) options.callback(allData);
 
 		return allData;
 	}
