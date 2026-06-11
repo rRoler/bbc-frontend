@@ -30,6 +30,17 @@ export const bookLive: Provider = {
 	enabled: true,
 };
 
+export const bookLiveReader: Provider = {
+	...bookLive,
+	id: 'bl-r',
+	name: 'BookLive Preview',
+	colors: { primary: '#F87313', secondary: '#F9A74A' },
+	priority: 0,
+	enabled: true,
+	supportsBookPages: true,
+	ignoreErrors: true,
+};
+
 export const bookWalker: Provider = {
 	id: 'bw',
 	name: 'BookWalker',
@@ -242,6 +253,7 @@ export const ridibooks: Provider = {
 
 const allProviders: Provider[] = [
 	bookLive,
+	bookLiveReader,
 	bookWalker,
 	bookWalkerReader,
 	bookWalkerGlobal,
