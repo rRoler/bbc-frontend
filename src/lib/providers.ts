@@ -120,7 +120,8 @@ export const amazon: Provider = {
 	priority: 0,
 	enabled: true,
 	ignoreErrors: true,
-	supportsBookPages: true,
+	// disabled because Amazon blocks this feature
+	supportsBookPages: false,
 };
 
 export const amazonUK: Provider = {
