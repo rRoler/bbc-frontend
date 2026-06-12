@@ -36,7 +36,7 @@ export const bookLiveReader: Provider = {
 	name: 'BookLive Preview',
 	colors: { primary: '#F87313', secondary: '#F9A74A' },
 	priority: 0,
-	enabled: true,
+	enabled: false,
 	supportsBookPages: true,
 	ignoreErrors: true,
 };
