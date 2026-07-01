@@ -1,7 +1,12 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
 import AppTitle from '../../components/AppTitle.astro';
-import { aboutLocation, donationLocation, sourceCodeLocation } from '../../lib/locations.ts';
+import {
+	aboutLocation,
+	donationLocation,
+	sourceCodeLocation,
+	statusLocation,
+} from '../../lib/locations.ts';
 
 const currentDate = new Date();
 const fullYear = currentDate.getUTCFullYear();
@@ -62,6 +67,11 @@ const formattedDate = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
 						<a class="btn btn-ghost btn-lg" href={sourceCodeLocation.path} target="_blank">
 							<span>{sourceCodeLocation.label}</span>
 							<sourceCodeLocation.Icon class="size-6" />
+						</a>
+
+						<a class="btn btn-ghost btn-lg" href={statusLocation.path} target="_blank">
+							<span>{statusLocation.label}</span>
+							<statusLocation.Icon class="size-6" />
 						</a>
 					</div>
 				</div>

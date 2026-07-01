@@ -1,0 +1,13 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import StatusPage from '../../components/StatusPage.svelte';
+import { statusLocation } from '../../lib/locations.ts';
+---
+
+<PageLayout title={statusLocation.label}>
+	<div class="flex grow flex-col items-center p-4">
+		<noscript>Please enable JavaScript to view statuses</noscript>
+
+		<StatusPage client:load />
+	</div>
+</PageLayout>

@@ -1,6 +1,15 @@
-import { Download, Info, Search, Settings, FolderGit2, Heart, type Icon } from 'lucide-svelte';
+import {
+	Download,
+	Info,
+	Search,
+	Settings,
+	FolderGit2,
+	Heart,
+	SquareActivity,
+	type Icon,
+} from 'lucide-svelte';
 
-interface DockLocation {
+export interface DockLocation {
 	path: string;
 	Icon: typeof Icon;
 	label: string;
@@ -50,6 +59,12 @@ export const donationLocation: DockLocation = {
 	path: 'https://roler.dev/support',
 	Icon: Heart,
 	label: 'Support Me',
+};
+
+export const statusLocation: DockLocation = {
+	path: '/status',
+	Icon: SquareActivity,
+	label: 'Status Page',
 };
 
 export const dockLocations: DockLocation[] = [

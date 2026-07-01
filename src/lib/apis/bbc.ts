@@ -54,6 +54,14 @@ export interface BBCBookPage {
 	bookId: string;
 }
 
+export interface StatusEndpointResult {
+	endpoint: string;
+	ok: boolean;
+	latencyMs: number;
+	empty?: boolean;
+	error?: string;
+}
+
 export type BBCSort = 'asc' | 'desc';
 
 export default class BBC_API {
@@ -231,6 +239,21 @@ export default class BBC_API {
 		);
 
 		return allData;
+	}
+
+	async getEndpointStatus(
+		providerId: string,
+		endpoint: string
+	): Promise<StatusEndpointResult & { endpoint: string }> {
+		const res = await fetch(
+			`${this.apiUrl}/status/${encodeURIComponent(providerId)}/${encodeURIComponent(endpoint)}`
+		);
+		if (!res.ok) {
+			throw new BBC_API_Error(
+				`Status check failed for "${providerId}/${endpoint}": ${res.statusText}`
+			);
+		}
+		return res.json();
 	}
 
 	async getCovers(
