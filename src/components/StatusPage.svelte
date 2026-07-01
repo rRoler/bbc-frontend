@@ -134,7 +134,7 @@
 											<div class="status {statusClass}"></div>
 										</div>
 										<div class="inline-flex w-full flex-row justify-between">
-											<h3 class="text-lg font-semibold">{pStatus.providerEndpoint}</h3>
+											<h3 class="font-semibold sm:text-lg">{pStatus.providerEndpoint}</h3>
 											<div class="flex items-center gap-2">
 												<span class="badge badge-ghost badge-sm"
 													>{prettyMilliseconds(pStatus.latencyMs)}</span
