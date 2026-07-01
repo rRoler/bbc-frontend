@@ -115,7 +115,7 @@
 							</div>
 							{provider.name}
 							<span class="badge badge-ghost badge-sm ml-auto"
-								>{prettyMilliseconds(avgLatency, { compact: true })}</span
+								>{prettyMilliseconds(avgLatency)}</span
 							>
 						</div>
 						<div class="collapse-content">
@@ -128,13 +128,13 @@
 											<div class="status {statusClass} animate-ping"></div>
 											<div class="status {statusClass}"></div>
 										</div>
-										<div class="inline-flex w-full flex-row justify-between text-xl">
-											<h3 class="font-semibold">{pStatus.providerEndpoint}</h3>
+										<div class="inline-flex w-full flex-row justify-between">
+											<h3 class=" text-xl font-semibold">{pStatus.providerEndpoint}</h3>
 											<div class="flex items-center gap-2">
 												<span class="badge badge-ghost badge-sm"
 													>{prettyMilliseconds(pStatus.latencyMs)}</span
 												>
-												<span>{pStatus.statusText}</span>
+												<span class="text-md">{pStatus.statusText}</span>
 											</div>
 										</div>
 									</li>
