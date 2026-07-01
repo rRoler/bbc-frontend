@@ -4,6 +4,7 @@
 	import BBC_API from '../lib/apis/bbc.ts';
 	import { onMount } from 'svelte';
 	import prettyMilliseconds from 'pretty-ms';
+	import ProviderLabel from './ProviderLabel.svelte';
 
 	interface ProviderStatus {
 		providerEndpoint: string;
@@ -108,12 +109,16 @@
 
 					<div class="collapse-arrow join-item border-base-300 collapse border">
 						<input type="checkbox" />
-						<div class="collapse-title flex items-center gap-2 font-semibold">
+						<div class="collapse-title flex items-center gap-4 font-semibold">
 							<div class="inline-grid *:[grid-area:1/1]">
 								<div class="status {providerStatusClass} animate-ping"></div>
 								<div class="status {providerStatusClass}"></div>
 							</div>
-							{provider.name}
+							<ProviderLabel
+								{provider}
+								iconClass="size-5 sm:size-6"
+								textClass="text-sm sm:text-lg"
+							/>
 							<span class="badge badge-ghost badge-sm ml-auto"
 								>{prettyMilliseconds(avgLatency)}</span
 							>
@@ -129,12 +134,12 @@
 											<div class="status {statusClass}"></div>
 										</div>
 										<div class="inline-flex w-full flex-row justify-between">
-											<h3 class=" text-xl font-semibold">{pStatus.providerEndpoint}</h3>
+											<h3 class="text-lg font-semibold">{pStatus.providerEndpoint}</h3>
 											<div class="flex items-center gap-2">
 												<span class="badge badge-ghost badge-sm"
 													>{prettyMilliseconds(pStatus.latencyMs)}</span
 												>
-												<span class="text-md">{pStatus.statusText}</span>
+												<span class="text-md hidden sm:inline-block">{pStatus.statusText}</span>
 											</div>
 										</div>
 									</li>
