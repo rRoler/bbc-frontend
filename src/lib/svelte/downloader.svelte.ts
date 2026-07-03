@@ -142,7 +142,8 @@ class Downloader {
 	maxBookPage = $derived<number>(Math.max(0, ...this.allBookPages.map((p) => p.number)));
 	maxBookPageArray = $derived<number[]>(Array.from({ length: this.maxBookPage + 1 }, (_, i) => i));
 	canChangeBookPage = $derived<boolean>(
-		this.selectedProviders.some((p) => p.supportsBookPages) && this.maxBookPage > 0
+		this.selectedProviders.some((p) => p.supportedEndpoints.includes('book-pages')) &&
+			this.maxBookPage > 0
 	);
 
 	isEditMode = $state<boolean>(false);
@@ -329,8 +330,16 @@ class Downloader {
 
 			volumeBooks.sort((a, b) => {
 				if (this.selectedBookPage > 0) {
-					if (a.provider.supportsBookPages && !b.provider.supportsBookPages) return -1;
-					if (!a.provider.supportsBookPages && b.provider.supportsBookPages) return 1;
+					if (
+						a.provider.supportedEndpoints.includes('book-pages') &&
+						!b.provider.supportedEndpoints.includes('book-pages')
+					)
+						return -1;
+					if (
+						!a.provider.supportedEndpoints.includes('book-pages') &&
+						b.provider.supportedEndpoints.includes('book-pages')
+					)
+						return 1;
 				}
 
 				const qualityA = a.coverQualityScore || 0;
@@ -500,7 +509,7 @@ class Downloader {
 							);
 						}
 
-						if (provider.supportsBookPages) {
+						if (provider.supportedEndpoints.includes('book-pages')) {
 							try {
 								const newBookIds = newBooks
 									.filter((b) => b.provider.id === provider.id)

@@ -1,17 +1,10 @@
 <script lang="ts">
 	import providers from '../lib/providers.ts';
 	import { addAppError } from '../lib/svelte/app.svelte.ts';
-	import BBC_API from '../lib/apis/bbc.ts';
+	import BBC_API, { endpointLabels, type ProviderStatus } from '../lib/apis/bbc.ts';
 	import { onMount } from 'svelte';
 	import prettyMilliseconds from 'pretty-ms';
 	import ProviderLabel from './ProviderLabel.svelte';
-
-	interface ProviderStatus {
-		providerEndpoint: string;
-		status: boolean;
-		statusText: string;
-		latencyMs: number;
-	}
 
 	const api = new BBC_API();
 
@@ -20,26 +13,16 @@
 	);
 	let providerStatuses = $state<Record<string, ProviderStatus[]>>({});
 
-	const endpointKeys = ['search', 'series', 'series-books'] as const;
-
 	async function checkProviders(): Promise<void> {
 		await Promise.all(
 			providers.map(async (p) => {
-				const keys = p.supportsBookPages ? [...endpointKeys, 'book-pages' as const] : endpointKeys;
-
 				const results = await Promise.all(
-					keys.map(async (ep) => {
+					p.supportedEndpoints.map(async (ep) => {
 						try {
-							const res = await api.getEndpointStatus(p.id, ep);
-							return {
-								providerEndpoint: `GET ${res.endpoint}`,
-								status: res.ok,
-								statusText: res.error || (res.empty ? 'No results' : 'Online'),
-								latencyMs: res.latencyMs,
-							};
+							return await api.getEndpointStatus(p.id, ep);
 						} catch {
 							return {
-								providerEndpoint: `GET ${ep}`,
+								providerEndpoint: endpointLabels[ep] ?? `GET ${ep}`,
 								status: false,
 								statusText: 'Error',
 								latencyMs: 0,
@@ -93,7 +76,7 @@
 					</div>
 					<div class="collapse-content">
 						<div class="flex flex-col gap-3 p-2">
-							{#each Array(provider.supportsBookPages ? 4 : 3) as _, i (i)}
+							{#each Array(provider.supportedEndpoints.length) as _, i (i)}
 								<div class="skeleton h-5 w-full"></div>
 							{/each}
 						</div>
@@ -124,7 +107,7 @@
 							>
 						</div>
 						<div class="collapse-content">
-							<ul class="list bg-base-100 rounded-box shadow-md">
+							<ul class="list rounded-box shadow-md">
 								{#each pStatuses as pStatus (pStatus.providerEndpoint)}
 									{@const statusClass = pStatus.status ? 'status-success' : 'status-error'}
 

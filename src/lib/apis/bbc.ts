@@ -64,6 +64,32 @@ export interface StatusEndpointResult {
 
 export type BBCSort = 'asc' | 'desc';
 
+export const endpointKeys = [
+	'search',
+	'series',
+	'series-books',
+	'book',
+	'book-pages',
+	'zip',
+] as const;
+export type ProviderEndpoint = (typeof endpointKeys)[number];
+
+export interface ProviderStatus {
+	providerEndpoint: string;
+	status: boolean;
+	statusText: string;
+	latencyMs: number;
+}
+
+export const endpointLabels: Record<ProviderEndpoint, string> = {
+	search: 'Search',
+	series: 'Series',
+	'series-books': 'Series Books',
+	book: 'Book',
+	'book-pages': 'Book Pages',
+	zip: 'Cover Zip',
+};
+
 export default class BBC_API {
 	readonly apiUrl = BBC_API_URL.origin;
 	readonly bookPagesMaxCount = 12;
@@ -241,10 +267,7 @@ export default class BBC_API {
 		return allData;
 	}
 
-	async getEndpointStatus(
-		providerId: string,
-		endpoint: string
-	): Promise<StatusEndpointResult & { endpoint: string }> {
+	async getEndpointStatus(providerId: string, endpoint: ProviderEndpoint): Promise<ProviderStatus> {
 		const res = await fetch(
 			`${this.apiUrl}/status/${encodeURIComponent(providerId)}/${encodeURIComponent(endpoint)}`
 		);
@@ -253,7 +276,13 @@ export default class BBC_API {
 				`Status check failed for "${providerId}/${endpoint}": ${res.statusText}`
 			);
 		}
-		return res.json();
+		const data: StatusEndpointResult = await res.json();
+		return {
+			providerEndpoint: endpointLabels[endpoint] ?? `GET ${data.endpoint}`,
+			status: data.ok,
+			statusText: data.error || (data.empty ? 'No results' : 'Online'),
+			latencyMs: data.latencyMs,
+		};
 	}
 
 	async getCovers(

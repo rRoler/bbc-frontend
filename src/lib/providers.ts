@@ -1,3 +1,5 @@
+import type { ProviderEndpoint } from './apis/bbc';
+
 export interface Provider {
 	id: string;
 	name: string;
@@ -10,7 +12,7 @@ export interface Provider {
 	priority: number;
 	enabled: boolean;
 	ignoreErrors?: boolean;
-	supportsBookPages?: boolean;
+	supportedEndpoints: ProviderEndpoint[];
 	volumePrefix?: string;
 }
 
@@ -28,6 +30,7 @@ export const bookLive: Provider = {
 	colors: { primary: '#F9A74A', secondary: '#F87313' },
 	priority: 0,
 	enabled: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'zip'],
 };
 
 export const bookLiveReader: Provider = {
@@ -37,7 +40,7 @@ export const bookLiveReader: Provider = {
 	colors: { primary: '#F87313', secondary: '#F9A74A' },
 	priority: 0,
 	enabled: false,
-	supportsBookPages: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book-pages', 'zip'],
 	ignoreErrors: true,
 };
 
@@ -49,6 +52,7 @@ export const bookWalker: Provider = {
 	colors: { primary: '#009844', secondary: '#009844' },
 	priority: 0,
 	enabled: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
 };
 
 export const bookWalkerReader: Provider = {
@@ -58,7 +62,6 @@ export const bookWalkerReader: Provider = {
 	colors: { primary: '#009844', secondary: '#50aa7a' },
 	priority: 0,
 	ignoreErrors: true,
-	supportsBookPages: true,
 };
 
 export const bookWalkerGlobal: Provider = {
@@ -69,6 +72,7 @@ export const bookWalkerGlobal: Provider = {
 	colors: { primary: '#3498db', secondary: '#3498db' },
 	priority: 0,
 	enabled: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'zip'],
 };
 
 export const bookWalkerGlobalReader: Provider = {
@@ -78,7 +82,7 @@ export const bookWalkerGlobalReader: Provider = {
 	colors: { primary: '#3498db', secondary: '#6db5e5' },
 	priority: 0,
 	ignoreErrors: true,
-	supportsBookPages: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book-pages', 'zip'],
 };
 
 export const bookWalkerWayomi: Provider = {
@@ -98,7 +102,6 @@ export const bookWalkerWayomiReader: Provider = {
 	colors: { primary: '#00a4e5', secondary: '#26bcfb' },
 	priority: 0,
 	ignoreErrors: true,
-	supportsBookPages: true,
 };
 
 export const bookWalkerTaiwan: Provider = {
@@ -109,6 +112,7 @@ export const bookWalkerTaiwan: Provider = {
 	colors: { primary: '#b28a3d', secondary: '#b28a3d' },
 	priority: 0,
 	enabled: false,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
 };
 
 export const bookWalkerTaiwanReader: Provider = {
@@ -119,7 +123,6 @@ export const bookWalkerTaiwanReader: Provider = {
 	colors: { primary: '#b28a3d', secondary: '#846551' },
 	priority: 0,
 	ignoreErrors: true,
-	supportsBookPages: true,
 };
 
 export const amazon: Provider = {
@@ -131,8 +134,7 @@ export const amazon: Provider = {
 	priority: 0,
 	enabled: true,
 	ignoreErrors: true,
-	// disabled because Amazon blocks this feature
-	supportsBookPages: false,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'zip'],
 };
 
 export const amazonUK: Provider = {
@@ -216,6 +218,7 @@ export const eBookJapan: Provider = {
 	colors: { primary: '#F8485E', secondary: '#dd3046' },
 	priority: 0,
 	enabled: false,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'zip'],
 };
 
 export const cmoa: Provider = {
@@ -226,7 +229,7 @@ export const cmoa: Provider = {
 	colors: { primary: '#dd763f', secondary: '#ea5505' },
 	priority: 0,
 	enabled: false,
-	supportsBookPages: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book-pages', 'zip'],
 };
 
 export const aladin: Provider = {
@@ -237,7 +240,7 @@ export const aladin: Provider = {
 	colors: { primary: '#fcaf17', secondary: '#ee3897' },
 	priority: 0,
 	enabled: false,
-	supportsBookPages: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
 };
 
 export const ridibooks: Provider = {
@@ -248,7 +251,7 @@ export const ridibooks: Provider = {
 	colors: { primary: '#1E9EFF', secondary: '#1E9EFF' },
 	priority: 0,
 	enabled: false,
-	supportsBookPages: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
 };
 
 const allProviders: Provider[] = [
