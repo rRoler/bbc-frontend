@@ -52,7 +52,7 @@ export const bookWalker: Provider = {
 	colors: { primary: '#009844', secondary: '#009844' },
 	priority: 0,
 	enabled: true,
-	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'zip'],
 };
 
 export const bookWalkerReader: Provider = {
@@ -62,6 +62,7 @@ export const bookWalkerReader: Provider = {
 	colors: { primary: '#009844', secondary: '#50aa7a' },
 	priority: 0,
 	ignoreErrors: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
 };
 
 export const bookWalkerGlobal: Provider = {
@@ -102,6 +103,7 @@ export const bookWalkerWayomiReader: Provider = {
 	colors: { primary: '#00a4e5', secondary: '#26bcfb' },
 	priority: 0,
 	ignoreErrors: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
 };
 
 export const bookWalkerTaiwan: Provider = {
@@ -112,7 +114,7 @@ export const bookWalkerTaiwan: Provider = {
 	colors: { primary: '#b28a3d', secondary: '#b28a3d' },
 	priority: 0,
 	enabled: false,
-	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'zip'],
 };
 
 export const bookWalkerTaiwanReader: Provider = {
@@ -123,6 +125,7 @@ export const bookWalkerTaiwanReader: Provider = {
 	colors: { primary: '#b28a3d', secondary: '#846551' },
 	priority: 0,
 	ignoreErrors: true,
+	supportedEndpoints: ['search', 'series', 'series-books', 'book', 'book-pages', 'zip'],
 };
 
 export const amazon: Provider = {
