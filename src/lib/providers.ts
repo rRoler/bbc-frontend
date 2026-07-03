@@ -199,6 +199,7 @@ export const amazonNetherlands: Provider = {
 	locale: 'nl',
 	priority: 0,
 	enabled: false,
+	supportedEndpoints: ['search', 'book', 'zip'],
 };
 
 export const amazonFrance: Provider = {
