@@ -79,6 +79,7 @@ export interface ProviderStatus {
 	status: boolean;
 	statusText: string;
 	latencyMs: number;
+	clientError?: boolean;
 }
 
 export const endpointLabels: Record<ProviderEndpoint, string> = {

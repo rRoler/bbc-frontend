@@ -26,6 +26,7 @@
 								status: false,
 								statusText: 'Error',
 								latencyMs: 0,
+								clientError: true,
 							};
 						}
 					})
@@ -39,10 +40,11 @@
 
 	function getProviderStatusClass(
 		pStatuses: ProviderStatus[]
-	): 'status-success' | 'status-warning' | 'status-error' {
-		if (pStatuses.every((p) => !p.status)) return 'status-error';
-		if (pStatuses.some((p) => !p.status)) return 'status-warning';
-		return 'status-success';
+	): 'status-success' | 'status-warning' | 'status-error' | 'status-neutral' {
+		if (pStatuses.every((p) => p.status)) return 'status-success';
+		if (pStatuses.some((p) => p.status)) return 'status-warning';
+		if (pStatuses.every((p) => p.clientError)) return 'status-neutral';
+		return 'status-error';
 	}
 
 	onMount(async () => {
@@ -109,7 +111,11 @@
 						<div class="collapse-content">
 							<ul class="list rounded-box shadow-md">
 								{#each pStatuses as pStatus (pStatus.providerEndpoint)}
-									{@const statusClass = pStatus.status ? 'status-success' : 'status-error'}
+									{@const statusClass = pStatus.status
+										? 'status-success'
+										: pStatus.clientError
+											? 'status-neutral'
+											: 'status-error'}
 
 									<li class="list-row items-center justify-center">
 										<div class="inline-grid *:[grid-area:1/1]">
