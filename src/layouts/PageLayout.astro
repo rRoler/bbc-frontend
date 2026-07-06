@@ -12,6 +12,7 @@ import {
 	donationLocation,
 	settingsLocation,
 	sourceCodeLocation,
+	statusLocation,
 } from '../lib/locations.ts';
 import Tooltip from '../components/Tooltip.svelte';
 
@@ -77,6 +78,12 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 							class="btn btn-ghost btn-circle hidden lg:inline-flex"
 						>
 							<sourceCodeLocation.Icon class="size-6" />
+						</a>
+					</Tooltip>
+
+					<Tooltip client:load position="bottom" tip={statusLocation.label}>
+						<a class="btn btn-ghost btn-circle hidden lg:inline-flex" href={statusLocation.path}>
+							<statusLocation.Icon class="size-6" />
 						</a>
 					</Tooltip>
 
