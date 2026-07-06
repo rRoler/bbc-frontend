@@ -1,4 +1,4 @@
-import { userLoginSetting } from './settings.svelte.ts';
+import { userLoginSetting, userTokenSetting } from './settings.svelte.ts';
 import { addAppError } from './app.svelte.ts';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { BBC_API_URL } from '../constants.ts';
@@ -16,9 +16,12 @@ export class UserState {
 	async init(): Promise<void> {
 		const params = new SvelteURLSearchParams(window.location.search);
 		const urlToken = params.get('user_token');
-		if (urlToken) {
-			this.token = urlToken;
+		const urlSessionId = params.get('session_id');
+		if (urlToken || urlSessionId) {
+			if (urlToken) this.token = urlToken;
+			if (urlSessionId) this.sessionId = urlSessionId;
 			params.delete('user_token');
+			params.delete('session_id');
 			const qs = params.size ? `?${params}` : '';
 			window.history.replaceState(null, '', `${window.location.pathname}${qs}`);
 		}
@@ -27,17 +30,30 @@ export class UserState {
 	}
 
 	private get token(): string | null {
+		userTokenSetting.load();
+		return userTokenSetting.value;
+	}
+	private set token(v) {
+		userTokenSetting.value = v;
+		userTokenSetting.save();
+	}
+
+	private get sessionId(): string | null {
 		userLoginSetting.load();
 		return userLoginSetting.value;
 	}
-	private set token(v) {
+	private set sessionId(v) {
 		userLoginSetting.value = v;
 		userLoginSetting.save();
 	}
 
 	get headers(): Record<string, string> {
 		const token = this.token;
-		return token ? { 'X-User-Token': token } : {};
+		const sessionId = this.sessionId;
+		return {
+			...(token ? { 'X-User-Token': token } : {}),
+			...(sessionId ? { 'X-Session-Id': sessionId } : {}),
+		};
 	}
 
 	async checkSession(): Promise<void> {
@@ -50,6 +66,7 @@ export class UserState {
 			const res = await fetch(`${this.apiUrl}/user/me`, { headers: this.headers });
 			if (res.status === 401) {
 				this.token = null;
+				this.sessionId = null;
 				throw new Error("You've been logged out. Please login again.");
 			}
 			if (!res.ok) {
@@ -74,6 +91,7 @@ export class UserState {
 		}).catch(() => {});
 
 		this.token = null;
+		this.sessionId = null;
 		this.session = null;
 	}
 }

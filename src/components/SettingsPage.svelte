@@ -144,7 +144,7 @@
 							{#if userState.session}
 								<div class="join min-w-0">
 									<p
-										class="join-item bg-neutral flex min-w-0 items-center justify-center truncate px-8 text-lg"
+										class="join-item bg-neutral flex min-w-0 items-center justify-center truncate border-0 px-8 text-lg"
 									>
 										{userState.session.username}
 									</p>

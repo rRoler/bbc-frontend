@@ -576,6 +576,13 @@ export const userLoginSetting = new Setting<LoginSetting>({
 	defaultValue: null,
 });
 
+export const userTokenSetting = new Setting<LoginSetting>({
+	id: 'user-token',
+	type: 'login',
+	name: 'User Token',
+	defaultValue: null,
+});
+
 export const editAutoSyncSetting = new Setting<ToggleSetting>({
 	id: 'edit-auto-sync',
 	type: 'toggle',
