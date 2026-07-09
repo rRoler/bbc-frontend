@@ -19,6 +19,7 @@ const currentTime = new Date();
 // https://astro.build/config
 export default defineConfig({
 	vite: {
+		// @ts-ignore
 		plugins: [tailwindcss()],
 	},
 	site:

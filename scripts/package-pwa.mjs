@@ -31,8 +31,6 @@ import { fileURLToPath } from 'node:url';
 import { homedir, tmpdir } from 'node:os';
 
 const req = createRequire(import.meta.url);
-const rootPkg = req('../package.json');
-
 const APP_NAME = 'Big Book Covers';
 const APP_NAME_SLUG = APP_NAME.toLowerCase().replaceAll(' ', '-');
 const APP_ID = 'dev.roler.covers';

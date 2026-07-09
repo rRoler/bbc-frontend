@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type PageProps from '../lib/types/pageProps';
-import { Home } from 'lucide-svelte';
+import { House } from 'lucide-svelte';
 
 const props = Astro.props as PageProps & { code?: number; message?: string };
 
@@ -21,7 +21,7 @@ const message = props.message || 'Unknown Error';
 		</h1>
 		<p class="text-2xl">{message}</p>
 		<a tabindex="0" href="/" class="btn btn-primary m-4">
-			<Home class="size-6" />
+			<House class="size-6" />
 			<span>GO HOME</span>
 		</a>
 	</div>

@@ -3,11 +3,13 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
+    "typecheck": "astro check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier .",
     "format:write": "prettier . --write",
     "flint": "pnpm run format:write && pnpm run lint:fix",
+    "check": "pnpm run flint && pnpm run typecheck",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -40,10 +42,10 @@
     "svelte-flags": "^3.0.1",
     "svelte-image-viewer": "^6.0.0",
     "tailwindcss": "^4.3.2",
-    "typescript": "^5.9.3",
     "workbox-build": "^7.4.1"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@eslint/js": "^10.0.1",
     "@types/wicg-file-system-access": "^2023.10.7",
     "@vite-pwa/assets-generator": "^1.0.2",
@@ -62,6 +64,7 @@
     "sharp": "^0.34.5",
     "sharp-ico": "^0.1.5",
     "to-ico": "^1.1.5",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.62.1",
     "vite-plugin-pwa": "^1.3.0",
     "workbox-window": "^7.4.1"
