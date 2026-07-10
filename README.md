@@ -58,6 +58,7 @@ pnpm install            # install dependencies
 pnpm run dev            # dev server → localhost:4321
 pnpm run build          # production build → ./dist/
 pnpm run preview        # preview production build locally
+pnpm run check          # format, lint & typecheck
 ```
 
 <details>
@@ -72,6 +73,8 @@ pnpm run preview        # preview production build locally
 | `pnpm run format`            | Run code formatter                           |
 | `pnpm run format:write`      | Format code                                  |
 | `pnpm run flint`             | Format code and fix lint issues              |
+| `pnpm run check`             | Run formatting, linting, and type checking   |
+| `pnpm run typecheck`         | Run Astro type checking                      |
 | `pnpm run build`             | Build your production site to `./dist/`      |
 | `pnpm run preview`           | Preview your build locally, before deploying |
 | `pnpm run astro ...`         | Run CLI commands like `astro add`            |
