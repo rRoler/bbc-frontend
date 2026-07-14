@@ -30,7 +30,9 @@ window.addEventListener('load', () => {
 		},
 		onNeedRefresh() {
 			console.log('New content available, click on reload button to update.');
-			showPwaToast();
+			if (navigator.serviceWorker.controller) {
+				showPwaToast();
+			}
 		},
 		onRegisteredSW(swScriptUrl) {
 			console.log('SW registered: ', swScriptUrl);
