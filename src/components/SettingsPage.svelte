@@ -16,15 +16,11 @@
 	onMount(async () => {
 		appState.loading = true;
 
-		allSettingsFields.forEach((f) => f.load());
-
 		await fs.restore();
 		if (fs.hasFolder) {
 			fileSystemFolderSetting.value = fs.folderName;
 			fileSystemFolderSetting.save();
 		}
-
-		allSettingsFields.forEach((f) => f.save());
 
 		appState.loading = false;
 	});

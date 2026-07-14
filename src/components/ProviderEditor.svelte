@@ -28,6 +28,7 @@
 	});
 
 	function reset() {
+		allProviders.load();
 		workingList = allProviders.sorted;
 	}
 

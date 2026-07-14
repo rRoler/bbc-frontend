@@ -16,7 +16,6 @@
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
 	import {
-		searchSettings,
 		autoMatchResultsSetting,
 		searchCopyFormatSetting,
 		textVariables,
@@ -161,8 +160,6 @@
 
 	onMount(() => {
 		appState.loading = true;
-
-		searchSettings.load();
 
 		if (selectedProviders.length === 0) {
 			selectedProviders = allProviders.enabled;

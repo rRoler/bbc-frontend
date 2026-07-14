@@ -31,7 +31,6 @@
 	import {
 		automaticQualityPickerSetting,
 		bookSortOrderSetting,
-		downloadSettings,
 		fileSystemFolderSetting,
 		matureContentSetting,
 	} from '../lib/svelte/settings.svelte.ts';
@@ -60,8 +59,6 @@
 				return;
 			}
 		}
-
-		downloadSettings.load();
 
 		if (fileSystemFolderSetting.value) {
 			await fs.restore();

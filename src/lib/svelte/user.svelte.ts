@@ -14,6 +14,8 @@ export class UserState {
 	session = $state<UserSession | null>(null);
 
 	async init(): Promise<void> {
+		userTokenSetting.load();
+
 		const params = new SvelteURLSearchParams(window.location.search);
 		const urlToken = params.get('user_token');
 		const urlSessionId = params.get('session_id');
@@ -30,7 +32,6 @@ export class UserState {
 	}
 
 	private get token(): string | null {
-		userTokenSetting.load();
 		return userTokenSetting.value;
 	}
 	private set token(v) {
@@ -39,7 +40,6 @@ export class UserState {
 	}
 
 	private get sessionId(): string | null {
-		userLoginSetting.load();
 		return userLoginSetting.value;
 	}
 	private set sessionId(v) {

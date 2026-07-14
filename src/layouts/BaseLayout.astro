@@ -70,10 +70,11 @@ const providersJson = JSON.stringify(initialProviders);
 </html>
 
 <script>
-	import { generalSettings, themeSetting } from '../lib/svelte/settings.svelte.ts';
+	import allSettingsFields, { themeSetting } from '../lib/svelte/settings.svelte.ts';
 	import allProviders from '../lib/svelte/providers.svelte.ts';
 	allProviders.load();
-	generalSettings.load();
+	allSettingsFields.forEach((f) => f.load());
+	allSettingsFields.forEach((f) => f.save());
 	if (themeSetting.value === 'system') document.documentElement.removeAttribute('data-theme');
 	else document.documentElement.setAttribute('data-theme', themeSetting.value);
 </script>
