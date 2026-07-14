@@ -286,6 +286,15 @@ export default class BBC_API {
 		};
 	}
 
+	async fetchProviders(): Promise<Provider[]> {
+		const res = await fetch(`${this.apiUrl}/providers`);
+		if (!res.ok) {
+			throw new BBC_API_Error(`Failed to fetch providers: HTTP ${res.status} ${res.statusText}`);
+		}
+		const { data } = (await res.json()) as { data: Provider[] };
+		return data;
+	}
+
 	async getCovers(
 		urls: string[],
 		callback?: (progress: number) => void

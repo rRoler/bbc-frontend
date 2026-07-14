@@ -1,5 +1,5 @@
 <script lang="ts">
-	import providers from '../lib/providers.ts';
+	import allProviders from '../lib/svelte/providers.svelte.ts';
 	import { addAppError } from '../lib/svelte/app.svelte.ts';
 	import BBC_API, { endpointLabels, type ProviderStatus } from '../lib/apis/bbc.ts';
 	import { onMount } from 'svelte';
@@ -8,14 +8,12 @@
 
 	const api = new BBC_API();
 
-	let initialLoad = $state<Record<string, boolean>>(
-		Object.fromEntries(providers.map((p) => [p.id, true]))
-	);
+	let initialLoad = $state<Record<string, boolean>>({});
 	let providerStatuses = $state<Record<string, ProviderStatus[]>>({});
 
 	async function checkProviders(): Promise<void> {
 		await Promise.all(
-			providers.map(async (p) => {
+			allProviders.sorted.map(async (p) => {
 				const results = await Promise.all(
 					p.supportedEndpoints.map(async (ep) => {
 						try {
@@ -49,6 +47,8 @@
 
 	onMount(async () => {
 		try {
+			allProviders.load();
+			initialLoad = Object.fromEntries(allProviders.sorted.map((p) => [p.id, true]));
 			await checkProviders();
 		} catch (e) {
 			addAppError(e);
@@ -68,7 +68,7 @@
 
 	<h3 class="text-base-content/80 text-2xl">Providers</h3>
 	<div class="join join-vertical w-full">
-		{#each providers as provider (provider.id)}
+		{#each allProviders.sorted as provider (provider.id)}
 			{#if initialLoad[provider.id]}
 				<div class="collapse-arrow join-item border-base-300 collapse border">
 					<div class="collapse-title flex items-center gap-2 font-semibold">

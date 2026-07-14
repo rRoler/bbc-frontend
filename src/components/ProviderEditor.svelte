@@ -43,7 +43,7 @@
 	}
 
 	function toggleCheck(index: number) {
-		workingList[index] = { ...workingList[index], enabled: !workingList[index].enabled };
+		workingList[index] = { ...workingList[index], enabledByDefault: !workingList[index].enabledByDefault };
 		commit();
 	}
 

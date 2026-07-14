@@ -24,6 +24,8 @@
 			fileSystemFolderSetting.save();
 		}
 
+		allSettingsFields.forEach((f) => f.save());
+
 		appState.loading = false;
 	});
 
