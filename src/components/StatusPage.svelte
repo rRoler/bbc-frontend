@@ -47,7 +47,6 @@
 
 	onMount(async () => {
 		try {
-			allProviders.load();
 			initialLoad = Object.fromEntries(allProviders.sorted.map((p) => [p.id, true]));
 			await checkProviders();
 		} catch (e) {

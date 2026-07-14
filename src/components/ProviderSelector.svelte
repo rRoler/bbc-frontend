@@ -70,8 +70,6 @@
 	let isFilteredIndeterminate = $derived(isSomeFilteredSelected && !isAllFilteredSelected);
 
 	onMount(() => {
-		allProviders.load();
-
 		if (!paramsEnabled) return;
 
 		const providerIds = getAllSvelteSearchParams(PROVIDER_PARAM_KEY);

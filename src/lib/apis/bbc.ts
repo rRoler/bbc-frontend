@@ -286,13 +286,20 @@ export default class BBC_API {
 		};
 	}
 
-	async fetchProviders(): Promise<Provider[]> {
-		const res = await fetch(`${this.apiUrl}/providers`);
+	async fetchProviders(bustCache?: boolean): Promise<Provider[]> {
+		const url = `${this.apiUrl}/providers${bustCache ? `?t=${Date.now()}` : ''}`;
+		const res = await fetch(url);
 		if (!res.ok) {
 			throw new BBC_API_Error(`Failed to fetch providers: HTTP ${res.status} ${res.statusText}`);
 		}
-		const { data } = (await res.json()) as { data: Provider[] };
-		return data;
+		const { data } = (await res.json()) as {
+			data: Array<Record<string, unknown> & { defaultPriority: number; enabledByDefault: boolean }>;
+		};
+		return data.map((p) => ({
+			...p,
+			priority: p.defaultPriority,
+			enabled: p.enabledByDefault,
+		})) as unknown as Provider[];
 	}
 
 	async getCovers(

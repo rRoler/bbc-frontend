@@ -1014,8 +1014,6 @@ class Downloader {
 		this.allSeriesIds = {};
 		this.allBookIds = {};
 
-		allProviders.load();
-
 		for (const provider of allProviders.updated) {
 			const series = getAllSvelteSearchParams(`series(${provider.id})`);
 			const books = getAllSvelteSearchParams(`book(${provider.id})`);

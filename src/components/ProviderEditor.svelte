@@ -4,7 +4,7 @@
 		type Provider,
 		type ProviderStorageEntry,
 	} from '../lib/svelte/providers.svelte.ts';
-	import { mapToStoreEntries } from '../lib/providers.ts';
+	import { mapToStoreEntries } from '../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import { GripVertical, Settings2, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';
@@ -28,7 +28,6 @@
 	});
 
 	function reset() {
-		allProviders.load();
 		workingList = allProviders.sorted;
 	}
 
@@ -43,7 +42,7 @@
 	}
 
 	function toggleCheck(index: number) {
-		workingList[index] = { ...workingList[index], enabledByDefault: !workingList[index].enabledByDefault };
+		workingList[index] = { ...workingList[index], enabled: !workingList[index].enabled };
 		commit();
 	}
 

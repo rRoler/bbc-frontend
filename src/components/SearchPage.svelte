@@ -162,7 +162,6 @@
 	onMount(() => {
 		appState.loading = true;
 
-		allProviders.load();
 		searchSettings.load();
 
 		if (selectedProviders.length === 0) {

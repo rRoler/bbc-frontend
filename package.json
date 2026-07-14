@@ -11,6 +11,7 @@
     "flint": "pnpm run format:write && pnpm run lint:fix",
     "check": "pnpm run flint && pnpm run typecheck",
     "dev": "astro dev",
+    "dev:local": "PUBLIC_BBC_API_URL=http://127.0.0.1:8787 astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",

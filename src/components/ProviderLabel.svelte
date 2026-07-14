@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Provider } from '../lib/providers.ts';
+	import type { Provider } from '../lib/svelte/providers.svelte.ts';
 	import { getLocaleName, langToFlag } from '../lib/utils.ts';
 
 	let {
