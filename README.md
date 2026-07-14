@@ -56,6 +56,7 @@ Fast, with automatic updates.
 ```sh
 pnpm install            # install dependencies
 pnpm run dev            # dev server → localhost:4321
+pnpm run dev:local      # dev server with local API at 127.0.0.1:8787
 pnpm run build          # production build → ./dist/
 pnpm run preview        # preview production build locally
 pnpm run check          # format, lint & typecheck
@@ -68,6 +69,7 @@ pnpm run check          # format, lint & typecheck
 | :--------------------------- | :------------------------------------------- |
 | `pnpm install`               | Installs dependencies                        |
 | `pnpm run dev`               | Starts local dev server at `localhost:4321`  |
+| `pnpm run dev:local`         | Dev server pointing at local backend API     |
 | `pnpm run lint`              | Run linter                                   |
 | `pnpm run lint:fix`          | Fix lint issues                              |
 | `pnpm run format`            | Run code formatter                           |
