@@ -18,7 +18,7 @@ const imageWidth = (props.imageWidth || 1200).toString();
 const imageHeight = (props.imageHeight || 630).toString();
 
 const api = new BBC_API();
-const initialProviders = await api.fetchProviders(true);
+const initialProviders = await api.fetchProviders(!import.meta.env.DEV);
 const providersJson = JSON.stringify(initialProviders);
 ---
 
