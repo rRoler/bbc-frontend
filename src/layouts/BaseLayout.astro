@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import type PageProps from '../lib/types/pageProps';
 import BBC_API from '../lib/apis/bbc';
-import type { Provider } from '../lib/svelte/providers.svelte.ts';
 import { pwaInfo } from 'virtual:pwa-info';
 import { pwaAssetsHead } from 'virtual:pwa-assets/head';
 import UpdatePrompt from '../components/UpdatePrompt.astro';
@@ -18,15 +17,8 @@ const imageType = 'image/' + (props.imageType || 'png');
 const imageWidth = (props.imageWidth || 1200).toString();
 const imageHeight = (props.imageHeight || 630).toString();
 
-let initialProviders: Provider[] = [];
-
-try {
-	const api = new BBC_API();
-	initialProviders = await api.fetchProviders(true);
-} catch (e) {
-	console.warn('Failed to fetch providers at build time, will fall back to client-side fetch', e);
-}
-
+const api = new BBC_API();
+const initialProviders = await api.fetchProviders(true);
 const providersJson = JSON.stringify(initialProviders);
 ---
 
@@ -79,6 +71,8 @@ const providersJson = JSON.stringify(initialProviders);
 
 <script>
 	import { generalSettings, themeSetting } from '../lib/svelte/settings.svelte.ts';
+	import allProviders from '../lib/svelte/providers.svelte.ts';
+	allProviders.load();
 	generalSettings.load();
 	if (themeSetting.value === 'system') document.documentElement.removeAttribute('data-theme');
 	else document.documentElement.setAttribute('data-theme', themeSetting.value);

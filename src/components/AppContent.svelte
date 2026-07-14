@@ -1,15 +1,9 @@
 <script lang="ts">
 	import { appState } from '../lib/svelte/app.svelte.ts';
-	import allProviders from '../lib/svelte/providers.svelte.ts';
-	import { onMount } from 'svelte';
 
 	let { children, id, isMobile = false } = $props();
 
 	let visible = $state(false);
-
-	onMount(() => {
-		allProviders.load();
-	});
 
 	$effect(() => {
 		const mq = window.matchMedia('(width >= 40rem)');

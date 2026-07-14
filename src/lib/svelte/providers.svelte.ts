@@ -1,4 +1,4 @@
-import BBC_API, { type ProviderEndpoint } from '../apis/bbc';
+import { type ProviderEndpoint } from '../apis/bbc';
 import { configuredProvidersSetting } from './settings.svelte.ts';
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
@@ -40,38 +40,16 @@ export function mapToStoreEntries(providers: Provider[]): ProviderStorageEntry[]
 	}));
 }
 
-async function fetchAndMapProviders(): Promise<Provider[]> {
-	const api = new BBC_API();
-	const providers = await api.fetchProviders();
-	return sortProviders([...providers]);
-}
-
-const initialProviders: Provider[] | null = (() => {
-	if (typeof document === 'undefined') return null;
-	const el = document.getElementById('provider-data');
-	if (!el) return null;
-	return JSON.parse(el.textContent || '[]') as Provider[];
-})();
-
 export class Providers {
 	providers = $state<Provider[]>([]);
-	private loaded = false;
 
-	private async init(initialData?: Provider[]): Promise<void> {
-		if (this.loaded && !initialData) return;
-
-		if (initialData) {
-			this.providers = initialData;
-		} else if (initialProviders) {
-			this.providers = initialProviders;
-		} else {
-			this.providers = await fetchAndMapProviders();
+	load = () => {
+		const el = document.getElementById('provider-data');
+		if (el) {
+			this.providers = JSON.parse(el.textContent || '[]') as Provider[];
 		}
-
-		this.loaded = true;
-	}
-
-	load = () => this.init().then(() => configuredProvidersSetting.load());
+		configuredProvidersSetting.load();
+	};
 
 	expandStoreEntries = (entries: ProviderStorageEntry[]): Provider[] => {
 		const providerDataMap = new SvelteMap(this.providers.map((p) => [p.id, p]));
