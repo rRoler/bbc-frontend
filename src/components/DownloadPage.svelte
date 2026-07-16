@@ -53,13 +53,6 @@
 	onMount(async () => {
 		appState.loading = true;
 
-		if (matureContentSetting.value === 'hide') {
-			if (!confirm('Mature content is disabled. Continue?')) {
-				window.location.href = '/';
-				return;
-			}
-		}
-
 		if (fileSystemFolderSetting.value) {
 			await fs.restore();
 			if (fs.hasFolder) downloader.fileSystem = fs;
@@ -79,6 +72,13 @@
 		downloader.selectedBookPage = parseInt(getSvelteSearchParam('bookPage') || '0');
 
 		await downloader.initialize();
+
+		if (matureContentSetting.value === 'hide' && downloader.allSeries.some((s) => s.isMature)) {
+			if (!confirm('Mature content is disabled. Continue?')) {
+				window.location.href = '/';
+				return;
+			}
+		}
 
 		appState.loading = false;
 	});
