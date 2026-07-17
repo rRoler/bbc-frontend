@@ -64,8 +64,6 @@ export interface StatusEndpointResult {
 
 export type BBCSort = 'asc' | 'desc';
 
-export const ALLOWED_EDIT_ROLES = ['developer', 'contributor', 'moderator', 'admin'];
-
 export const endpointKeys = [
 	'search',
 	'series',

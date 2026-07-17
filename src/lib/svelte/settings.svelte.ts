@@ -1,7 +1,9 @@
 import { getTextVariableName } from '../utils.ts';
 import type { ProviderStorageEntry } from './providers.svelte.ts';
 import type { WsrvOptions } from '../apis/wsrv.ts';
-import { ALLOWED_EDIT_ROLES, type BBCSort } from '../apis/bbc.ts';
+import type { BBCSort } from '../apis/bbc.ts';
+
+export const ALLOWED_EDIT_ROLES = ['developer', 'contributor', 'moderator', 'admin'];
 
 export function readLocalSettings(): {
 	data: Record<string, unknown>;
