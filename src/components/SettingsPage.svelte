@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Info, RotateCcw, Folder, FolderOpen, X, Save } from 'lucide-svelte';
+	import { Cloud, CloudOff, Info, RotateCcw, Folder, FolderOpen, X, Save } from 'lucide-svelte';
 	import allSettingsFields, {
 		themeSetting,
 		fileSystemFolderSetting,
@@ -21,6 +21,8 @@
 			fileSystemFolderSetting.value = fs.folderName;
 			fileSystemFolderSetting.save();
 		}
+
+		allSettingsFields.forEach((f) => f.loadSyncFlag());
 
 		appState.loading = false;
 	});
@@ -50,14 +52,53 @@
 			</legend>
 
 			{#each field.settings as setting, settingIndex (setting.id)}
-				{@const isDisabled = setting.loginOnly && !userState.session}
+				{@const sessionRole = userState.session?.role}
+				{@const isDisabled =
+					(setting.loginOnly && !userState.session) ||
+					(!!setting.allowedRoles && (!sessionRole || !setting.allowedRoles.includes(sessionRole)))}
 				{@const disabledClass = isDisabled ? 'cursor-not-allowed opacity-50' : ''}
 
 				<label id={setting.id} class="label text-base-content text-base {disabledClass}">
 					<a href="#{setting.id}">{setting.name}</a>
+
 					{#if setting.tooltip}
 						<Tooltip position="top" tip={setting.tooltip}>
 							<Info class="size-4 cursor-help" />
+						</Tooltip>
+					{/if}
+
+					{#if setting.type !== 'login' && setting.type !== 'file-system-folder-picker'}
+						<Tooltip
+							position="top"
+							tip={userState.session
+								? setting.syncEnabled
+									? 'Synced to server'
+									: 'Not synced to server'
+								: 'Login to sync settings'}
+						>
+							<button
+								class="btn btn-xs btn-ghost btn-square"
+								onclick={async () => {
+									setting.syncEnabled = !setting.syncEnabled;
+									setting.saveSyncFlag();
+									if (setting.syncEnabled && userState.session) {
+										try {
+											await userState.pushSettings();
+										} catch (e) {
+											addAppError(e);
+										}
+									}
+								}}
+								disabled={!userState.session}
+							>
+								{#if !userState.session}
+									<CloudOff class="text-base-content/40 pointer-events-none size-4" />
+								{:else if setting.syncEnabled}
+									<Cloud class="text-success pointer-events-none size-4" />
+								{:else}
+									<CloudOff class="text-error pointer-events-none size-4" />
+								{/if}
+							</button>
 						</Tooltip>
 					{/if}
 				</label>
@@ -205,9 +246,18 @@
 	</button>
 
 	<button
-		onclick={() => {
+		onclick={async () => {
 			const shouldReload = [themeSetting].some((s) => s.isChanged);
+			const hasSyncedChange = allSettingsFields.some((f) => f.hasSyncedChange);
 			allSettingsFields.forEach((f) => f.save());
+			allSettingsFields.forEach((f) => f.settings.forEach((s) => s.saveSyncFlag()));
+			if (userState.session && hasSyncedChange) {
+				try {
+					await userState.pushSettings();
+				} catch (e) {
+					addAppError(e);
+				}
+			}
 			if (shouldReload) window.location.reload();
 		}}
 		class="btn btn-lg btn-primary shadow-lg"

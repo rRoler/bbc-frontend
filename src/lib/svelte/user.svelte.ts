@@ -1,4 +1,10 @@
-import { userLoginSetting, userTokenSetting } from './settings.svelte.ts';
+import {
+	userLoginSetting,
+	userTokenSetting,
+	readLocalSettings,
+	isSyncableKey,
+	saveLocalSettings,
+} from './settings.svelte.ts';
 import { addAppError } from './app.svelte.ts';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { BBC_API_URL } from '../constants.ts';
@@ -29,6 +35,14 @@ export class UserState {
 		}
 
 		await this.checkSession();
+
+		if (this.session) {
+			try {
+				await this.pullSettings();
+			} catch (e) {
+				addAppError(e);
+			}
+		}
 	}
 
 	private get token(): string | null {
@@ -93,6 +107,41 @@ export class UserState {
 		this.token = null;
 		this.sessionId = null;
 		this.session = null;
+	}
+
+	async pushSettings(): Promise<void> {
+		const local = readLocalSettings();
+		if (!local) return;
+
+		const syncedSettings: Record<string, unknown> = {};
+		for (const [key, value] of Object.entries(local.data)) {
+			if (isSyncableKey(key, local.syncFlags)) syncedSettings[key] = value;
+		}
+
+		const res = await fetch(`${this.apiUrl}/user/settings`, {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json', ...this.headers },
+			body: JSON.stringify({ settings: syncedSettings }),
+		});
+
+		if (!res.ok) throw new Error('Failed to push settings to server');
+	}
+
+	async pullSettings(): Promise<void> {
+		const res = await fetch(`${this.apiUrl}/user/settings`, { headers: this.headers });
+		if (!res.ok) throw new Error('Failed to pull settings from server');
+
+		const { data } = await res.json();
+		if (!data.settings) return;
+
+		const serverData = data.settings as Record<string, unknown>;
+		const local = readLocalSettings() ?? { data: {}, syncFlags: {} };
+
+		for (const [key, value] of Object.entries(serverData)) {
+			if (isSyncableKey(key, local.syncFlags)) local.data[key] = value;
+		}
+
+		saveLocalSettings(local.data);
 	}
 }
 

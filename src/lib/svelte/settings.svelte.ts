@@ -1,7 +1,26 @@
 import { getTextVariableName } from '../utils.ts';
 import type { ProviderStorageEntry } from './providers.svelte.ts';
 import type { WsrvOptions } from '../apis/wsrv.ts';
-import type { BBCSort } from '../apis/bbc.ts';
+import { ALLOWED_EDIT_ROLES, type BBCSort } from '../apis/bbc.ts';
+
+export function readLocalSettings(): {
+	data: Record<string, unknown>;
+	syncFlags: Record<string, boolean>;
+} | null {
+	const stored = localStorage.getItem('settings');
+	if (!stored) return null;
+	const data = JSON.parse(stored) as Record<string, unknown>;
+	if (!data._syncFlags) data._syncFlags = {};
+	return { data, syncFlags: data._syncFlags as Record<string, boolean> };
+}
+
+export function isSyncableKey(key: string, syncFlags: Record<string, boolean>): boolean {
+	return key !== '_syncFlags' && key !== 'user-login' && key !== 'user-token' && syncFlags[key];
+}
+
+export function saveLocalSettings(data: Record<string, unknown>): void {
+	localStorage.setItem('settings', JSON.stringify(data));
+}
 
 export interface SettingBase<T> {
 	id: string;
@@ -12,6 +31,7 @@ export interface SettingBase<T> {
 	currentValue?: T;
 	storedValue?: T;
 	loginOnly?: boolean;
+	allowedRoles?: string[];
 	defaultValue: T;
 }
 
@@ -90,8 +110,10 @@ export class Setting<T extends SettingType> {
 	readonly max?: RangeSetting['max'];
 	readonly step?: RangeSetting['step'];
 	readonly loginOnly?: T['loginOnly'];
+	readonly allowedRoles?: T['allowedRoles'];
 	currentValue: T['currentValue'];
 	storedValue: T['storedValue'];
+	syncEnabled = $state(true);
 
 	constructor(setting: T) {
 		this.id = setting.id;
@@ -100,6 +122,7 @@ export class Setting<T extends SettingType> {
 		this.tooltip = setting.tooltip;
 		this.type = setting.type;
 		this.loginOnly = setting.loginOnly;
+		this.allowedRoles = setting.allowedRoles;
 		this.defaultValue = setting.defaultValue;
 		this.currentValue = $state(setting.currentValue);
 		this.storedValue = $state(setting.storedValue);
@@ -109,6 +132,20 @@ export class Setting<T extends SettingType> {
 			this.max = setting.max;
 			this.step = setting.step;
 		}
+	}
+
+	loadSyncFlag(): void {
+		const local = readLocalSettings();
+		if (local) {
+			this.syncEnabled = local.syncFlags[this.id] ?? true;
+		}
+	}
+
+	saveSyncFlag(): void {
+		const local = readLocalSettings() ?? { data: {}, syncFlags: {} };
+		if (!local.data._syncFlags) local.data._syncFlags = {};
+		(local.data._syncFlags as Record<string, boolean>)[this.id] = this.syncEnabled;
+		saveLocalSettings(local.data);
 	}
 
 	get value(): T['defaultValue'] {
@@ -133,23 +170,19 @@ export class Setting<T extends SettingType> {
 		this.value = this.defaultValue;
 	}
 	load() {
-		const storedData = localStorage.getItem('settings');
-		if (storedData) {
-			const parsedData = JSON.parse(storedData);
-			if (parsedData[this.id] !== undefined) {
-				this.storedValue = this.cloneValue(parsedData[this.id]);
-				this.value = this.storedValue;
-			}
+		const local = readLocalSettings();
+		if (local && local.data[this.id] !== undefined) {
+			this.storedValue = this.cloneValue(local.data[this.id] as T['currentValue']);
+			this.value = this.storedValue;
 		} else {
 			this.value = this.defaultValue;
 			this.storedValue = this.cloneValue(this.value);
 		}
 	}
 	save() {
-		const storedData = localStorage.getItem('settings');
-		const parsedData = storedData ? JSON.parse(storedData) : {};
-		parsedData[this.id] = this.value;
-		localStorage.setItem('settings', JSON.stringify(parsedData));
+		const local = readLocalSettings() ?? { data: {}, syncFlags: {} };
+		local.data[this.id] = this.value;
+		saveLocalSettings(local.data);
 		this.storedValue = this.cloneValue(this.value);
 	}
 }
@@ -169,12 +202,18 @@ export class SettingsField<T extends readonly Setting<SettingType>[]> {
 	get isDefault() {
 		return this.settings.every((setting) => setting.isDefault);
 	}
+	get hasSyncedChange() {
+		return this.settings.some((setting) => setting.isChanged && setting.syncEnabled);
+	}
 
 	reset() {
 		this.settings.forEach((setting) => setting.reset());
 	}
 	load() {
 		this.settings.forEach((setting) => setting.load());
+	}
+	loadSyncFlag() {
+		this.settings.forEach((setting) => setting.loadSyncFlag());
 	}
 	save() {
 		this.settings.forEach((setting) => setting.save());
@@ -591,6 +630,7 @@ export const editAutoSyncSetting = new Setting<ToggleSetting>({
 	description: 'Automatically sync volume edits to the server when applied',
 	defaultValue: true,
 	loginOnly: true,
+	allowedRoles: ALLOWED_EDIT_ROLES,
 });
 
 export const userSettings = new SettingsField({
