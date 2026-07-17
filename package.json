@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "typecheck": "astro check",
+    "typecheck": "astro check && svelte-check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier .",
@@ -65,6 +65,7 @@
     "prettier-plugin-tailwindcss": "^0.7.4",
     "sharp": "^0.34.5",
     "sharp-ico": "^0.1.5",
+    "svelte-check": "^4.7.3",
     "to-ico": "^1.1.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.63.0",
