@@ -611,9 +611,7 @@ export const downloadSettings = new SettingsField({
 export const userLoginSetting = new Setting<LoginSetting>({
 	id: 'user-login',
 	type: 'login',
-	name: 'Mod Login',
-	tooltip: 'You must be a MangaBaka contributor or staff member to login',
-	description: 'Login as moderator',
+	name: 'Login',
 	defaultValue: null,
 });
 
