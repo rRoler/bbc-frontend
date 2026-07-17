@@ -58,7 +58,7 @@
 					(!!setting.allowedRoles && (!sessionRole || !setting.allowedRoles.includes(sessionRole)))}
 				{@const disabledClass = isDisabled ? 'cursor-not-allowed opacity-50' : ''}
 
-				<label id={setting.id} class="label text-base-content text-base {disabledClass}">
+				<div id={setting.id} class="label text-base-content text-base {disabledClass}">
 					<a href="#{setting.id}">{setting.name}</a>
 
 					{#if setting.tooltip}
@@ -101,7 +101,7 @@
 							</button>
 						</Tooltip>
 					{/if}
-				</label>
+				</div>
 
 				{#if setting.description}
 					<p class="label text-wrap! whitespace-pre {disabledClass}">{setting.description}</p>
