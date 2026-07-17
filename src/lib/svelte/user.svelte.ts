@@ -1,4 +1,4 @@
-import {
+import allSettingsFields, {
 	userLoginSetting,
 	userTokenSetting,
 	readLocalSettings,
@@ -39,6 +39,7 @@ export class UserState {
 		if (this.session) {
 			try {
 				await this.pullSettings();
+				allSettingsFields.forEach((f) => f.load());
 			} catch (e) {
 				addAppError(e);
 			}
@@ -109,6 +110,15 @@ export class UserState {
 		this.session = null;
 	}
 
+	private async sendSettings(settings: Record<string, unknown>): Promise<void> {
+		const res = await fetch(`${this.apiUrl}/user/settings`, {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json', ...this.headers },
+			body: JSON.stringify({ settings }),
+		});
+		if (!res.ok) throw new Error('Failed to push settings to server');
+	}
+
 	async pushSettings(): Promise<void> {
 		const local = readLocalSettings();
 		if (!local) return;
@@ -118,13 +128,7 @@ export class UserState {
 			if (isSyncableKey(key, local.syncFlags)) syncedSettings[key] = value;
 		}
 
-		const res = await fetch(`${this.apiUrl}/user/settings`, {
-			method: 'PATCH',
-			headers: { 'Content-Type': 'application/json', ...this.headers },
-			body: JSON.stringify({ settings: syncedSettings }),
-		});
-
-		if (!res.ok) throw new Error('Failed to push settings to server');
+		await this.sendSettings(syncedSettings);
 	}
 
 	async pullSettings(): Promise<void> {
@@ -132,10 +136,18 @@ export class UserState {
 		if (!res.ok) throw new Error('Failed to pull settings from server');
 
 		const { data } = await res.json();
-		if (!data.settings) return;
-
-		const serverData = data.settings as Record<string, unknown>;
+		const serverData = (data.settings ?? {}) as Record<string, unknown>;
 		const local = readLocalSettings() ?? { data: {}, syncFlags: {} };
+
+		const toPush: Record<string, unknown> = {};
+		for (const [key, value] of Object.entries(local.data)) {
+			if (isSyncableKey(key, local.syncFlags) && !(key in serverData)) {
+				toPush[key] = value;
+			}
+		}
+		if (Object.keys(toPush).length > 0) {
+			await this.sendSettings(toPush);
+		}
 
 		for (const [key, value] of Object.entries(serverData)) {
 			if (isSyncableKey(key, local.syncFlags)) local.data[key] = value;
