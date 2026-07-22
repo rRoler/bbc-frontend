@@ -34,6 +34,20 @@
 
 	let searchTerm = $state('');
 
+	let cursorStart = 0;
+	let cursorEnd = 0;
+
+	function captureCursor() {
+		const el = document.activeElement;
+		if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+			cursorStart = el.selectionStart ?? 0;
+			cursorEnd = el.selectionEnd ?? 0;
+		} else {
+			cursorStart = value.length;
+			cursorEnd = value.length;
+		}
+	}
+
 	const categories: Record<string, string[]> = {
 		book: [
 			textVariables.bookTitle,
@@ -117,7 +131,10 @@
 	);
 
 	function insertVariable(name: string) {
-		value = value + getTextVariableName(name);
+		const varName = getTextVariableName(name);
+		const start = Math.min(cursorStart, cursorEnd);
+		const end = Math.max(cursorStart, cursorEnd);
+		value = value.slice(0, start) + varName + value.slice(end);
 		dialogEl?.close();
 	}
 
@@ -129,6 +146,7 @@
 
 <button
 	class="btn btn-ghost btn-square btn-xs mt-0.5 shrink-0 {className}"
+	onmousedown={captureCursor}
 	onclick={() => dialogEl?.showModal()}
 	aria-label="Insert template variable"
 >
