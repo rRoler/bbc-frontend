@@ -51,6 +51,9 @@ export interface BBCSeries {
 	magazine?: string;
 	genre?: string;
 	titleKana?: string;
+	lastFetchedAt?: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface BBCBook {
@@ -78,6 +81,9 @@ export interface BBCBook {
 	format?: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook';
 	originalPrice?: number;
 	fileSize?: string;
+	lastFetchedAt?: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface BBCBookPage {
