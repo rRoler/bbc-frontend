@@ -282,6 +282,24 @@ class Downloader {
 			vars.push([textVariables.bookPageNumber, (book.selectedPage || 0).toString()]);
 			vars.push([textVariables.bookPageName, book.selectedPage ? `Page ${book.selectedPage}` : '']);
 
+			vars.push([textVariables.bookPrice, book.price?.toString() ?? '']);
+			vars.push([textVariables.bookCurrency, book.currency ?? '']);
+			vars.push([textVariables.bookIsbn, book.isbn ?? '']);
+			vars.push([textVariables.bookReleaseDate, book.releaseDate ?? '']);
+			vars.push([textVariables.bookPageCount, book.pageCount?.toString() ?? '']);
+			vars.push([textVariables.bookDescription, book.description ?? '']);
+			vars.push([textVariables.bookAuthors, book.authors?.join(', ') ?? '']);
+			vars.push([textVariables.bookArtists, book.artists?.join(', ') ?? '']);
+			vars.push([textVariables.bookPublisher, book.publisher ?? '']);
+			vars.push([textVariables.bookTags, book.tags?.join(', ') ?? '']);
+			vars.push([textVariables.bookRating, book.rating?.toString() ?? '']);
+			vars.push([textVariables.bookRatingCount, book.ratingCount?.toString() ?? '']);
+			vars.push([textVariables.bookLanguage, book.language ?? '']);
+			vars.push([textVariables.bookTranslator, book.translator?.join(', ') ?? '']);
+			vars.push([textVariables.bookFormat, book.format ?? '']);
+			vars.push([textVariables.bookOriginalPrice, book.originalPrice?.toString() ?? '']);
+			vars.push([textVariables.bookFileSize, book.fileSize ?? '']);
+
 			const bookSeries = this.getBookSeries(book);
 			if (bookSeries) {
 				vars.push([textVariables.seriesTitle, bookSeries.title]);
@@ -290,6 +308,24 @@ class Downloader {
 				vars.push([textVariables.seriesBookType, bookSeries.bookType || '']);
 				vars.push([textVariables.seriesType, bookSeries.type]);
 				vars.push([textVariables.seriesId, bookSeries.id]);
+				vars.push([textVariables.seriesDescription, bookSeries.description ?? '']);
+				vars.push([textVariables.seriesAuthors, bookSeries.authors?.join(', ') ?? '']);
+				vars.push([textVariables.seriesArtists, bookSeries.artists?.join(', ') ?? '']);
+				vars.push([textVariables.seriesPublisher, bookSeries.publisher ?? '']);
+				vars.push([textVariables.seriesTags, bookSeries.tags?.join(', ') ?? '']);
+				vars.push([textVariables.seriesStatus, bookSeries.status ?? '']);
+				vars.push([textVariables.seriesRating, bookSeries.rating?.toString() ?? '']);
+				vars.push([textVariables.seriesRatingCount, bookSeries.ratingCount?.toString() ?? '']);
+				vars.push([textVariables.seriesLanguage, bookSeries.language ?? '']);
+				vars.push([textVariables.seriesTranslator, bookSeries.translator?.join(', ') ?? '']);
+				vars.push([textVariables.seriesFormat, bookSeries.format ?? '']);
+				vars.push([textVariables.seriesReadingDirection, bookSeries.readingDirection ?? '']);
+				vars.push([textVariables.seriesBookCount, bookSeries.bookCount?.toString() ?? '']);
+				vars.push([textVariables.seriesChapterCount, bookSeries.chapterCount?.toString() ?? '']);
+				vars.push([textVariables.seriesMagazine, bookSeries.magazine ?? '']);
+				vars.push([textVariables.seriesGenre, bookSeries.genre ?? '']);
+				vars.push([textVariables.seriesTitleKana, bookSeries.titleKana ?? '']);
+				vars.push([textVariables.seriesLastUpdated, bookSeries.lastUpdated ?? '']);
 			} else {
 				vars.push([textVariables.seriesId, book.seriesId || '0']);
 			}

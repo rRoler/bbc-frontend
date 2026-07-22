@@ -35,6 +35,7 @@ export interface SettingBase<T> {
 	loginOnly?: boolean;
 	allowedRoles?: string[];
 	defaultValue: T;
+	varCategories?: readonly string[];
 }
 
 export interface ProviderSelectSetting extends SettingBase<ProviderStorageEntry[]> {
@@ -113,6 +114,7 @@ export class Setting<T extends SettingType> {
 	readonly step?: RangeSetting['step'];
 	readonly loginOnly?: T['loginOnly'];
 	readonly allowedRoles?: T['allowedRoles'];
+	readonly varCategories?: ReadonlyArray<string>;
 	currentValue: T['currentValue'];
 	storedValue: T['storedValue'];
 	syncEnabled = $state(true);
@@ -125,6 +127,7 @@ export class Setting<T extends SettingType> {
 		this.type = setting.type;
 		this.loginOnly = setting.loginOnly;
 		this.allowedRoles = setting.allowedRoles;
+		this.varCategories = (setting as SettingBase<unknown>).varCategories;
 		this.defaultValue = setting.defaultValue;
 		this.currentValue = $state(setting.currentValue);
 		this.storedValue = $state(setting.storedValue);
@@ -231,6 +234,23 @@ export const textVariables = {
 	bookTitle: 'BOOK_TITLE',
 	bookUrl: 'BOOK_URL',
 	bookId: 'BOOK_ID',
+	bookPrice: 'BOOK_PRICE',
+	bookCurrency: 'BOOK_CURRENCY',
+	bookIsbn: 'BOOK_ISBN',
+	bookReleaseDate: 'BOOK_RELEASE_DATE',
+	bookPageCount: 'BOOK_PAGE_COUNT',
+	bookDescription: 'BOOK_DESCRIPTION',
+	bookAuthors: 'BOOK_AUTHORS',
+	bookArtists: 'BOOK_ARTISTS',
+	bookPublisher: 'BOOK_PUBLISHER',
+	bookTags: 'BOOK_TAGS',
+	bookRating: 'BOOK_RATING',
+	bookRatingCount: 'BOOK_RATING_COUNT',
+	bookLanguage: 'BOOK_LANGUAGE',
+	bookTranslator: 'BOOK_TRANSLATOR',
+	bookFormat: 'BOOK_FORMAT',
+	bookOriginalPrice: 'BOOK_ORIGINAL_PRICE',
+	bookFileSize: 'BOOK_FILE_SIZE',
 	seriesTitle: 'SERIES_TITLE',
 	seriesThumbnailUrl: 'SERIES_THUMBNAIL_URL',
 	seriesPublicationType: 'SERIES_PUBLICATION_TYPE',
@@ -238,6 +258,24 @@ export const textVariables = {
 	seriesType: 'SERIES_TYPE',
 	seriesUrl: 'SERIES_URL',
 	seriesId: 'SERIES_ID',
+	seriesDescription: 'SERIES_DESCRIPTION',
+	seriesAuthors: 'SERIES_AUTHORS',
+	seriesArtists: 'SERIES_ARTISTS',
+	seriesPublisher: 'SERIES_PUBLISHER',
+	seriesTags: 'SERIES_TAGS',
+	seriesStatus: 'SERIES_STATUS',
+	seriesRating: 'SERIES_RATING',
+	seriesRatingCount: 'SERIES_RATING_COUNT',
+	seriesLanguage: 'SERIES_LANGUAGE',
+	seriesTranslator: 'SERIES_TRANSLATOR',
+	seriesFormat: 'SERIES_FORMAT',
+	seriesReadingDirection: 'SERIES_READING_DIRECTION',
+	seriesBookCount: 'SERIES_BOOK_COUNT',
+	seriesChapterCount: 'SERIES_CHAPTER_COUNT',
+	seriesMagazine: 'SERIES_MAGAZINE',
+	seriesGenre: 'SERIES_GENRE',
+	seriesTitleKana: 'SERIES_TITLE_KANA',
+	seriesLastUpdated: 'SERIES_LAST_UPDATED',
 	providerName: 'PROVIDER_NAME',
 	providerId: 'PROVIDER_ID',
 	providerLanguageName: 'PROVIDER_LANGUAGE_NAME',
@@ -304,26 +342,7 @@ export const searchCopyFormatSetting = new Setting<TextAreaSetting>({
 	type: 'textarea',
 	name: 'Copy Format',
 	description: 'The format to use when copying search links',
-	tooltip:
-		'Available variables: ' +
-		[
-			textVariables.seriesTitle,
-			textVariables.seriesThumbnailUrl,
-			textVariables.seriesPublicationType,
-			textVariables.seriesBookType,
-			textVariables.seriesType,
-			textVariables.seriesUrl,
-			textVariables.seriesId,
-			textVariables.providerName,
-			textVariables.providerId,
-			textVariables.providerLanguageName,
-			textVariables.providerLanguageCode,
-			textVariables.date,
-			textVariables.time,
-			textVariables.datetime,
-		]
-			.map((v) => getTextVariableName(v))
-			.join(', '),
+	varCategories: ['series', 'provider', 'datetime'],
 	defaultValue: `${getTextVariableName(textVariables.seriesUrl)}\n`,
 });
 
@@ -408,35 +427,7 @@ export const bookDisplayTextSetting = new Setting<TextSetting>({
 	type: 'text',
 	name: 'Book Display Text',
 	description: 'The text to display for books',
-	tooltip:
-		'Available variables: ' +
-		[
-			textVariables.volumeName,
-			textVariables.volumeNumber,
-			textVariables.bookPageName,
-			textVariables.bookPageNumber,
-			textVariables.bookTitle,
-			textVariables.bookUrl,
-			textVariables.bookId,
-			textVariables.seriesTitle,
-			textVariables.seriesPublicationType,
-			textVariables.seriesBookType,
-			textVariables.seriesType,
-			textVariables.seriesId,
-			textVariables.providerName,
-			textVariables.providerId,
-			textVariables.providerLanguageName,
-			textVariables.providerLanguageCode,
-			textVariables.coverQualityScore,
-			textVariables.coverWidth,
-			textVariables.coverHeight,
-			textVariables.coverCropStatus,
-			textVariables.date,
-			textVariables.time,
-			textVariables.datetime,
-		]
-			.map((v) => getTextVariableName(v))
-			.join(', '),
+	varCategories: ['book', 'series', 'provider', 'datetime'],
 	defaultValue: getTextVariableName(textVariables.volumeName),
 });
 
@@ -445,36 +436,7 @@ export const coverFilenameSetting = new Setting<TextSetting>({
 	type: 'text',
 	name: 'Cover Filename',
 	description: 'The filename to use for downloaded covers',
-	tooltip:
-		'Available variables: ' +
-		[
-			textVariables.volumeName,
-			textVariables.volumeNumber,
-			textVariables.bookPageName,
-			textVariables.bookPageNumber,
-			textVariables.bookTitle,
-			textVariables.bookUrl,
-			textVariables.bookId,
-			textVariables.seriesTitle,
-			textVariables.seriesPublicationType,
-			textVariables.seriesBookType,
-			textVariables.seriesType,
-			textVariables.seriesId,
-			textVariables.providerName,
-			textVariables.providerId,
-			textVariables.providerLanguageName,
-			textVariables.providerLanguageCode,
-			textVariables.coverQualityScore,
-			textVariables.coverWidth,
-			textVariables.coverHeight,
-			textVariables.coverCropStatus,
-			textVariables.fileExtension,
-			textVariables.date,
-			textVariables.time,
-			textVariables.datetime,
-		]
-			.map((v) => getTextVariableName(v))
-			.join(', '),
+	varCategories: ['book', 'series', 'provider', 'cover', 'file', 'datetime'],
 	defaultValue: `${getTextVariableName(textVariables.volumeName)}.${getTextVariableName(textVariables.fileExtension)}`,
 });
 
@@ -483,35 +445,7 @@ export const coverPathSetting = new Setting<TextSetting>({
 	type: 'text',
 	name: 'Cover Path',
 	description: 'The path inside the ZIP to save downloaded covers to',
-	tooltip:
-		'Available variables: ' +
-		[
-			textVariables.volumeName,
-			textVariables.volumeNumber,
-			textVariables.bookPageName,
-			textVariables.bookPageNumber,
-			textVariables.bookTitle,
-			textVariables.bookUrl,
-			textVariables.bookId,
-			textVariables.seriesTitle,
-			textVariables.seriesPublicationType,
-			textVariables.seriesBookType,
-			textVariables.seriesType,
-			textVariables.seriesId,
-			textVariables.providerName,
-			textVariables.providerId,
-			textVariables.providerLanguageName,
-			textVariables.providerLanguageCode,
-			textVariables.coverQualityScore,
-			textVariables.coverWidth,
-			textVariables.coverHeight,
-			textVariables.coverCropStatus,
-			textVariables.date,
-			textVariables.time,
-			textVariables.datetime,
-		]
-			.map((v) => getTextVariableName(v))
-			.join(', '),
+	varCategories: ['book', 'series', 'provider', 'datetime'],
 	defaultValue: `${getTextVariableName(textVariables.providerName)}/${getTextVariableName(textVariables.seriesId)}`,
 });
 
@@ -520,9 +454,7 @@ export const zipFilenameSetting = new Setting<TextSetting>({
 	type: 'text',
 	name: 'Zip Filename',
 	description: 'The filename of use for the downloaded zip',
-	tooltip:
-		'Available variables: ' +
-		[textVariables.fileExtension].map((v) => getTextVariableName(v)).join(', '),
+	varCategories: ['file', 'datetime'],
 	defaultValue: `covers_${getTextVariableName(textVariables.datetime)}.${getTextVariableName(textVariables.fileExtension)}`,
 });
 
@@ -547,37 +479,7 @@ export const copyFormatSetting = new Setting<TextAreaSetting>({
 	type: 'textarea',
 	name: 'Copy Format',
 	description: 'The format to use when copying the cover URL',
-	tooltip:
-		'Available variables: ' +
-		[
-			textVariables.coverUrl,
-			textVariables.volumeName,
-			textVariables.volumeNumber,
-			textVariables.bookPageName,
-			textVariables.bookPageNumber,
-			textVariables.bookTitle,
-			textVariables.bookUrl,
-			textVariables.bookId,
-			textVariables.seriesTitle,
-			textVariables.seriesThumbnailUrl,
-			textVariables.seriesPublicationType,
-			textVariables.seriesBookType,
-			textVariables.seriesType,
-			textVariables.seriesId,
-			textVariables.providerName,
-			textVariables.providerId,
-			textVariables.providerLanguageName,
-			textVariables.providerLanguageCode,
-			textVariables.coverQualityScore,
-			textVariables.coverWidth,
-			textVariables.coverHeight,
-			textVariables.coverCropStatus,
-			textVariables.date,
-			textVariables.time,
-			textVariables.datetime,
-		]
-			.map((v) => getTextVariableName(v))
-			.join(', '),
+	varCategories: ['book', 'series', 'provider', 'cover', 'datetime'],
 	defaultValue: `${getTextVariableName(textVariables.coverUrl)}\n`,
 });
 

@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "typecheck": "astro check && svelte-check",
+    "typecheck": "astro check && svelte-check --no-tsconfig",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier .",

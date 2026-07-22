@@ -33,6 +33,24 @@ export interface BBCSeries {
 	bookType?: 'manga' | 'novel' | 'webtoon' | 'audiobook';
 	publicationType?: 'physical' | 'digital';
 	isMature: boolean;
+	description?: string;
+	authors?: string[];
+	artists?: string[];
+	publisher?: string;
+	status?: 'ongoing' | 'completed' | 'hiatus' | 'cancelled';
+	tags?: string[];
+	lastUpdated?: string;
+	rating?: number;
+	ratingCount?: number;
+	language?: string;
+	translator?: string[];
+	format?: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook';
+	readingDirection?: 'rtl' | 'ltr';
+	bookCount?: number;
+	chapterCount?: number;
+	magazine?: string;
+	genre?: string;
+	titleKana?: string;
 }
 
 export interface BBCBook {
@@ -43,6 +61,23 @@ export interface BBCBook {
 	coverFallbacks?: string[];
 	volume: { type: 'volume' | 'chapter'; number: string | null };
 	seriesId: string | null;
+	description?: string;
+	authors?: string[];
+	artists?: string[];
+	publisher?: string;
+	releaseDate?: string;
+	isbn?: string;
+	price?: number;
+	currency?: string;
+	pageCount?: number;
+	tags?: string[];
+	rating?: number;
+	ratingCount?: number;
+	language?: string;
+	translator?: string[];
+	format?: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook';
+	originalPrice?: number;
+	fileSize?: string;
 }
 
 export interface BBCBookPage {

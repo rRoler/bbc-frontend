@@ -5,6 +5,7 @@
 		fileSystemFolderSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import ProviderEditor from './ProviderEditor.svelte';
+	import FormatSelector from './FormatSelector.svelte';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { onMount } from 'svelte';
@@ -112,9 +113,15 @@
 					inert={isDisabled}
 				>
 					{#if setting.type === 'text'}
-						<input bind:value={setting.value} class="input w-full" type="text" />
+						<div class="flex w-full items-start gap-1">
+							<input bind:value={setting.value} class="input w-full" type="text" />
+							<FormatSelector bind:value={setting.value} tabs={setting.varCategories} />
+						</div>
 					{:else if setting.type === 'textarea'}
-						<textarea bind:value={setting.value} class="textarea w-full"></textarea>
+						<div class="flex w-full items-start gap-1">
+							<textarea bind:value={setting.value} class="textarea w-full"></textarea>
+							<FormatSelector bind:value={setting.value} tabs={setting.varCategories} />
+						</div>
 					{:else if setting.type === 'provider-editor'}
 						<div class="flex w-full flex-row justify-center sm:justify-start">
 							<ProviderEditor bind:providers={setting.value} />

@@ -126,6 +126,24 @@
 		vars.push([textVariables.seriesType, series.type]);
 		vars.push([textVariables.seriesUrl, series.url]);
 		vars.push([textVariables.seriesId, series.id]);
+		vars.push([textVariables.seriesDescription, series.description ?? '']);
+		vars.push([textVariables.seriesAuthors, series.authors?.join(', ') ?? '']);
+		vars.push([textVariables.seriesArtists, series.artists?.join(', ') ?? '']);
+		vars.push([textVariables.seriesPublisher, series.publisher ?? '']);
+		vars.push([textVariables.seriesTags, series.tags?.join(', ') ?? '']);
+		vars.push([textVariables.seriesStatus, series.status ?? '']);
+		vars.push([textVariables.seriesRating, series.rating?.toString() ?? '']);
+		vars.push([textVariables.seriesRatingCount, series.ratingCount?.toString() ?? '']);
+		vars.push([textVariables.seriesLanguage, series.language ?? '']);
+		vars.push([textVariables.seriesTranslator, series.translator?.join(', ') ?? '']);
+		vars.push([textVariables.seriesFormat, series.format ?? '']);
+		vars.push([textVariables.seriesReadingDirection, series.readingDirection ?? '']);
+		vars.push([textVariables.seriesBookCount, series.bookCount?.toString() ?? '']);
+		vars.push([textVariables.seriesChapterCount, series.chapterCount?.toString() ?? '']);
+		vars.push([textVariables.seriesMagazine, series.magazine ?? '']);
+		vars.push([textVariables.seriesGenre, series.genre ?? '']);
+		vars.push([textVariables.seriesTitleKana, series.titleKana ?? '']);
+		vars.push([textVariables.seriesLastUpdated, series.lastUpdated ?? '']);
 
 		if (provider) {
 			vars.push([textVariables.providerName, provider.name]);
