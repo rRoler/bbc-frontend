@@ -143,6 +143,14 @@
 		vars.push([textVariables.seriesMagazine, series.magazine ?? '']);
 		vars.push([textVariables.seriesGenre, series.genre ?? '']);
 		vars.push([textVariables.seriesTitleKana, series.titleKana ?? '']);
+		vars.push([textVariables.seriesAlId, series.alId ?? '']);
+		vars.push([textVariables.seriesApId, series.apId ?? '']);
+		vars.push([textVariables.seriesMuId, series.muId ?? '']);
+		vars.push([textVariables.seriesNuId, series.nuId ?? '']);
+		vars.push([textVariables.seriesKtId, series.ktId ?? '']);
+		vars.push([textVariables.seriesMalId, series.malId ?? '']);
+		vars.push([textVariables.seriesMbId, series.mbId ?? '']);
+		vars.push([textVariables.seriesShikiId, series.shikiId ?? '']);
 		vars.push([textVariables.seriesLastUpdated, series.lastUpdated ?? '']);
 		vars.push([textVariables.seriesLastFetchedAt, series.lastFetchedAt ?? '']);
 		vars.push([textVariables.seriesCreatedAt, series.createdAt ?? '']);

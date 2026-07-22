@@ -51,6 +51,14 @@ export interface BBCSeries {
 	magazine?: string;
 	genre?: string;
 	titleKana?: string;
+	alId?: string;
+	apId?: string;
+	muId?: string;
+	nuId?: string;
+	ktId?: string;
+	malId?: string;
+	mbId?: string;
+	shikiId?: string;
 	lastFetchedAt?: string;
 	createdAt?: string;
 	updatedAt?: string;

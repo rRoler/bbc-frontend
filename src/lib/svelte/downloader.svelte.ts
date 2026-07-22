@@ -328,6 +328,14 @@ class Downloader {
 				vars.push([textVariables.seriesMagazine, bookSeries.magazine ?? '']);
 				vars.push([textVariables.seriesGenre, bookSeries.genre ?? '']);
 				vars.push([textVariables.seriesTitleKana, bookSeries.titleKana ?? '']);
+				vars.push([textVariables.seriesAlId, bookSeries.alId ?? '']);
+				vars.push([textVariables.seriesApId, bookSeries.apId ?? '']);
+				vars.push([textVariables.seriesMuId, bookSeries.muId ?? '']);
+				vars.push([textVariables.seriesNuId, bookSeries.nuId ?? '']);
+				vars.push([textVariables.seriesKtId, bookSeries.ktId ?? '']);
+				vars.push([textVariables.seriesMalId, bookSeries.malId ?? '']);
+				vars.push([textVariables.seriesMbId, bookSeries.mbId ?? '']);
+				vars.push([textVariables.seriesShikiId, bookSeries.shikiId ?? '']);
 				vars.push([textVariables.seriesLastUpdated, bookSeries.lastUpdated ?? '']);
 				vars.push([textVariables.seriesLastFetchedAt, bookSeries.lastFetchedAt ?? '']);
 				vars.push([textVariables.seriesCreatedAt, bookSeries.createdAt ?? '']);
