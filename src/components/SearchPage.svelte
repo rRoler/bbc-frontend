@@ -144,6 +144,9 @@
 		vars.push([textVariables.seriesGenre, series.genre ?? '']);
 		vars.push([textVariables.seriesTitleKana, series.titleKana ?? '']);
 		vars.push([textVariables.seriesLastUpdated, series.lastUpdated ?? '']);
+		vars.push([textVariables.seriesLastFetchedAt, series.lastFetchedAt ?? '']);
+		vars.push([textVariables.seriesCreatedAt, series.createdAt ?? '']);
+		vars.push([textVariables.seriesUpdatedAt, series.updatedAt ?? '']);
 
 		if (provider) {
 			vars.push([textVariables.providerName, provider.name]);
