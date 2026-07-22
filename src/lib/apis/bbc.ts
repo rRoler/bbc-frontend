@@ -59,6 +59,8 @@ export interface BBCSeries {
 	malId?: string;
 	mbId?: string;
 	shikiId?: string;
+	mappedId?: string;
+	mappedSource?: 'automatic' | 'manual';
 	lastFetchedAt?: string;
 	createdAt?: string;
 	updatedAt?: string;

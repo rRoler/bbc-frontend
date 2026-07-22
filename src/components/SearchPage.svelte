@@ -151,6 +151,8 @@
 		vars.push([textVariables.seriesMalId, series.malId ?? '']);
 		vars.push([textVariables.seriesMbId, series.mbId ?? '']);
 		vars.push([textVariables.seriesShikiId, series.shikiId ?? '']);
+		vars.push([textVariables.seriesMappedId, series.mappedId ?? '']);
+		vars.push([textVariables.seriesMappedSource, series.mappedSource ?? '']);
 		vars.push([textVariables.seriesLastUpdated, series.lastUpdated ?? '']);
 		vars.push([textVariables.seriesLastFetchedAt, series.lastFetchedAt ?? '']);
 		vars.push([textVariables.seriesCreatedAt, series.createdAt ?? '']);

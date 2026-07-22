@@ -111,6 +111,8 @@
 			textVariables.seriesMalId,
 			textVariables.seriesMbId,
 			textVariables.seriesShikiId,
+			textVariables.seriesMappedId,
+			textVariables.seriesMappedSource,
 			textVariables.seriesLastUpdated,
 			textVariables.seriesLastFetchedAt,
 			textVariables.seriesCreatedAt,
