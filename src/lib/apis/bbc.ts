@@ -30,41 +30,41 @@ export interface BBCSeries {
 	type: 'series' | 'book';
 	title: string;
 	thumbnail: string;
-	bookType?: 'manga' | 'novel' | 'webtoon' | 'audiobook';
-	publicationType?: 'physical' | 'digital';
+	bookType: 'manga' | 'novel' | 'webtoon' | 'audiobook' | null;
+	publicationType: 'physical' | 'digital' | null;
 	isMature: boolean;
-	description?: string;
-	authors?: string[];
-	artists?: string[];
-	publisher?: string;
-	status?: 'ongoing' | 'completed' | 'hiatus' | 'cancelled';
-	tags?: string[];
-	lastUpdated?: string;
-	rating?: number;
-	ratingCount?: number;
-	language?: string;
-	translator?: string[];
-	format?: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook';
-	readingDirection?: 'rtl' | 'ltr';
-	bookCount?: number;
-	chapterCount?: number;
-	magazine?: string;
-	genre?: string;
-	titleKana?: string;
-	alId?: string;
-	apId?: string;
-	muId?: string;
-	nuId?: string;
-	ktId?: string;
-	malId?: string;
-	mbId?: string;
-	shikiId?: string;
-	mappedId?: string;
-	mappedSource?: 'automatic' | 'manual';
-	mappedAt?: string;
-	lastFetchedAt?: string;
-	createdAt?: string;
-	updatedAt?: string;
+	description: string | null;
+	authors: string[] | null;
+	artists: string[] | null;
+	publisher: string | null;
+	status: 'ongoing' | 'completed' | 'hiatus' | 'cancelled' | null;
+	tags: string[] | null;
+	lastUpdated: string | null;
+	rating: number | null;
+	ratingCount: number | null;
+	language: string | null;
+	translator: string[] | null;
+	format: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook' | null;
+	readingDirection: 'rtl' | 'ltr' | null;
+	bookCount: number | null;
+	chapterCount: number | null;
+	magazine: string | null;
+	genre: string | null;
+	titleKana: string | null;
+	alId: string | null;
+	apId: string | null;
+	muId: string | null;
+	nuId: string | null;
+	ktId: string | null;
+	malId: string | null;
+	mbId: string | null;
+	shikiId: string | null;
+	mappedId: string | null;
+	mappedSource: 'automatic' | 'manual' | null;
+	mappedAt: string | null;
+	lastFetchedAt: string | null;
+	createdAt: string | null;
+	updatedAt: string | null;
 }
 
 export interface BBCBook {
@@ -72,29 +72,40 @@ export interface BBCBook {
 	url: string;
 	title: string;
 	cover: string;
-	coverFallbacks?: string[];
+	coverFallbacks: string[] | null;
 	volume: { type: 'volume' | 'chapter'; number: string | null };
 	seriesId: string | null;
-	description?: string;
-	authors?: string[];
-	artists?: string[];
-	publisher?: string;
-	releaseDate?: string;
-	isbn?: string;
-	price?: number;
-	currency?: string;
-	pageCount?: number;
-	tags?: string[];
-	rating?: number;
-	ratingCount?: number;
-	language?: string;
-	translator?: string[];
-	format?: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook';
-	originalPrice?: number;
-	fileSize?: string;
-	lastFetchedAt?: string;
-	createdAt?: string;
-	updatedAt?: string;
+	description: string | null;
+	authors: string[] | null;
+	artists: string[] | null;
+	publisher: string | null;
+	releaseDate: string | null;
+	isbn: string | null;
+	price: number | null;
+	currency: string | null;
+	pageCount: number | null;
+	tags: string[] | null;
+	rating: number | null;
+	ratingCount: number | null;
+	language: string | null;
+	translator: string[] | null;
+	format: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook' | null;
+	originalPrice: number | null;
+	fileSize: string | null;
+	lastFetchedAt: string | null;
+	createdAt: string | null;
+	updatedAt: string | null;
+}
+
+export interface BBCSeriesSearchResult {
+	id: BBCSeries['id'];
+	url: BBCSeries['url'];
+	type: BBCSeries['type'];
+	title: BBCSeries['title'];
+	thumbnail: BBCSeries['thumbnail'];
+	bookType: BBCSeries['bookType'];
+	publicationType: BBCSeries['publicationType'];
+	isMature: BBCSeries['isMature'];
 }
 
 export interface BBCBookPage {
@@ -163,11 +174,11 @@ export default class BBC_API {
 		providers: Provider[] = allProviders.updated,
 		options?: {
 			include_mature?: boolean;
-			callback?: (result: BBCResult<BBCSeries>) => void;
+			callback?: (result: BBCResult<BBCSeriesSearchResult>) => void;
 			abortSignal?: AbortController['signal'];
 		}
-	): Promise<BBCResult<BBCSeries>> {
-		const allData: BBCResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
+	): Promise<BBCResult<BBCSeriesSearchResult>> {
+		const allData: BBCResult<BBCSeriesSearchResult> = { data: {}, count: 0, pages: 0, errors: [] };
 
 		await Promise.all(
 			providers.map(async (provider) => {
@@ -179,7 +190,7 @@ export default class BBC_API {
 
 				try {
 					const res = await fetch(searchUrl, { signal: options?.abortSignal });
-					const data: BBCResponse<BBCSeries> = await res.json();
+					const data: BBCResponse<BBCSeriesSearchResult> = await res.json();
 
 					if (!allData.data[provider.id]) allData.data[provider.id] = [];
 

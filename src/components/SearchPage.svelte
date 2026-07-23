@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Search, LayoutGrid, X, ExternalLink, EllipsisVertical } from 'lucide-svelte';
-	import BBC_API, { type BBCSeries } from '../lib/apis/bbc.ts';
+	import BBC_API, { type BBCSeries, type BBCSeriesSearchResult } from '../lib/apis/bbc.ts';
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
 	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
@@ -36,8 +36,8 @@
 	let loadingProviders = $state<SvelteSet<string>>();
 	let searching = $state<boolean>(false);
 	let searchQuery = $state<string>('');
-	let searchResults = $state<Record<string, BBCSeries[]>>({});
-	let selectedSeries = $state<Record<string, BBCSeries[]>>({});
+	let searchResults = $state<Record<string, BBCSeriesSearchResult[]>>({});
+	let selectedSeries = $state<Record<string, BBCSeriesSearchResult[]>>({});
 	let selectedSeriesCount = $derived(Object.values(selectedSeries).flat().length);
 	let openLink = $derived.by(() => {
 		const basePath = downloadLocation.path;
@@ -58,7 +58,7 @@
 			localStorage.setItem(searchLocation.storageKey, window.location.href);
 	}
 
-	async function toggleSeries(providerId: string, series: BBCSeries, force?: boolean) {
+	async function toggleSeries(providerId: string, series: BBCSeriesSearchResult, force?: boolean) {
 		selectedSeries[providerId] = selectedSeries[providerId] ?? [];
 		const seriesIndex = selectedSeries[providerId].indexOf(series);
 
@@ -107,7 +107,7 @@
 		if (event.key === 'Enter') handleSubmit();
 	}
 
-	function parseTextVariables(series: BBCSeries, { providerId }: { providerId?: string }) {
+	function parseTextVariables(series: Partial<BBCSeries>, { providerId }: { providerId?: string }) {
 		const vars: [string, string][] = [];
 		const provider = allProviders.updated.find((p) => p.id === providerId);
 		const currentDate = new SvelteDate();
@@ -119,13 +119,13 @@
 		vars.push([textVariables.time, time]);
 		vars.push([textVariables.datetime, datetime]);
 
-		vars.push([textVariables.seriesTitle, series.title]);
-		vars.push([textVariables.seriesThumbnailUrl, series.thumbnail]);
+		vars.push([textVariables.seriesTitle, series.title ?? '']);
+		vars.push([textVariables.seriesThumbnailUrl, series.thumbnail ?? '']);
 		vars.push([textVariables.seriesPublicationType, series.publicationType || 'digital']);
 		vars.push([textVariables.seriesBookType, series.bookType || '']);
-		vars.push([textVariables.seriesType, series.type]);
-		vars.push([textVariables.seriesUrl, series.url]);
-		vars.push([textVariables.seriesId, series.id]);
+		vars.push([textVariables.seriesType, series.type ?? '']);
+		vars.push([textVariables.seriesUrl, series.url ?? '']);
+		vars.push([textVariables.seriesId, series.id ?? '']);
 		vars.push([textVariables.seriesDescription, series.description ?? '']);
 		vars.push([textVariables.seriesAuthors, series.authors?.join(', ') ?? '']);
 		vars.push([textVariables.seriesArtists, series.artists?.join(', ') ?? '']);
