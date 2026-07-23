@@ -241,7 +241,8 @@ export default class BBC_API {
 		seriesIds: Record<string, string[]>,
 		bookIds: Record<string, string[]>,
 		sort: BBCSort = 'desc',
-		page: number = 1
+		page: number = 1,
+		langs: Record<string, string[]> = {}
 	): Promise<BBCResult<BBCBook>> {
 		const allData: BBCResult<BBCBook> = { data: {}, count: 0, pages: 0, errors: [] };
 
@@ -257,6 +258,10 @@ export default class BBC_API {
 							booksUrl.searchParams.set('sort', sort);
 							booksUrl.searchParams.set('page', page.toString());
 							booksUrl.searchParams.append(`${seriesType}(${providerId})`, seriesId);
+
+							for (const lang of langs[providerId] ?? []) {
+								booksUrl.searchParams.append(`lang(${providerId})`, lang);
+							}
 
 							try {
 								const res = await fetch(booksUrl);

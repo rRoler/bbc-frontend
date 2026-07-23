@@ -28,6 +28,7 @@
 	import Image from './Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
+	import ProviderLangSelector from './ProviderLangSelector.svelte';
 	import {
 		automaticQualityPickerSetting,
 		bookSortOrderSetting,
@@ -182,6 +183,17 @@
 				<ProviderSelector
 					providers={downloader.providers}
 					bind:selected={downloader.selectedProviders}
+					onchange={async () => {
+						await downloader.resetAll();
+						updateLocationStorage();
+					}}
+				/>
+			{/if}
+
+			{#if downloader.allAvailableLanguages.length > 1 || downloader.selectedLanguages.size > 0}
+				<ProviderLangSelector
+					languages={downloader.allAvailableLanguages}
+					bind:selected={downloader.selectedLanguages}
 					onchange={async () => {
 						await downloader.resetAll();
 						updateLocationStorage();

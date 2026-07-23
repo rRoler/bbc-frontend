@@ -28,6 +28,7 @@ import {
 	editAutoSyncSetting,
 } from './settings.svelte.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
+import { PROVIDER_LANG_PARAM_KEY } from '../../components/ProviderLangSelector.svelte';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
@@ -107,6 +108,8 @@ class Downloader {
 	copyValues = new SvelteMap<string, boolean | null>();
 	allBookPages = $state<BookPage[]>([]);
 	selectedBookPage = $state<number>(0);
+	selectedLanguages = $state<SvelteSet<string>>(new SvelteSet());
+	allAvailableLanguages = $state<string[]>([]);
 
 	fileSystem = $state<FileSystem | null>(null);
 
@@ -119,6 +122,16 @@ class Downloader {
 		if (this.automaticCoverQualityEnabled) books = this.automaticallyPickCovers(books);
 		return books;
 	});
+
+	private computeLangParams(): Record<string, string[]> {
+		const langs = [...this.selectedLanguages];
+		if (!langs.length) return {};
+		const result: Record<string, string[]> = {};
+		for (const provider of this.selectedProviders) {
+			if (provider.id === 'mb') result[provider.id] = langs;
+		}
+		return result;
+	}
 	sortedFilteredBooks = $derived<Book[]>(
 		[...this.filteredBooks].sort((a, b) => this.sortBookNaturally(a, b))
 	);
@@ -526,7 +539,8 @@ class Downloader {
 					this.allSeriesIds,
 					this.allBookIds,
 					this.sortOrder,
-					currentPage
+					currentPage,
+					this.computeLangParams()
 				);
 
 				this.maxPage = Math.max(this.maxPage, response.pages);
@@ -640,6 +654,12 @@ class Downloader {
 					if (automaticCropSetting.value) this.toggleCropCovers(newBooks, true);
 
 					this.allBooks.push(...newBooks);
+
+					for (const b of newBooks) {
+						if (b.language && !this.allAvailableLanguages.includes(b.language)) {
+							this.allAvailableLanguages.push(b.language);
+						}
+					}
 				} else {
 					console.debug('No more books to fetch');
 				}
@@ -1080,6 +1100,11 @@ class Downloader {
 
 			if (series.length) this.allSeriesIds[provider.id] = series;
 			if (books.length) this.allBookIds[provider.id] = books;
+		}
+
+		const langIds = getAllSvelteSearchParams(PROVIDER_LANG_PARAM_KEY);
+		if (langIds.length > 0) {
+			this.selectedLanguages = new SvelteSet(langIds);
 		}
 
 		const countIds = (store: Record<string, string[]>) =>

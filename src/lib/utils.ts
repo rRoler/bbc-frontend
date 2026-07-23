@@ -1,8 +1,31 @@
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 import type { Component } from 'svelte';
 import { fileTypeFromBuffer } from 'file-type';
+import { Globe, Languages } from 'lucide-svelte';
 import WsrvApi from './apis/wsrv.ts';
-import { Us, Jp, De, It, Es, Mx, Kr, Tw, Gb, Nl, Fr } from 'svelte-flags';
+import {
+	Us,
+	Jp,
+	De,
+	It,
+	Es,
+	Mx,
+	Kr,
+	Tw,
+	Gb,
+	Nl,
+	Fr,
+	Cn,
+	Pt,
+	Br,
+	Ru,
+	Th,
+	Sa,
+	Id,
+	Vn,
+	Pl,
+	Tr,
+} from 'svelte-flags';
 
 export interface ImageInfo {
 	format: string;
@@ -181,16 +204,18 @@ export function sleep(ms: number): Promise<void> {
 }
 
 export function getLocaleName(locale: string): string {
+	if (locale === 'multi') return 'All';
 	const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });
 	return langDisplayNames.of(locale) || locale;
 }
 
 export function langToFlag(lang: string): Component | undefined {
-	switch (lang) {
+	const lowered = lang.toLowerCase();
+	switch (lowered) {
 		case 'en':
-		case 'en-US':
+		case 'en-us':
 			return Us;
-		case 'en-GB':
+		case 'en-gb':
 			return Gb;
 		case 'ja':
 			return Jp;
@@ -200,18 +225,41 @@ export function langToFlag(lang: string): Component | undefined {
 			return It;
 		case 'es':
 			return Es;
-		case 'es-MX':
+		case 'es-mx':
 			return Mx;
 		case 'ko':
 			return Kr;
-		case 'zh-TW':
+		case 'zh-tw':
 			return Tw;
+		case 'zh':
+		case 'zh-cn':
+			return Cn;
 		case 'nl':
 			return Nl;
 		case 'fr':
 			return Fr;
+		case 'pt':
+			return Pt;
+		case 'pt-br':
+			return Br;
+		case 'ru':
+			return Ru;
+		case 'th':
+			return Th;
+		case 'ar':
+			return Sa;
+		case 'id':
+			return Id;
+		case 'vi':
+			return Vn;
+		case 'pl':
+			return Pl;
+		case 'tr':
+			return Tr;
+		case 'multi':
+			return Globe as unknown as Component;
 		default:
-			return undefined;
+			return Languages as unknown as Component;
 	}
 }
 
