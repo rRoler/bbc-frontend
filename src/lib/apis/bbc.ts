@@ -61,6 +61,7 @@ export interface BBCSeries {
 	shikiId?: string;
 	mappedId?: string;
 	mappedSource?: 'automatic' | 'manual';
+	mappedAt?: string;
 	lastFetchedAt?: string;
 	createdAt?: string;
 	updatedAt?: string;

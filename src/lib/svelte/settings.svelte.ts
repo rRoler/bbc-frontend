@@ -285,6 +285,7 @@ export const textVariables = {
 	seriesShikiId: 'SERIES_SHIKI_ID',
 	seriesMappedId: 'SERIES_MAPPED_ID',
 	seriesMappedSource: 'SERIES_MAPPED_SOURCE',
+	seriesMappedAt: 'SERIES_MAPPED_AT',
 	seriesLastUpdated: 'SERIES_LAST_UPDATED',
 	bookLastFetchedAt: 'BOOK_LAST_FETCHED_AT',
 	bookCreatedAt: 'BOOK_CREATED_AT',
