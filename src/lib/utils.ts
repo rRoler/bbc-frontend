@@ -204,7 +204,7 @@ export function sleep(ms: number): Promise<void> {
 }
 
 export function getLocaleName(locale: string): string {
-	if (locale === 'multi') return 'Multi';
+	if (locale === 'multi') return 'Multilingual';
 	const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });
 	return langDisplayNames.of(locale) || locale;
 }
