@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Search, LayoutGrid, X, ExternalLink, EllipsisVertical } from 'lucide-svelte';
+	import { Search, LayoutGrid, X, ExternalLink, EllipsisVertical, Link2 } from 'lucide-svelte';
 	import BBC_API, { type BBCSeries, type BBCSeriesSearchResult } from '../lib/apis/bbc.ts';
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
@@ -20,10 +20,13 @@
 		searchCopyFormatSetting,
 		textVariables,
 		matureContentSetting,
+		ALLOWED_EDIT_ROLES,
+		autoMapSetting,
 	} from '../lib/svelte/settings.svelte.ts';
+	import userState from '../lib/svelte/user.svelte.ts';
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
-	import CopyIcon from './CopyIcon.svelte';
+	import DynamicIcon from './DynamicIcon.svelte';
 	import Tooltip from './Tooltip.svelte';
 	import { MAX_SELECTED_SEARCH_RESULTS } from '../lib/constants.ts';
 
@@ -47,10 +50,18 @@
 			series.forEach((s) => params.append(`${s.type}(${providerId})`, s.id));
 		});
 
+		if (autoMapSetting.value) {
+			const mbId = getSvelteSearchParam('mb_id');
+			if (mbId) {
+				params.append('mb_id', mbId);
+			}
+		}
+
 		return `${basePath}?${params.toString()}`;
 	});
 	let resultAutoMatchEnabled = $state<boolean>(true);
 	let linksCopied = $state<boolean | null>(null);
+	let mappingStatus = $state<boolean | null>(null);
 	let abortController = $state<AbortController>();
 
 	function updateLocationStorage() {
@@ -190,6 +201,27 @@
 		);
 	}
 
+	async function saveSeriesMapping(): Promise<void> {
+		const series: { providerId: string; id: string }[] = [];
+
+		for (const [providerId, seriesList] of Object.entries(selectedSeries)) {
+			for (const s of seriesList) {
+				series.push({ providerId, id: s.id });
+			}
+		}
+
+		if (series.length < 2) return;
+
+		const result = await api.mapSeries(series);
+
+		if (result.errors.length > 0) {
+			result.errors.forEach((e) => addAppError(e));
+			mappingStatus = false;
+		} else {
+			mappingStatus = true;
+		}
+	}
+
 	onMount(() => {
 		appState.loading = true;
 
@@ -302,24 +334,37 @@
 								>
 									<button
 										class="absolute top-0 left-0 z-10 size-full cursor-pointer"
-										onclick={() => {
+										onclick={async () => {
 											if (resultAutoMatchEnabled) {
 												const isSelectedTemp = isSelected;
 
-												Object.entries(searchResults).forEach(([pId, seriesList]) => {
-													const matchingSeries = seriesList.filter(
-														(s) =>
-															s.title.toLowerCase().trim() === series.title.toLowerCase().trim() &&
-															s.type === series.type &&
-															(s.bookType && series.bookType
-																? s.bookType === series.bookType
-																: true) &&
-															(s.publicationType && series.publicationType
-																? s.publicationType === series.publicationType
-																: true)
-													);
-													matchingSeries.forEach((s) => toggleSeries(pId, s, !isSelectedTemp));
-												});
+												const mappedData = await api.getMappedSeries(provider.id, series.id);
+
+												if (mappedData.data.length > 0 && mappedData.errors.length === 0) {
+													for (const mappedSeries of mappedData.data) {
+														const pId = mappedSeries.providerId;
+														const providerResults = searchResults[pId];
+														if (!providerResults) continue;
+														const match = providerResults.find((s) => s.id === mappedSeries.id);
+														if (match) await toggleSeries(pId, match, !isSelectedTemp);
+													}
+												} else {
+													Object.entries(searchResults).forEach(([pId, seriesList]) => {
+														const matchingSeries = seriesList.filter(
+															(s) =>
+																s.title.toLowerCase().trim() ===
+																	series.title.toLowerCase().trim() &&
+																s.type === series.type &&
+																(s.bookType && series.bookType
+																	? s.bookType === series.bookType
+																	: true) &&
+																(s.publicationType && series.publicationType
+																	? s.publicationType === series.publicationType
+																	: true)
+														);
+														matchingSeries.forEach((s) => toggleSeries(pId, s, !isSelectedTemp));
+													});
+												}
 
 												return;
 											}
@@ -429,10 +474,19 @@
 				>
 					<li>
 						<button onclick={() => copySelectedLinksToClipboard()}>
-							<CopyIcon bind:value={linksCopied} class="size-4" />
+							<DynamicIcon bind:value={linksCopied} class="size-4" />
 							Copy Links
 						</button>
 					</li>
+
+					{#if userState.session && ALLOWED_EDIT_ROLES.includes(userState.session.role)}
+						<li>
+							<button onclick={() => saveSeriesMapping()} disabled={selectedSeriesCount < 2}>
+								<DynamicIcon icon={Link2} bind:value={mappingStatus} class="size-4" />
+								Map Series
+							</button>
+						</li>
+					{/if}
 				</ul>
 			</div>
 

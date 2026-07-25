@@ -9,6 +9,7 @@
 		EllipsisVertical,
 		Expand,
 		ExternalLink,
+		Link2,
 		Pencil,
 		Shrink,
 		SquareCheckBig,
@@ -34,8 +35,11 @@
 		bookSortOrderSetting,
 		fileSystemFolderSetting,
 		matureContentSetting,
+		ALLOWED_EDIT_ROLES,
+		autoMapSetting,
 	} from '../lib/svelte/settings.svelte.ts';
-	import CopyIcon from './CopyIcon.svelte';
+	import userState from '../lib/svelte/user.svelte.ts';
+	import DynamicIcon from './DynamicIcon.svelte';
 	import Pagination from './Pagination.svelte';
 	import { onMount } from 'svelte';
 	import Downloader from '../lib/svelte/downloader.svelte.ts';
@@ -71,6 +75,10 @@
 		downloader.page = parseInt(getSvelteSearchParam('page') || '1');
 		downloader.incrementPages = getSvelteSearchParam('increment') === 'true';
 		downloader.selectedBookPage = parseInt(getSvelteSearchParam('bookPage') || '0');
+
+		if (autoMapSetting.value) {
+			downloader.mbId = getSvelteSearchParam('mb_id') || null;
+		}
 
 		await downloader.initialize();
 
@@ -301,7 +309,7 @@
 										onclick={() => downloader.copyCoverLink(book)}
 										class="btn btn-circle btn-neutral btn-sm shadow-sm"
 									>
-										<CopyIcon
+										<DynamicIcon
 											bind:value={
 												() =>
 													downloader.copyValues.get(`book-${book.provider.id}-${book.id}`) || null,
@@ -417,6 +425,23 @@
 						Cancel
 					</button>
 
+					{#if userState.session && ALLOWED_EDIT_ROLES.includes(userState.session.role)}
+						<button
+							onclick={() => downloader.saveSeriesMapping()}
+							class="btn btn-lg btn-soft shadow-lg"
+						>
+							<DynamicIcon
+								icon={Link2}
+								bind:value={
+									() => downloader.copyValues.get('series-mapping') || null,
+									(v) => downloader.copyValues.set('series-mapping', v || null)
+								}
+								class="size-6"
+							/>
+							Map All Series
+						</button>
+					{/if}
+
 					<div class="indicator">
 						{#if downloader.editedBooks.length > 1}
 							<span class="indicator-item badge badge-primary badge-soft font-semibold">
@@ -531,7 +556,7 @@
 									class="disabled:opacity-50 sm:hidden"
 									disabled={!downloader.isSomeSelected}
 								>
-									<CopyIcon
+									<DynamicIcon
 										bind:value={
 											() => downloader.copyValues.get('selected-links') || null,
 											(v) => downloader.copyValues.set('selected-links', v || null)
@@ -626,7 +651,7 @@
 						class="btn btn-lg btn-soft hidden shadow-lg sm:inline-flex"
 						disabled={!downloader.isSomeSelected}
 					>
-						<CopyIcon
+						<DynamicIcon
 							bind:value={
 								() => downloader.copyValues.get('selected-links') || null,
 								(v) => downloader.copyValues.set('selected-links', v || null)

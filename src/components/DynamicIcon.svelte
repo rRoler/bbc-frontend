@@ -5,7 +5,13 @@
 		class: className = 'size-4',
 		value = $bindable(null),
 		resetDelayMs = 500,
-	}: { class?: string; value?: boolean | null; resetDelayMs?: number } = $props();
+		icon: Icon = Copy,
+	}: {
+		class?: string;
+		value?: boolean | null;
+		resetDelayMs?: number;
+		icon?: typeof Copy;
+	} = $props();
 
 	$effect(() => {
 		if (value === null) return;
@@ -25,5 +31,5 @@
 {:else if value === false}
 	<X class="text-error {className}" />
 {:else}
-	<Copy class={className} />
+	<Icon class={className} />
 {/if}

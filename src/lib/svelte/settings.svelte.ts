@@ -508,6 +508,17 @@ export const fileSystemFolderSetting = new Setting<FileSystemFolderPickerSetting
 	defaultValue: undefined,
 });
 
+export const autoMapSetting = new Setting<ToggleSetting>({
+	id: 'auto-map',
+	type: 'toggle',
+	name: 'Auto-Map',
+	tooltip: 'Automatically map series when downloading',
+	description: 'Pass external IDs to the downloader and auto-map series on download/copy',
+	defaultValue: true,
+	loginOnly: true,
+	allowedRoles: ALLOWED_EDIT_ROLES,
+});
+
 export const downloadSettings = new SettingsField({
 	name: 'Download',
 	settings: [
@@ -554,7 +565,7 @@ export const editAutoSyncSetting = new Setting<ToggleSetting>({
 
 export const userSettings = new SettingsField({
 	name: 'User',
-	settings: [userLoginSetting, editAutoSyncSetting],
+	settings: [userLoginSetting, editAutoSyncSetting, autoMapSetting],
 });
 
 const allSettingsFields = [generalSettings, searchSettings, downloadSettings, userSettings];

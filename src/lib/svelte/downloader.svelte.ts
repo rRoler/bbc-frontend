@@ -26,6 +26,7 @@ import {
 	zipThreshold,
 	userSettings,
 	editAutoSyncSetting,
+	autoMapSetting,
 } from './settings.svelte.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
 import { PROVIDER_LANG_PARAM_KEY } from '../../components/ProviderLangSelector.svelte';
@@ -112,6 +113,8 @@ class Downloader {
 	allAvailableLanguages = $state<string[]>([]);
 
 	fileSystem = $state<FileSystem | null>(null);
+
+	mbId = $state<string | null>(null);
 
 	isNextPage = $derived<boolean>(this.page < this.maxPage);
 	canBeAutomaticallyPicked = $derived<boolean>(
@@ -994,14 +997,70 @@ class Downloader {
 
 		this.knownFilenames = {};
 		this.downloadProgress = undefined;
+		await this.autoMapSeries();
 	}
 
 	async copySelectedLinks(): Promise<void> {
 		await this.copyLinksToClipboard(this.sortedSelectedBooks, 'selected-links');
+		await this.autoMapSeries();
 	}
 
 	async copyCoverLink(book: Book): Promise<void> {
 		await this.copyLinksToClipboard([book], `book-${book.provider.id}-${book.id}`);
+	}
+
+	private getAllSeries(): { providerId: string; id: string }[] {
+		const series: { providerId: string; id: string }[] = [];
+
+		for (const book of this.allBooks) {
+			const seriesId = book.seriesId;
+			if (!seriesId) continue;
+
+			const key = `${book.provider.id}-${seriesId}`;
+			if (!series.some((s) => `${s.providerId}-${s.id}` === key)) {
+				series.push({ providerId: book.provider.id, id: seriesId });
+			}
+		}
+
+		return series;
+	}
+
+	private async mapSeriesInternal(series: { providerId: string; id: string }[]): Promise<boolean> {
+		if (series.length < 2) return false;
+
+		const result = await this.api.mapSeries(series);
+
+		if (result.errors.length > 0) {
+			result.errors.forEach((e) => addAppError(e));
+			return false;
+		}
+
+		return true;
+	}
+
+	async saveSeriesMapping(): Promise<void> {
+		this.copyValues.set('series-mapping', await this.mapSeriesInternal(this.getAllSeries()));
+	}
+
+	private lastMappedSeriesKey: string | null = null;
+
+	private async autoMapSeries(): Promise<void> {
+		if (!autoMapSetting.value) return;
+
+		const series = this.getAllSeries();
+
+		if (this.mbId && !series.some((s) => s.providerId === 'mb' && s.id === this.mbId)) {
+			series.push({ providerId: 'mb', id: this.mbId });
+		}
+
+		const key = series
+			.map((s) => `${s.providerId}:${s.id}`)
+			.sort()
+			.join(',');
+		if (key === this.lastMappedSeriesKey) return;
+		this.lastMappedSeriesKey = key;
+
+		await this.mapSeriesInternal(series);
 	}
 
 	toggleEditMode() {

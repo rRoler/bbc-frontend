@@ -513,8 +513,8 @@ export default class BBC_API {
 	}
 
 	async mapSeries(
-		mappedId: string,
-		series: { providerId: string; id: string }[]
+		series: { providerId: string; id: string }[],
+		mappedId?: string
 	): Promise<BBCByProviderResult<BBCSeries>> {
 		const allData: BBCByProviderResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
 		const chunks = this.chopArray(series, this.editMaxCount);
@@ -522,10 +522,14 @@ export default class BBC_API {
 		await Promise.all(
 			chunks.map(async (chunk) => {
 				try {
+					const body: Record<string, unknown> = { series: chunk };
+					if (mappedId) {
+						body.mappedId = mappedId;
+					}
 					const res = await fetch(`${this.apiUrl}/map`, {
 						method: 'PATCH',
 						headers: { 'Content-Type': 'application/json', ...userState.headers },
-						body: JSON.stringify({ mappedId, series: chunk }),
+						body: JSON.stringify(body),
 					});
 
 					const { data } = await res.json();
