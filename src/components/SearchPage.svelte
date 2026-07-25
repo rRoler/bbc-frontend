@@ -21,7 +21,6 @@
 		textVariables,
 		matureContentSetting,
 		ALLOWED_EDIT_ROLES,
-		autoMapSetting,
 	} from '../lib/svelte/settings.svelte.ts';
 	import userState from '../lib/svelte/user.svelte.ts';
 	import { onMount } from 'svelte';
@@ -50,11 +49,9 @@
 			series.forEach((s) => params.append(`${s.type}(${providerId})`, s.id));
 		});
 
-		if (autoMapSetting.value) {
-			const mbId = getSvelteSearchParam('mb_id');
-			if (mbId) {
-				params.append('mb_id', mbId);
-			}
+		const mbId = getSvelteSearchParam('mb_id');
+		if (mbId) {
+			params.append('mb_id', mbId);
 		}
 
 		return `${basePath}?${params.toString()}`;
@@ -102,6 +99,14 @@
 					searchResults = response.data;
 					for (let searchResultsKey in searchResults) {
 						loadingProviders?.delete(searchResultsKey);
+						if (searchResultsKey === 'mb') {
+							const mbId = getSvelteSearchParam('mb_id');
+							const mbSeries = searchResults[searchResultsKey].find((r) => r.id === mbId);
+							if (mbSeries) {
+								const isSelected = selectedSeries['mb']?.some((s) => s.id === mbSeries.id);
+								if (!isSelected) toggleSeries('mb', mbSeries, true);
+							}
+						}
 					}
 					updateLocationStorage();
 				},
