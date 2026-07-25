@@ -568,6 +568,6 @@ export const userSettings = new SettingsField({
 	settings: [userLoginSetting, editAutoSyncSetting, autoMapSetting],
 });
 
-const allSettingsFields = [generalSettings, searchSettings, downloadSettings, userSettings];
+const allSettingsFields = [userSettings, generalSettings, searchSettings, downloadSettings];
 
 export default allSettingsFields;
