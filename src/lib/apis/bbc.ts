@@ -40,6 +40,7 @@ export interface BBCListResult<T> {
 
 export interface BBCSeries {
 	id: string;
+	providerId: string;
 	url: string;
 	type: 'series' | 'book';
 	title: string;
@@ -83,6 +84,7 @@ export interface BBCSeries {
 
 export interface BBCBook {
 	id: string;
+	providerId: string;
 	url: string;
 	title: string;
 	cover: string;
