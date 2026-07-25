@@ -54,16 +54,25 @@
 
 			{#each field.settings as setting, settingIndex (setting.id)}
 				{@const sessionRole = userState.session?.role}
-				{@const isDisabled =
-					(setting.loginOnly && !userState.session) ||
-					(!!setting.allowedRoles && (!sessionRole || !setting.allowedRoles.includes(sessionRole)))}
+				{@const isLoginDisabled = setting.loginOnly && !userState.session}
+				{@const isUserRoleDisabled =
+					!!setting.allowedRoles && (!sessionRole || !setting.allowedRoles.includes(sessionRole))}
+				{@const isDisabled = isLoginDisabled || isUserRoleDisabled}
 				{@const disabledClass = isDisabled ? 'cursor-not-allowed opacity-50' : ''}
+				{@const roleString = `have one of the following roles on MangaBaka: ${setting.allowedRoles?.join(', ')}`}
 
 				<div id={setting.id} class="label text-base-content text-base {disabledClass}">
 					<a href="#{setting.id}">{setting.name}</a>
 
-					{#if setting.tooltip}
-						<Tooltip position="top" tip={setting.tooltip}>
+					{#if setting.tooltip || isDisabled}
+						<Tooltip
+							position="top"
+							tip={isLoginDisabled
+								? `You must login to use this setting${setting.allowedRoles ? ' and ' + roleString : ''} `
+								: isUserRoleDisabled
+									? `You must ${roleString}`
+									: (setting.tooltip ?? '')}
+						>
 							<Info class="size-4 cursor-help" />
 						</Tooltip>
 					{/if}
