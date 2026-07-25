@@ -22,6 +22,7 @@
 	import {
 		addKeyboardShortcut,
 		getSvelteSearchParam,
+		removeSvelteSearchParam,
 		setSvelteSearchParam,
 		unfocusAndExecute,
 	} from '../lib/utils.ts';
@@ -77,7 +78,8 @@
 		downloader.selectedBookPage = parseInt(getSvelteSearchParam('bookPage') || '0');
 
 		if (autoMapSetting.value) {
-			downloader.mbId = getSvelteSearchParam('mb_id') || null;
+			downloader.mbId = getSvelteSearchParam('mb_id');
+			removeSvelteSearchParam('mb_id');
 		}
 
 		await downloader.initialize();

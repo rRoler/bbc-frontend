@@ -9,6 +9,7 @@
 		addKeyHold,
 		getLocaleName,
 		getSvelteSearchParam,
+		removeSvelteSearchParam,
 		replaceTextVariables,
 		setSvelteSearchParam,
 	} from '../lib/utils.ts';
@@ -41,6 +42,7 @@
 	let searchResults = $state<Record<string, BBCSeriesSearchResult[]>>({});
 	let selectedSeries = $state<Record<string, BBCSeriesSearchResult[]>>({});
 	let selectedSeriesCount = $derived(Object.values(selectedSeries).flat().length);
+	let mbId = $state<string | null>();
 	let openLink = $derived.by(() => {
 		const basePath = downloadLocation.path;
 		const params = new SvelteURLSearchParams();
@@ -49,7 +51,6 @@
 			series.forEach((s) => params.append(`${s.type}(${providerId})`, s.id));
 		});
 
-		const mbId = getSvelteSearchParam('mb_id');
 		if (mbId) {
 			params.append('mb_id', mbId);
 		}
@@ -100,7 +101,6 @@
 					for (let searchResultsKey in searchResults) {
 						loadingProviders?.delete(searchResultsKey);
 						if (searchResultsKey === 'mb') {
-							const mbId = getSvelteSearchParam('mb_id');
 							const mbSeries = searchResults[searchResultsKey].find((r) => r.id === mbId);
 							if (mbSeries) {
 								const isSelected = selectedSeries['mb']?.some((s) => s.id === mbSeries.id);
@@ -241,6 +241,9 @@
 			searchQuery = query;
 			handleSubmit();
 		}
+
+		mbId = getSvelteSearchParam('mb_id');
+		removeSvelteSearchParam('mb_id');
 
 		appState.loading = false;
 	});
