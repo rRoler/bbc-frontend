@@ -147,6 +147,19 @@ export interface StatusEndpointResult {
 	error?: string;
 }
 
+export interface BBCProvider {
+	id: string;
+	name: string;
+	icon: string;
+	locale: string;
+	colors: { primary: string; secondary: string };
+	supportedEndpoints: ProviderEndpoint[];
+	enabledByDefault: boolean;
+	defaultPriority: number;
+	volumePrefix: string | null;
+	ignoreErrors: boolean;
+}
+
 export type BBCSort = 'asc' | 'desc';
 
 export const endpointKeys = [
@@ -397,9 +410,7 @@ export default class BBC_API {
 		if (!res.ok) {
 			throw new BBC_API_Error(`Failed to fetch providers: HTTP ${res.status} ${res.statusText}`);
 		}
-		const { data } = (await res.json()) as {
-			data: Array<Record<string, unknown> & { defaultPriority: number; enabledByDefault: boolean }>;
-		};
+		const { data } = (await res.json()) as { data: BBCProvider[] };
 		return data.map((p) => ({
 			...p,
 			priority: p.defaultPriority,

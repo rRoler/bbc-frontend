@@ -13,9 +13,9 @@ export interface Provider {
 	};
 	priority: number;
 	enabled: boolean;
-	ignoreErrors?: boolean;
+	ignoreErrors: boolean;
 	supportedEndpoints: ProviderEndpoint[];
-	volumePrefix?: string;
+	volumePrefix: string | null;
 }
 
 export interface ProviderStorageEntry {

@@ -414,7 +414,7 @@ class Downloader {
 		return books.filter((book) => booksToKeep.has(book));
 	}
 
-	private parseVolumeName(book: BBCBook, options?: { forcePrefix?: string }): string {
+	private parseVolumeName(book: BBCBook, options?: { forcePrefix?: string | null }): string {
 		let volumePrefix: string;
 		if (options?.forcePrefix) {
 			volumePrefix = options.forcePrefix;
