@@ -74,6 +74,9 @@ export interface BBCSeries {
 	malId: string | null;
 	mbId: string | null;
 	shikiId: string | null;
+}
+
+export interface BBCSeriesDetail extends BBCSeries {
 	mappedId: string | null;
 	mappedSource: 'automatic' | 'manual' | null;
 	mappedAt: string | null;
@@ -108,6 +111,9 @@ export interface BBCBook {
 	format: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook' | null;
 	originalPrice: number | null;
 	fileSize: string | null;
+}
+
+export interface BBCBookDetail extends BBCBook {
 	lastFetchedAt: string | null;
 	createdAt: string | null;
 	updatedAt: string | null;
@@ -236,14 +242,18 @@ export default class BBC_API {
 		return allData;
 	}
 
-	async getSeries(
+	async getSeries<D extends boolean = false>(
 		seriesIds: Record<string, string[]>,
-		bookIds?: Record<string, string[]>
-	): Promise<BBCByProviderResult<BBCSeries>> {
-		const allData: BBCByProviderResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
+		bookIds?: Record<string, string[]>,
+		detail?: D
+	): Promise<BBCByProviderResult<D extends true ? BBCSeriesDetail : BBCSeries>> {
+		type Result = D extends true ? BBCSeriesDetail : BBCSeries;
+		const allData: BBCByProviderResult<Result> = { data: {}, count: 0, pages: 0, errors: [] };
 
 		try {
 			const url = new URL(`${this.apiUrl}/series`);
+
+			if (detail) url.searchParams.set('detail', 'true');
 
 			const appendSeriesIds = (seriesType: BBCSeries['type'], ids: Record<string, string[]>) =>
 				Object.entries(ids).forEach(([providerId, sIds]) =>
@@ -256,7 +266,7 @@ export default class BBC_API {
 			if (bookIds) appendSeriesIds('book', bookIds);
 
 			const res = await fetch(url);
-			const data: BBCByProviderResponse<BBCSeries> = await res.json();
+			const data: BBCByProviderResponse<Result> = await res.json();
 
 			if (data.error) {
 				allData.errors.push(new BBC_API_Error(`${data.error}`));
@@ -271,14 +281,16 @@ export default class BBC_API {
 		return allData;
 	}
 
-	async getBooks(
+	async getBooks<D extends boolean = false>(
 		seriesIds: Record<string, string[]>,
 		bookIds: Record<string, string[]>,
 		sort: BBCSort = 'desc',
 		page: number = 1,
-		langs: Record<string, string[]> = {}
-	): Promise<BBCByProviderResult<BBCBook>> {
-		const allData: BBCByProviderResult<BBCBook> = { data: {}, count: 0, pages: 0, errors: [] };
+		langs: Record<string, string[]> = {},
+		detail?: D
+	): Promise<BBCByProviderResult<D extends true ? BBCBookDetail : BBCBook>> {
+		type Result = D extends true ? BBCBookDetail : BBCBook;
+		const allData: BBCByProviderResult<Result> = { data: {}, count: 0, pages: 0, errors: [] };
 
 		const fetchAll = async (seriesType: BBCSeries['type'], ids: Record<string, string[]>) =>
 			await Promise.all(
@@ -289,6 +301,7 @@ export default class BBC_API {
 
 							const booksUrl = new URL(`${this.apiUrl}/books`);
 
+							if (detail) booksUrl.searchParams.set('detail', 'true');
 							booksUrl.searchParams.set('sort', sort);
 							booksUrl.searchParams.set('page', page.toString());
 							booksUrl.searchParams.append(`${seriesType}(${providerId})`, seriesId);
@@ -299,7 +312,7 @@ export default class BBC_API {
 
 							try {
 								const res = await fetch(booksUrl);
-								const data: BBCByProviderResponse<BBCBook> = await res.json();
+								const data: BBCByProviderResponse<Result> = await res.json();
 
 								if (data.error) {
 									allData.errors.push(new BBC_API_Error(`${providerId}: ${data.error}`));
@@ -434,8 +447,13 @@ export default class BBC_API {
 
 	async editBooks(
 		books: { providerId: string; book: BBCBook }[]
-	): Promise<BBCByProviderResult<BBCBook>> {
-		const allData: BBCByProviderResult<BBCBook> = { data: {}, count: 0, pages: 0, errors: [] };
+	): Promise<BBCByProviderResult<BBCBookDetail>> {
+		const allData: BBCByProviderResult<BBCBookDetail> = {
+			data: {},
+			count: 0,
+			pages: 0,
+			errors: [],
+		};
 		const chunks = this.chopArray(books, this.editMaxCount);
 
 		await Promise.all(
@@ -468,14 +486,17 @@ export default class BBC_API {
 		return allData;
 	}
 
-	async getMappedSeries(providerId: string, seriesId: string): Promise<BBCListResult<BBCSeries>> {
-		const allData: BBCListResult<BBCSeries> = { data: [], count: 0, pages: 0, errors: [] };
+	async getMappedSeries(
+		providerId: string,
+		seriesId: string
+	): Promise<BBCListResult<BBCSeriesDetail>> {
+		const allData: BBCListResult<BBCSeriesDetail> = { data: [], count: 0, pages: 0, errors: [] };
 
 		try {
 			const res = await fetch(
 				`${this.apiUrl}/map/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`
 			);
-			const data: BBCListResponse<BBCSeries> = await res.json();
+			const data: BBCListResponse<BBCSeriesDetail> = await res.json();
 
 			if (data.error) {
 				allData.errors.push(new BBC_API_Error(data.error));
@@ -491,12 +512,17 @@ export default class BBC_API {
 		return allData;
 	}
 
-	async getSeriesByMappedId(mappedId: string): Promise<BBCByProviderResult<BBCSeries>> {
-		const allData: BBCByProviderResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
+	async getSeriesByMappedId(mappedId: string): Promise<BBCByProviderResult<BBCSeriesDetail>> {
+		const allData: BBCByProviderResult<BBCSeriesDetail> = {
+			data: {},
+			count: 0,
+			pages: 0,
+			errors: [],
+		};
 
 		try {
 			const res = await fetch(`${this.apiUrl}/map/${encodeURIComponent(mappedId)}`);
-			const data: BBCByProviderResponse<BBCSeries> = await res.json();
+			const data: BBCByProviderResponse<BBCSeriesDetail> = await res.json();
 
 			if (data.error) {
 				allData.errors.push(new BBC_API_Error(data.error));
@@ -515,8 +541,13 @@ export default class BBC_API {
 	async mapSeries(
 		series: { providerId: string; id: string }[],
 		mappedId?: string
-	): Promise<BBCByProviderResult<BBCSeries>> {
-		const allData: BBCByProviderResult<BBCSeries> = { data: {}, count: 0, pages: 0, errors: [] };
+	): Promise<BBCByProviderResult<BBCSeriesDetail>> {
+		const allData: BBCByProviderResult<BBCSeriesDetail> = {
+			data: {},
+			count: 0,
+			pages: 0,
+			errors: [],
+		};
 		const chunks = this.chopArray(series, this.editMaxCount);
 
 		await Promise.all(

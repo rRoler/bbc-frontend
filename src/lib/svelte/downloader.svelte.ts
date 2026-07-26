@@ -315,10 +315,6 @@ class Downloader {
 			vars.push([textVariables.bookFormat, book.format ?? '']);
 			vars.push([textVariables.bookOriginalPrice, book.originalPrice?.toString() ?? '']);
 			vars.push([textVariables.bookFileSize, book.fileSize ?? '']);
-			vars.push([textVariables.bookLastFetchedAt, book.lastFetchedAt ?? '']);
-			vars.push([textVariables.bookCreatedAt, book.createdAt ?? '']);
-			vars.push([textVariables.bookUpdatedAt, book.updatedAt ?? '']);
-
 			const bookSeries = this.getBookSeries(book);
 			if (bookSeries) {
 				vars.push([textVariables.seriesTitle, bookSeries.title]);
@@ -352,13 +348,7 @@ class Downloader {
 				vars.push([textVariables.seriesMalId, bookSeries.malId ?? '']);
 				vars.push([textVariables.seriesMbId, bookSeries.mbId ?? '']);
 				vars.push([textVariables.seriesShikiId, bookSeries.shikiId ?? '']);
-				vars.push([textVariables.seriesMappedId, bookSeries.mappedId ?? '']);
-				vars.push([textVariables.seriesMappedSource, bookSeries.mappedSource ?? '']);
-				vars.push([textVariables.seriesMappedAt, bookSeries.mappedAt ?? '']);
 				vars.push([textVariables.seriesLastUpdated, bookSeries.lastUpdated ?? '']);
-				vars.push([textVariables.seriesLastFetchedAt, bookSeries.lastFetchedAt ?? '']);
-				vars.push([textVariables.seriesCreatedAt, bookSeries.createdAt ?? '']);
-				vars.push([textVariables.seriesUpdatedAt, bookSeries.updatedAt ?? '']);
 			} else {
 				vars.push([textVariables.seriesId, book.seriesId || '0']);
 			}

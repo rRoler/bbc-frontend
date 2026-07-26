@@ -74,9 +74,6 @@
 			textVariables.bookTranslator,
 			textVariables.bookFormat,
 			textVariables.bookFileSize,
-			textVariables.bookLastFetchedAt,
-			textVariables.bookCreatedAt,
-			textVariables.bookUpdatedAt,
 		],
 		series: [
 			textVariables.seriesTitle,
@@ -111,12 +108,7 @@
 			textVariables.seriesMalId,
 			textVariables.seriesMbId,
 			textVariables.seriesShikiId,
-			textVariables.seriesMappedId,
-			textVariables.seriesMappedSource,
 			textVariables.seriesLastUpdated,
-			textVariables.seriesLastFetchedAt,
-			textVariables.seriesCreatedAt,
-			textVariables.seriesUpdatedAt,
 		],
 		provider: [
 			textVariables.providerName,
