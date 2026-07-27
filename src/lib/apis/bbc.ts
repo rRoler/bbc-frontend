@@ -78,7 +78,7 @@ export interface BBCSeries {
 
 export interface BBCSeriesDetail extends BBCSeries {
 	mappedId: string | null;
-	mappedSource: 'automatic' | 'manual' | null;
+	mappedBy: string | null;
 	mappedAt: string | null;
 	lastFetchedAt: string | null;
 	createdAt: string | null;
