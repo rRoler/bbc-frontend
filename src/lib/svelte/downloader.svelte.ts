@@ -667,6 +667,7 @@ class Downloader {
 
 	async resetAll(): Promise<void> {
 		appState.loading = true;
+		this.maxPage = 1;
 		this.fetchedPages = [];
 		this.allBooks = [];
 		this.selectedBooks = [];
