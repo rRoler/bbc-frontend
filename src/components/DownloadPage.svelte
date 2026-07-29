@@ -418,6 +418,36 @@
 				class="sticky bottom-4 left-0 flex w-full flex-row items-center justify-center gap-2 pt-4 sm:gap-4"
 			>
 				{#if downloader.isEditMode}
+					{#if userState.session && ALLOWED_EDIT_ROLES.includes(userState.session.role)}
+						<div class="dropdown dropdown-top sm:hidden">
+							<div tabindex="0" role="button" class="btn btn-lg btn-circle btn-soft sm:hidden">
+								<EllipsisVertical class="size-6" />
+							</div>
+
+							<ul
+								tabindex="-1"
+								class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm sm:hidden"
+							>
+								<li>
+									<button
+										onclick={() => unfocusAndExecute(() => downloader.saveSeriesMapping())}
+										class="disabled:opacity-50"
+									>
+										<DynamicIcon
+											icon={Link2}
+											bind:value={
+												() => downloader.copyValues.get('series-mapping') || null,
+												(v) => downloader.copyValues.set('series-mapping', v || null)
+											}
+											class="size-6"
+										/>
+										Map All Series
+									</button>
+								</li>
+							</ul>
+						</div>
+					{/if}
+
 					<button
 						onclick={() => downloader.cancelEdits()}
 						class="btn btn-lg btn-soft shadow-lg"
@@ -430,7 +460,7 @@
 					{#if userState.session && ALLOWED_EDIT_ROLES.includes(userState.session.role)}
 						<button
 							onclick={() => downloader.saveSeriesMapping()}
-							class="btn btn-lg btn-soft shadow-lg"
+							class="btn btn-lg btn-soft hidden shadow-lg sm:inline-flex"
 						>
 							<DynamicIcon
 								icon={Link2}
