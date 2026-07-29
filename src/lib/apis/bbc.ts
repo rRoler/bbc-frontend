@@ -44,7 +44,7 @@ export interface BBCSeries {
 	url: string;
 	type: 'series' | 'book';
 	title: string;
-	thumbnail: string;
+	thumbnail: string | null;
 	bookType: 'manga' | 'novel' | 'webtoon' | 'audiobook' | null;
 	publicationType: 'physical' | 'digital' | null;
 	isMature: boolean;

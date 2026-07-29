@@ -320,7 +320,7 @@ class Downloader {
 			const bookSeries = this.getBookSeries(book);
 			if (bookSeries) {
 				vars.push([textVariables.seriesTitle, bookSeries.title]);
-				vars.push([textVariables.seriesThumbnailUrl, bookSeries.thumbnail]);
+				vars.push([textVariables.seriesThumbnailUrl, bookSeries.thumbnail ?? '']);
 				vars.push([textVariables.seriesPublicationType, bookSeries.publicationType || 'digital']);
 				vars.push([textVariables.seriesBookType, bookSeries.bookType || '']);
 				vars.push([textVariables.seriesType, bookSeries.type]);

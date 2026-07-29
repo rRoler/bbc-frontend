@@ -463,7 +463,7 @@
 
 										<figure class="z-0 size-full">
 											<Image
-												src={imageApi.getUrl(series.thumbnail, { width: 168 }).href}
+												src={series.thumbnail ? imageApi.getUrl(series.thumbnail, { width: 168 }).href : ''}
 												alt="{series.title} series thumbnail"
 												class="w-full {series.isMature &&
 												matureContentSetting.value === 'blur' &&
