@@ -177,7 +177,13 @@ export class Setting<T extends SettingType> {
 	load() {
 		const local = readLocalSettings();
 		if (local && local.data[this.id] !== undefined) {
-			this.storedValue = this.cloneValue(local.data[this.id] as T['currentValue']);
+			const raw = local.data[this.id];
+			if (typeof raw !== typeof this.defaultValue) {
+				this.value = this.defaultValue;
+				this.storedValue = this.cloneValue(this.value);
+				return;
+			}
+			this.storedValue = this.cloneValue(raw as T['currentValue']);
 			this.value = this.storedValue;
 		} else {
 			this.value = this.defaultValue;
