@@ -171,6 +171,13 @@ export class Setting<T extends SettingType> {
 		return Array.isArray(value) ? [...value] : value;
 	}
 
+	private getExpectedType(): string {
+		if (this.type === 'toggle') return 'boolean';
+		if (this.type === 'range') return 'number';
+		if (this.type === 'provider-select' || this.type === 'provider-editor') return 'object';
+		return 'string';
+	}
+
 	reset() {
 		this.value = this.defaultValue;
 	}
@@ -178,10 +185,13 @@ export class Setting<T extends SettingType> {
 		const local = readLocalSettings();
 		if (local && local.data[this.id] !== undefined) {
 			const raw = local.data[this.id];
-			if (typeof raw !== typeof this.defaultValue) {
-				this.value = this.defaultValue;
-				this.storedValue = this.cloneValue(this.value);
-				return;
+			if (raw != null || this.defaultValue != null) {
+				const expected = this.getExpectedType();
+				if (typeof raw !== expected) {
+					this.value = this.defaultValue;
+					this.storedValue = this.cloneValue(this.value);
+					return;
+				}
 			}
 			this.storedValue = this.cloneValue(raw as T['currentValue']);
 			this.value = this.storedValue;
