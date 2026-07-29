@@ -246,7 +246,8 @@ export const textVariables = {
 	bookTags: 'BOOK_TAGS',
 	bookRating: 'BOOK_RATING',
 	bookRatingCount: 'BOOK_RATING_COUNT',
-	bookLanguage: 'BOOK_LANGUAGE',
+	bookLanguageCode: 'BOOK_LANGUAGE_CODE',
+	bookLanguageName: 'BOOK_LANGUAGE_NAME',
 	bookTranslator: 'BOOK_TRANSLATOR',
 	bookFormat: 'BOOK_FORMAT',
 	bookOriginalPrice: 'BOOK_ORIGINAL_PRICE',
@@ -266,7 +267,8 @@ export const textVariables = {
 	seriesStatus: 'SERIES_STATUS',
 	seriesRating: 'SERIES_RATING',
 	seriesRatingCount: 'SERIES_RATING_COUNT',
-	seriesLanguage: 'SERIES_LANGUAGE',
+	seriesLanguageCode: 'SERIES_LANGUAGE_CODE',
+	seriesLanguageName: 'SERIES_LANGUAGE_NAME',
 	seriesTranslator: 'SERIES_TRANSLATOR',
 	seriesFormat: 'SERIES_FORMAT',
 	seriesReadingDirection: 'SERIES_READING_DIRECTION',
@@ -337,12 +339,68 @@ export const generalSettings = new SettingsField({
 	settings: [themeSetting, configuredProvidersSetting, matureContentSetting],
 });
 
-export const autoMatchResultsSetting = new Setting<ToggleSetting>({
+export type AutoMatchLevel =
+	| 'off'
+	| 'title'
+	| 'title+booktype'
+	| 'title+pub'
+	| 'title+type'
+	| 'title+type+booktype'
+	| 'title+type+pub'
+	| 'title+booktype+pub'
+	| 'full'
+	| 'mapped'
+	| 'mapped+title'
+	| 'mapped+title+booktype'
+	| 'mapped+title+pub'
+	| 'mapped+title+type'
+	| 'mapped+title+type+booktype'
+	| 'mapped+title+type+pub'
+	| 'mapped+title+booktype+pub'
+	| 'mapped+full';
+
+export function matchFlagsFromLevel(level: AutoMatchLevel) {
+	return {
+		useMapped: level !== 'off' && level.startsWith('mapped'),
+		matchTitle: level !== 'off' && level !== 'mapped',
+		matchType:
+			level.includes('+type') && !level.includes('booktype')
+				? true
+				: level.includes('+type+') || level === 'full' || level === 'mapped+full',
+		matchBookType: level.includes('booktype'),
+		matchPub: level.includes('pub') || level === 'full' || level === 'mapped+full',
+	};
+}
+
+export const autoMatchResultsSetting = new Setting<SelectSetting<SelectOption<AutoMatchLevel>>>({
 	id: 'results-auto-match',
-	type: 'toggle',
+	type: 'select',
+	options: [
+		{ label: 'Off', value: 'off' },
+		{ label: 'Mapped Only', value: 'mapped' },
+		{ label: 'Mapped or Title', value: 'mapped+title' },
+		{ label: 'Mapped or Title + Type', value: 'mapped+title+type' },
+		{ label: 'Mapped or Title + Book Type', value: 'mapped+title+booktype' },
+		{ label: 'Mapped or Title + Publication Type', value: 'mapped+title+pub' },
+		{ label: 'Mapped or Title + Type + Book Type', value: 'mapped+title+type+booktype' },
+		{ label: 'Mapped or Title + Type + Publication Type', value: 'mapped+title+type+pub' },
+		{
+			label: 'Mapped or Title + Book Type + Publication Type',
+			value: 'mapped+title+booktype+pub',
+		},
+		{ label: 'Mapped or Full Match', value: 'mapped+full' },
+		{ label: 'Title Only', value: 'title' },
+		{ label: 'Title + Type', value: 'title+type' },
+		{ label: 'Title + Book Type', value: 'title+booktype' },
+		{ label: 'Title + Publication Type', value: 'title+pub' },
+		{ label: 'Title + Type + Book Type', value: 'title+type+booktype' },
+		{ label: 'Title + Type + Publication Type', value: 'title+type+pub' },
+		{ label: 'Title + Book Type + Publication Type', value: 'title+booktype+pub' },
+		{ label: 'Full Match (All Criteria)', value: 'full' },
+	],
 	name: 'Auto-Match Results',
-	description: 'Automatically match series/book results by default',
-	defaultValue: true,
+	description: 'Automatically match series results by default',
+	defaultValue: 'mapped+title+booktype',
 });
 
 export const searchCopyFormatSetting = new Setting<TextAreaSetting>({

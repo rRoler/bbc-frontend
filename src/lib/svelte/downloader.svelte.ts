@@ -311,7 +311,8 @@ class Downloader {
 			vars.push([textVariables.bookTags, book.tags?.join(', ') ?? '']);
 			vars.push([textVariables.bookRating, book.rating?.toString() ?? '']);
 			vars.push([textVariables.bookRatingCount, book.ratingCount?.toString() ?? '']);
-			vars.push([textVariables.bookLanguage, book.language ?? '']);
+			vars.push([textVariables.bookLanguageCode, book.language ?? '']);
+			vars.push([textVariables.bookLanguageName, getLocaleName(book.language ?? '')]);
 			vars.push([textVariables.bookTranslator, book.translator?.join(', ') ?? '']);
 			vars.push([textVariables.bookFormat, book.format ?? '']);
 			vars.push([textVariables.bookOriginalPrice, book.originalPrice?.toString() ?? '']);
@@ -332,7 +333,8 @@ class Downloader {
 				vars.push([textVariables.seriesStatus, bookSeries.status ?? '']);
 				vars.push([textVariables.seriesRating, bookSeries.rating?.toString() ?? '']);
 				vars.push([textVariables.seriesRatingCount, bookSeries.ratingCount?.toString() ?? '']);
-				vars.push([textVariables.seriesLanguage, bookSeries.language ?? '']);
+				vars.push([textVariables.seriesLanguageCode, bookSeries.language ?? '']);
+				vars.push([textVariables.seriesLanguageName, getLocaleName(bookSeries.language ?? '')]);
 				vars.push([textVariables.seriesTranslator, bookSeries.translator?.join(', ') ?? '']);
 				vars.push([textVariables.seriesFormat, bookSeries.format ?? '']);
 				vars.push([textVariables.seriesReadingDirection, bookSeries.readingDirection ?? '']);

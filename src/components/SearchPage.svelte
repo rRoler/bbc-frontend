@@ -22,7 +22,9 @@
 		textVariables,
 		matureContentSetting,
 		ALLOWED_EDIT_ROLES,
+		matchFlagsFromLevel,
 	} from '../lib/svelte/settings.svelte.ts';
+	import type { AutoMatchLevel } from '../lib/svelte/settings.svelte.ts';
 	import userState from '../lib/svelte/user.svelte.ts';
 	import { onMount } from 'svelte';
 	import { downloadLocation, searchLocation } from '../lib/locations.ts';
@@ -58,6 +60,8 @@
 		return `${basePath}?${params.toString()}`;
 	});
 	let resultAutoMatchEnabled = $state<boolean>(true);
+	let resultAutoMatchLevel = $state<AutoMatchLevel>('full');
+	let isAutoMapping = $state<boolean>(false);
 	let linksCopied = $state<boolean | null>(null);
 	let mappingStatus = $state<boolean | null>(null);
 	let abortController = $state<AbortController>();
@@ -76,6 +80,67 @@
 				selectedSeries[providerId].push(series);
 		} else if (force !== true) {
 			selectedSeries[providerId].splice(seriesIndex, 1);
+		}
+	}
+
+	async function handleSeriesClick(
+		provider: Provider,
+		series: BBCSeriesSearchResult,
+		isSelected: boolean
+	) {
+		const level = resultAutoMatchLevel;
+		if (!resultAutoMatchEnabled || level === 'off') {
+			await toggleSeries(provider.id, series);
+			return;
+		}
+
+		const flags = matchFlagsFromLevel(level);
+		let didMatch = false;
+
+		if (flags.useMapped) {
+			isAutoMapping = true;
+			try {
+				const mappedSeries = await api.getMappedSeries(provider.id, series.id);
+				if (mappedSeries.data.length > 0) {
+					didMatch = true;
+					for (const ms of mappedSeries.data) {
+						const providerResults = searchResults[ms.providerId];
+						if (!providerResults) continue;
+						const match = providerResults.find((s) => s.id === ms.id);
+						if (match) await toggleSeries(ms.providerId, match, !isSelected);
+					}
+				}
+			} catch {
+				/* no mapped series */
+			} finally {
+				isAutoMapping = false;
+			}
+		}
+
+		if (flags.matchTitle) {
+			const titleLower = series.title.toLowerCase().trim();
+			const hasNullCriterion =
+				(flags.matchType && series.type == null) ||
+				(flags.matchBookType && series.bookType == null) ||
+				(flags.matchPub && series.publicationType == null);
+
+			if (!hasNullCriterion) {
+				Object.entries(searchResults).forEach(([pId, seriesList]) => {
+					const matchingSeries = seriesList.filter(
+						(s) =>
+							s.title.toLowerCase().trim() === titleLower &&
+							(flags.matchType ? s.type === series.type : true) &&
+							(flags.matchBookType ? s.bookType === series.bookType : true) &&
+							(flags.matchPub ? s.publicationType === series.publicationType : true)
+					);
+					if (matchingSeries.length > 0) didMatch = true;
+					matchingSeries.forEach((s) => toggleSeries(pId, s, !isSelected));
+				});
+			}
+		}
+
+		if (!didMatch) {
+			await toggleSeries(provider.id, series);
 		}
 	}
 
@@ -150,7 +215,8 @@
 		vars.push([textVariables.seriesStatus, series.status ?? '']);
 		vars.push([textVariables.seriesRating, series.rating?.toString() ?? '']);
 		vars.push([textVariables.seriesRatingCount, series.ratingCount?.toString() ?? '']);
-		vars.push([textVariables.seriesLanguage, series.language ?? '']);
+		vars.push([textVariables.seriesLanguageCode, series.language ?? '']);
+		vars.push([textVariables.seriesLanguageName, getLocaleName(series.language ?? '')]);
 		vars.push([textVariables.seriesTranslator, series.translator?.join(', ') ?? '']);
 		vars.push([textVariables.seriesFormat, series.format ?? '']);
 		vars.push([textVariables.seriesReadingDirection, series.readingDirection ?? '']);
@@ -228,7 +294,7 @@
 			selectedProviders = allProviders.enabled;
 		}
 
-		resultAutoMatchEnabled = autoMatchResultsSetting.value;
+		resultAutoMatchLevel = autoMatchResultsSetting.value;
 
 		const query = getSvelteSearchParam('q');
 		if (query !== null) {
@@ -294,6 +360,9 @@
 				class="checkbox checkbox-primary"
 			/>
 			<span>Automatically match results</span>
+			{#if isAutoMapping}
+				<span class="loading loading-spinner loading-xs"></span>
+			{/if}
 			<kbd class="kbd hidden sm:inline-flex">ctrl (hold)</kbd>
 		</label>
 	</div>
@@ -336,43 +405,7 @@
 								>
 									<button
 										class="absolute top-0 left-0 z-10 size-full cursor-pointer"
-										onclick={async () => {
-											if (resultAutoMatchEnabled) {
-												const isSelectedTemp = isSelected;
-
-												const mappedData = await api.getMappedSeries(provider.id, series.id);
-
-												if (mappedData.data.length > 0 && mappedData.errors.length === 0) {
-													for (const mappedSeries of mappedData.data) {
-														const pId = mappedSeries.providerId;
-														const providerResults = searchResults[pId];
-														if (!providerResults) continue;
-														const match = providerResults.find((s) => s.id === mappedSeries.id);
-														if (match) await toggleSeries(pId, match, !isSelectedTemp);
-													}
-												} else {
-													Object.entries(searchResults).forEach(([pId, seriesList]) => {
-														const matchingSeries = seriesList.filter(
-															(s) =>
-																s.title.toLowerCase().trim() ===
-																	series.title.toLowerCase().trim() &&
-																s.type === series.type &&
-																(s.bookType && series.bookType
-																	? s.bookType === series.bookType
-																	: true) &&
-																(s.publicationType && series.publicationType
-																	? s.publicationType === series.publicationType
-																	: true)
-														);
-														matchingSeries.forEach((s) => toggleSeries(pId, s, !isSelectedTemp));
-													});
-												}
-
-												return;
-											}
-
-											toggleSeries(provider.id, series);
-										}}
+										onclick={() => handleSeriesClick(provider, series, isSelected)}
 										aria-label="Select {series.title} series"
 									></button>
 

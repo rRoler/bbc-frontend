@@ -207,16 +207,20 @@ export default class BBC_API {
 		return result;
 	}
 
-	async search(
+	async search<D extends boolean = false>(
 		query: string,
 		providers: Provider[] = allProviders.updated,
 		options?: {
+			detail?: D;
 			include_mature?: boolean;
-			callback?: (result: BBCByProviderResult<BBCSeriesSearchResult>) => void;
+			callback?: (
+				result: BBCByProviderResult<D extends true ? BBCSeriesDetail : BBCSeriesSearchResult>
+			) => void;
 			abortSignal?: AbortController['signal'];
 		}
-	): Promise<BBCByProviderResult<BBCSeriesSearchResult>> {
-		const allData: BBCByProviderResult<BBCSeriesSearchResult> = {
+	): Promise<BBCByProviderResult<D extends true ? BBCSeriesDetail : BBCSeriesSearchResult>> {
+		type Result = D extends true ? BBCSeriesDetail : BBCSeriesSearchResult;
+		const allData: BBCByProviderResult<Result> = {
 			data: {},
 			count: 0,
 			pages: 0,
@@ -229,11 +233,16 @@ export default class BBC_API {
 
 				searchUrl.searchParams.set('q', query);
 				searchUrl.searchParams.append('provider', provider.id);
+				if (options?.detail) {
+					searchUrl.searchParams.set('detail', 'true');
+				}
 				searchUrl.searchParams.append('include_mature', options?.include_mature ? 'true' : 'false');
 
 				try {
-					const res = await fetch(searchUrl, { signal: options?.abortSignal });
-					const data: BBCByProviderResponse<BBCSeriesSearchResult> = await res.json();
+					const res = await fetch(searchUrl, {
+						signal: options?.abortSignal,
+					});
+					const data: BBCByProviderResponse<Result> = await res.json();
 
 					if (!allData.data[provider.id]) allData.data[provider.id] = [];
 
