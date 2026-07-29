@@ -203,6 +203,14 @@ export function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function bytesToHumanReadable(bytes: number | null): string {
+	if (bytes == null) return '';
+	if (bytes < 1000) return `${bytes} B`;
+	if (bytes < 1000000) return `${(bytes / 1000).toFixed(1)} KB`;
+	if (bytes < 1000000000) return `${(bytes / 1000000).toFixed(1)} MB`;
+	return `${(bytes / 1000000000).toFixed(1)} GB`;
+}
+
 export function getLocaleName(locale: string): string {
 	if (locale === 'multi') return 'Multilingual';
 	const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });

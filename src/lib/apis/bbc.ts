@@ -110,7 +110,9 @@ export interface BBCBook {
 	translator: string[] | null;
 	format: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook' | null;
 	originalPrice: number | null;
-	fileSize: string | null;
+	fileSize: number | null;
+	bookType: BBCSeries['bookType'];
+	publicationType: BBCSeries['publicationType'];
 }
 
 export interface BBCBookDetail extends BBCBook {

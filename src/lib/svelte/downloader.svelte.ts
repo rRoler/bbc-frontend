@@ -11,6 +11,7 @@ import {
 	natsort,
 	replaceTextVariables,
 	sleep,
+	bytesToHumanReadable,
 } from '../utils.ts';
 import {
 	textVariables,
@@ -314,7 +315,7 @@ class Downloader {
 			vars.push([textVariables.bookTranslator, book.translator?.join(', ') ?? '']);
 			vars.push([textVariables.bookFormat, book.format ?? '']);
 			vars.push([textVariables.bookOriginalPrice, book.originalPrice?.toString() ?? '']);
-			vars.push([textVariables.bookFileSize, book.fileSize ?? '']);
+			vars.push([textVariables.bookFileSize, bytesToHumanReadable(book.fileSize)]);
 			const bookSeries = this.getBookSeries(book);
 			if (bookSeries) {
 				vars.push([textVariables.seriesTitle, bookSeries.title]);
