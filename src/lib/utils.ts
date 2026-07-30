@@ -213,8 +213,13 @@ export function bytesToHumanReadable(bytes: number | null): string {
 
 export function getLocaleName(locale: string): string {
 	if (locale === 'multi') return 'Multilingual';
-	const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });
-	return langDisplayNames.of(locale) || locale;
+	try {
+		const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });
+		return langDisplayNames.of(locale) || locale;
+	} catch (e) {
+		console.warn(e);
+		return locale;
+	}
 }
 
 export function langToFlag(lang: string): Component | undefined {
