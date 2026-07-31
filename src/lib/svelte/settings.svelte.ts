@@ -292,7 +292,7 @@ export const textVariables = {
 	seriesChapterCount: 'SERIES_CHAPTER_COUNT',
 	seriesMagazine: 'SERIES_MAGAZINE',
 	seriesGenre: 'SERIES_GENRE',
-	seriesTitleKana: 'SERIES_TITLE_KANA',
+	seriesAltTitles: 'SERIES_ALT_TITLES',
 	seriesAlId: 'SERIES_AL_ID',
 	seriesApId: 'SERIES_AP_ID',
 	seriesMuId: 'SERIES_MU_ID',

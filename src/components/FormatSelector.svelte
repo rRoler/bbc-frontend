@@ -101,7 +101,7 @@
 			textVariables.seriesChapterCount,
 			textVariables.seriesMagazine,
 			textVariables.seriesGenre,
-			textVariables.seriesTitleKana,
+			textVariables.seriesAltTitles,
 			textVariables.seriesAlId,
 			textVariables.seriesApId,
 			textVariables.seriesMuId,

@@ -224,7 +224,7 @@
 		vars.push([textVariables.seriesChapterCount, series.chapterCount?.toString() ?? '']);
 		vars.push([textVariables.seriesMagazine, series.magazine ?? '']);
 		vars.push([textVariables.seriesGenre, series.genre ?? '']);
-		vars.push([textVariables.seriesTitleKana, series.titleKana ?? '']);
+		vars.push([textVariables.seriesAltTitles, series.altTitles?.join(', ') ?? '']);
 		vars.push([textVariables.seriesAlId, series.alId ?? '']);
 		vars.push([textVariables.seriesApId, series.apId ?? '']);
 		vars.push([textVariables.seriesMuId, series.muId ?? '']);

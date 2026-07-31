@@ -65,7 +65,7 @@ export interface BBCSeries {
 	chapterCount: number | null;
 	magazine: string | null;
 	genre: string | null;
-	titleKana: string | null;
+	altTitles: string[] | null;
 	alId: string | null;
 	apId: string | null;
 	muId: string | null;

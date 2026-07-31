@@ -342,7 +342,7 @@ class Downloader {
 				vars.push([textVariables.seriesChapterCount, bookSeries.chapterCount?.toString() ?? '']);
 				vars.push([textVariables.seriesMagazine, bookSeries.magazine ?? '']);
 				vars.push([textVariables.seriesGenre, bookSeries.genre ?? '']);
-				vars.push([textVariables.seriesTitleKana, bookSeries.titleKana ?? '']);
+				vars.push([textVariables.seriesAltTitles, bookSeries.altTitles?.join(', ') ?? '']);
 				vars.push([textVariables.seriesAlId, bookSeries.alId ?? '']);
 				vars.push([textVariables.seriesApId, bookSeries.apId ?? '']);
 				vars.push([textVariables.seriesMuId, bookSeries.muId ?? '']);
