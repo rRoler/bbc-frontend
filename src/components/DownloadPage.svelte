@@ -368,14 +368,16 @@
 						<div class="card-body items-center justify-between gap-1 p-1 text-center">
 							<div class="card-title z-20 line-clamp-2 grow text-sm">
 								{#if downloader.isEditMode}
-									<input
-										type="text"
-										placeholder="Volume Number"
-										class="input text-base-content"
-										value={book.volume.number}
-										oninput={(e) =>
-											downloader.editBook(book, { volumeNumber: e.currentTarget.value || null })}
-									/>
+									<Tooltip position="top" tip={book.title}>
+										<input
+											type="text"
+											placeholder="Volume Number"
+											class="input text-base-content"
+											value={book.volume.number}
+											oninput={(e) =>
+												downloader.editBook(book, { volumeNumber: e.currentTarget.value || null })}
+										/>
+									</Tooltip>
 								{:else}
 									<Tooltip position="top" tip={book.displayText}>
 										<h3>{book.displayText}</h3>
