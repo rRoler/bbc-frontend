@@ -28,6 +28,7 @@ import {
 	userSettings,
 	editAutoSyncSetting,
 	autoMapSetting,
+	ALLOWED_EDIT_ROLES,
 } from './settings.svelte.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
 import { PROVIDER_LANG_PARAM_KEY } from '../../components/ProviderLangSelector.svelte';
@@ -1040,6 +1041,7 @@ class Downloader {
 
 	private async autoMapSeries(): Promise<void> {
 		if (!autoMapSetting.value) return;
+		if (!userState.session || !ALLOWED_EDIT_ROLES.includes(userState.session.role)) return;
 
 		const series = this.getAllSeries();
 
