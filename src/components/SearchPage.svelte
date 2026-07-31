@@ -96,18 +96,25 @@
 
 		const flags = matchFlagsFromLevel(level);
 		let didMatch = false;
+		const targetLanguage = series.language || provider.locale;
 
 		if (flags.useMapped) {
 			isAutoMapping = true;
 			try {
 				const mappedSeries = await api.getMappedSeries(provider.id, series.id);
 				if (mappedSeries.data.length > 0) {
-					didMatch = true;
 					for (const ms of mappedSeries.data) {
 						const providerResults = searchResults[ms.providerId];
 						if (!providerResults) continue;
 						const match = providerResults.find((s) => s.id === ms.id);
-						if (match) await toggleSeries(ms.providerId, match, !isSelected);
+						if (match) {
+							const matchProvider = allProviders.updated.find((p) => p.id === ms.providerId);
+							const matchLanguage = match.language || matchProvider?.locale;
+							if (matchLanguage === targetLanguage) {
+								didMatch = true;
+								await toggleSeries(ms.providerId, match, !isSelected);
+							}
+						}
 					}
 				}
 			} catch {
@@ -126,13 +133,17 @@
 
 			if (!hasNullCriterion) {
 				Object.entries(searchResults).forEach(([pId, seriesList]) => {
-					const matchingSeries = seriesList.filter(
-						(s) =>
+					const matchingSeries = seriesList.filter((s) => {
+						const sProvider = allProviders.updated.find((p) => p.id === pId);
+						const sLanguage = s.language || sProvider?.locale;
+						return (
 							s.title.toLowerCase().trim() === titleLower &&
+							sLanguage === targetLanguage &&
 							(flags.matchType ? s.type === series.type : true) &&
 							(flags.matchBookType ? s.bookType === series.bookType : true) &&
 							(flags.matchPub ? s.publicationType === series.publicationType : true)
-					);
+						);
+					});
 					if (matchingSeries.length > 0) didMatch = true;
 					matchingSeries.forEach((s) => toggleSeries(pId, s, !isSelected));
 				});

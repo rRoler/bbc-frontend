@@ -130,6 +130,7 @@ export interface BBCSeriesSearchResult {
 	bookType: BBCSeries['bookType'];
 	publicationType: BBCSeries['publicationType'];
 	isMature: BBCSeries['isMature'];
+	language: BBCSeries['language'];
 }
 
 export interface BBCBookPage {
