@@ -117,6 +117,7 @@ class Downloader {
 	fileSystem = $state<FileSystem | null>(null);
 
 	mbId = $state<string | null>(null);
+	autoSelectedLangForMulti = false;
 
 	isNextPage = $derived<boolean>(this.page < this.maxPage);
 	canBeAutomaticallyPicked = $derived<boolean>(
@@ -133,7 +134,7 @@ class Downloader {
 		if (!langs.length) return {};
 		const result: Record<string, string[]> = {};
 		for (const provider of this.selectedProviders) {
-			if (provider.id === 'mb') result[provider.id] = langs;
+			if (provider.locale === 'multi') result[provider.id] = langs;
 		}
 		return result;
 	}
@@ -658,7 +659,22 @@ class Downloader {
 							this.allAvailableLanguages.push(b.language);
 						}
 					}
+
+					if (this.autoSelectedLangForMulti) {
+						const multiLangProviders = this.selectedProviders.filter((p) => p.locale === 'multi');
+						if (multiLangProviders.length > 0) {
+							const multiLangBooks = newBooks.filter((b) => b.provider.locale === 'multi');
+							if (multiLangBooks.length === 0) {
+								this.selectedLanguages = new SvelteSet(['none']);
+							}
+						}
+						this.autoSelectedLangForMulti = false;
+					}
 				} else {
+					if (this.autoSelectedLangForMulti) {
+						this.selectedLanguages = new SvelteSet(['none']);
+						this.autoSelectedLangForMulti = false;
+					}
 					console.debug('No more books to fetch');
 				}
 			}
@@ -1161,6 +1177,31 @@ class Downloader {
 		const langIds = getAllSvelteSearchParams(PROVIDER_LANG_PARAM_KEY);
 		if (langIds.length > 0) {
 			this.selectedLanguages = new SvelteSet(langIds);
+		} else {
+			const multiLangProviders = this.selectedProviders.filter((p) => p.locale === 'multi');
+			const nonMultiLangProviders = this.selectedProviders.filter((p) => p.locale !== 'multi');
+
+			if (multiLangProviders.length > 0 && nonMultiLangProviders.length > 0) {
+				const localeCounts = new SvelteMap<string, number>();
+				let maxCount = 0;
+				let mostFrequentLocale = '';
+
+				for (const p of nonMultiLangProviders) {
+					const baseLocale = p.locale.split('-')[0].toLowerCase();
+					const currentCount = (localeCounts.get(baseLocale) || 0) + 1;
+					localeCounts.set(baseLocale, currentCount);
+
+					if (currentCount > maxCount) {
+						maxCount = currentCount;
+						mostFrequentLocale = baseLocale;
+					}
+				}
+
+				if (mostFrequentLocale) {
+					this.selectedLanguages = new SvelteSet([mostFrequentLocale]);
+					this.autoSelectedLangForMulti = true;
+				}
+			}
 		}
 
 		const countIds = (store: Record<string, string[]>) =>

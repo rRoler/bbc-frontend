@@ -6,7 +6,19 @@ export interface Provider {
 	id: string;
 	name: string;
 	icon: string;
-	locale: 'en-US' | 'en-GB' | 'ja' | 'de' | 'it' | 'es' | 'es-MX' | 'ko' | 'zh-TW' | 'fr' | 'nl';
+	locale:
+		| 'en-US'
+		| 'en-GB'
+		| 'ja'
+		| 'de'
+		| 'it'
+		| 'es'
+		| 'es-MX'
+		| 'ko'
+		| 'zh-TW'
+		| 'fr'
+		| 'nl'
+		| 'multi';
 	colors: {
 		primary: string;
 		secondary: string;

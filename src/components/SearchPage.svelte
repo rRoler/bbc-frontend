@@ -110,7 +110,11 @@
 						if (match) {
 							const matchProvider = allProviders.updated.find((p) => p.id === ms.providerId);
 							const matchLanguage = match.language || matchProvider?.locale;
-							if (matchLanguage === targetLanguage) {
+							const isLanguageMatch =
+								matchLanguage === targetLanguage ||
+								matchLanguage === 'multi' ||
+								targetLanguage === 'multi';
+							if (isLanguageMatch) {
 								didMatch = true;
 								await toggleSeries(ms.providerId, match, !isSelected);
 							}
@@ -136,9 +140,11 @@
 					const matchingSeries = seriesList.filter((s) => {
 						const sProvider = allProviders.updated.find((p) => p.id === pId);
 						const sLanguage = s.language || sProvider?.locale;
+						const isLanguageMatch =
+							sLanguage === targetLanguage || sLanguage === 'multi' || targetLanguage === 'multi';
 						return (
 							s.title.toLowerCase().trim() === titleLower &&
-							sLanguage === targetLanguage &&
+							isLanguageMatch &&
 							(flags.matchType ? s.type === series.type : true) &&
 							(flags.matchBookType ? s.bookType === series.bookType : true) &&
 							(flags.matchPub ? s.publicationType === series.publicationType : true)
