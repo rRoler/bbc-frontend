@@ -7,11 +7,11 @@
 	import allProviders, { sortProviders, type Provider } from '../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import {
-		appendSvelteSearchParam,
 		getAllSvelteSearchParams,
 		getLocaleName,
 		langToFlag,
 		removeSvelteSearchParam,
+		setSvelteSearchParamsArray,
 	} from '../lib/utils.ts';
 	import { onMount } from 'svelte';
 	import { Search } from 'lucide-svelte';
@@ -112,30 +112,16 @@
 
 	$effect(() => {
 		if (!paramsEnabled) return;
-
-		const selectedIds = selected.map((p) => p.id);
-
-		for (const provider of providers) {
-			const isSelected = selectedIds.includes(provider.id);
-			if (isSelected) {
-				appendSvelteSearchParam(PROVIDER_PARAM_KEY, provider.id);
-			} else {
-				removeSvelteSearchParam(PROVIDER_PARAM_KEY, provider.id);
-			}
-		}
+		setSvelteSearchParamsArray(
+			PROVIDER_PARAM_KEY,
+			selected.map((p) => p.id)
+		);
 	});
 
 	$effect(() => {
 		if (!paramsEnabled) return;
 
-		for (const locale of allProviders.locales) {
-			const isSelected = selectedLocales.has(locale);
-			if (isSelected) {
-				appendSvelteSearchParam(PROVIDER_LOCALE_PARAM_KEY, locale);
-			} else {
-				removeSvelteSearchParam(PROVIDER_LOCALE_PARAM_KEY, locale);
-			}
-		}
+		setSvelteSearchParamsArray(PROVIDER_LOCALE_PARAM_KEY, [...selectedLocales]);
 	});
 
 	function isProviderSelected(providerId: string): boolean {

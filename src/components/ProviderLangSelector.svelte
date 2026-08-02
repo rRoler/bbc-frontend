@@ -6,11 +6,10 @@
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import {
-		appendSvelteSearchParam,
 		getAllSvelteSearchParams,
 		getLocaleName,
 		langToFlag,
-		removeSvelteSearchParam,
+		setSvelteSearchParamsArray,
 	} from '../lib/utils.ts';
 	import { Globe } from 'lucide-svelte';
 	import Tooltip from './Tooltip.svelte';
@@ -42,13 +41,7 @@
 	$effect(() => {
 		if (!paramsEnabled || languages.length <= 1) return;
 
-		for (const lang of languages) {
-			if (selected.has(lang)) {
-				appendSvelteSearchParam(PROVIDER_LANG_PARAM_KEY, lang);
-			} else {
-				removeSvelteSearchParam(PROVIDER_LANG_PARAM_KEY, lang);
-			}
-		}
+		setSvelteSearchParamsArray(PROVIDER_LANG_PARAM_KEY, [...selected]);
 	});
 
 	function toggleLang(lang: string) {

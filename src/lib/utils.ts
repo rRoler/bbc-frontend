@@ -64,6 +64,21 @@ export function setSvelteSearchParam(param: string, value: string): void {
 	window.history.replaceState(null, '', `${window.location.pathname}?${searchParams}`);
 }
 
+export function setSvelteSearchParamsArray(param: string, values: string[]): void {
+	const searchParams = new SvelteURLSearchParams(window.location.search);
+
+	const currentValues = searchParams.getAll(param);
+	if (currentValues.length === values.length && currentValues.every((v) => values.includes(v))) {
+		return;
+	}
+
+	searchParams.delete(param);
+	for (const value of values) {
+		searchParams.append(param, value);
+	}
+	window.history.replaceState(null, '', `${window.location.pathname}?${searchParams}`);
+}
+
 export function appendSvelteSearchParam(param: string, value: string, check: boolean = true): void {
 	const searchParams = new SvelteURLSearchParams(window.location.search);
 	if (check && searchParams.has(param, value)) return;
