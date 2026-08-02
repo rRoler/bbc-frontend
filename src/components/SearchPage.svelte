@@ -73,7 +73,7 @@
 
 	async function toggleSeries(providerId: string, series: BBCSeriesSearchResult, force?: boolean) {
 		selectedSeries[providerId] = selectedSeries[providerId] ?? [];
-		const seriesIndex = selectedSeries[providerId].indexOf(series);
+		const seriesIndex = selectedSeries[providerId].findIndex((s) => s.id === series.id);
 
 		if (seriesIndex === -1 && force !== false) {
 			if (selectedSeriesCount < MAX_SELECTED_SEARCH_RESULTS)
