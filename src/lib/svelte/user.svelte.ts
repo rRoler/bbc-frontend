@@ -82,6 +82,7 @@ export class UserState {
 			if (res.status === 401) {
 				this.token = null;
 				this.sessionId = null;
+				this.login();
 				throw new Error("You've been logged out. Please login again.");
 			}
 			if (!res.ok) {
