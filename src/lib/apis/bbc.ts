@@ -83,6 +83,8 @@ export interface BBCSeriesDetail extends BBCSeries {
 	lastFetchedAt: string | null;
 	createdAt: string | null;
 	updatedAt: string | null;
+	editedBy: string | null;
+	lastEditedAt: string | null;
 }
 
 export interface BBCBook {
@@ -119,6 +121,8 @@ export interface BBCBookDetail extends BBCBook {
 	lastFetchedAt: string | null;
 	createdAt: string | null;
 	updatedAt: string | null;
+	editedBy: string | null;
+	lastEditedAt: string | null;
 }
 
 export interface BBCSeriesSearchResult {
