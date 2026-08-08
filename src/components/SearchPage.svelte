@@ -102,7 +102,7 @@
 			isAutoMapping = true;
 			try {
 				const mappedSeries = await api.getMappedSeries(provider.id, series.id);
-				if (mappedSeries.data.length > 0) {
+				if (mappedSeries.data.length > 1) {
 					for (const ms of mappedSeries.data) {
 						const providerResults = searchResults[ms.providerId];
 						if (!providerResults) continue;
