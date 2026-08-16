@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { BBCSeries, BBCSeriesDetail, BBCSeriesSearchResult } from '../lib/apis/bbc.ts';
-	import { seriesLocation } from '../lib/locations.ts';
-	import allProviders from '../lib/svelte/providers.svelte.ts';
-	import WsrvApi from '../lib/apis/wsrv.ts';
-	import Image from './Image.svelte';
+	import type { BBCSeries, BBCSeriesDetail, BBCSeriesSearchResult } from '../../lib/apis/bbc.ts';
+	import { seriesLocation } from '../../lib/locations.ts';
+	import allProviders from '../../lib/svelte/providers.svelte.ts';
+	import WsrvApi from '../../lib/apis/wsrv.ts';
+	import Image from '../ui/Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
-	import Tooltip from './Tooltip.svelte';
+	import Tooltip from '../ui/Tooltip.svelte';
 	import { ExternalLink } from 'lucide-svelte';
-	import { matureContentSetting } from '../lib/svelte/settings.svelte.ts';
+	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
 
 	let {
 		series,

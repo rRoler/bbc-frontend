@@ -1,24 +1,24 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { capitalizeFirstLetter, getAllSvelteSearchParams } from '../lib/utils.ts';
-	import { downloadLocation } from '../lib/locations.ts';
+	import { capitalizeFirstLetter, getAllSvelteSearchParams } from '../../lib/utils.ts';
+	import { downloadLocation } from '../../lib/locations.ts';
 	import { Download, EllipsisVertical, X, Check } from 'lucide-svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import Hover3D from './Hover3D.svelte';
-	import userState from '../lib/svelte/user.svelte.ts';
-	import { ALLOWED_EDIT_ROLES } from '../lib/constants.ts';
-	import BBC_API, { type BBCSeriesDetail, type BBCBook } from '../lib/apis/bbc.ts';
-	import WsrvApi from '../lib/apis/wsrv.ts';
-	import allProviders from '../lib/svelte/providers.svelte.ts';
-	import SeriesCard from './SeriesCard.svelte';
-	import BookCard from './BookCard.svelte';
-	import Image from './Image.svelte';
-	import ProviderSelector from './ProviderSelector.svelte';
-	import ProviderLangSelector from './ProviderLangSelector.svelte';
-	import { appState, addAppError } from '../lib/svelte/app.svelte.ts';
-	import type { Provider } from '../lib/svelte/providers.svelte.ts';
-	import { matureContentSetting } from '../lib/svelte/settings.svelte.ts';
+	import Hover3D from '../ui/Hover3D.svelte';
+	import userState from '../../lib/svelte/user.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../../lib/constants.ts';
+	import BBC_API, { type BBCSeriesDetail, type BBCBook } from '../../lib/apis/bbc.ts';
+	import WsrvApi from '../../lib/apis/wsrv.ts';
+	import allProviders from '../../lib/svelte/providers.svelte.ts';
+	import SeriesCard from '../domain/SeriesCard.svelte';
+	import BookCard from '../domain/BookCard.svelte';
+	import Image from '../ui/Image.svelte';
+	import ProviderSelector from '../domain/ProviderSelector.svelte';
+	import ProviderLangSelector from '../domain/ProviderLangSelector.svelte';
+	import { appState, addAppError } from '../../lib/svelte/app.svelte.ts';
+	import type { Provider } from '../../lib/svelte/providers.svelte.ts';
+	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
 
 	let id = $state<string>('');
 

@@ -1,14 +1,14 @@
 <script lang="ts">
-	import type { BBCBook, BBCBookDetail } from '../lib/apis/bbc.ts';
-	import WsrvApi from '../lib/apis/wsrv.ts';
-	import allProviders from '../lib/svelte/providers.svelte.ts';
-	import Image from './Image.svelte';
+	import type { BBCBook, BBCBookDetail } from '../../lib/apis/bbc.ts';
+	import WsrvApi from '../../lib/apis/wsrv.ts';
+	import allProviders from '../../lib/svelte/providers.svelte.ts';
+	import Image from '../ui/Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
-	import Tooltip from './Tooltip.svelte';
+	import Tooltip from '../ui/Tooltip.svelte';
 	import { ExternalLink, Library } from 'lucide-svelte';
-	import { downloadLocation, seriesLocation } from '../lib/locations.ts';
-	import { getDisplayPrice } from '../lib/utils.ts';
-	import { matureContentSetting } from '../lib/svelte/settings.svelte.ts';
+	import { downloadLocation, seriesLocation } from '../../lib/locations.ts';
+	import { getDisplayPrice } from '../../lib/utils.ts';
+	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
 
 	let {
 		book,

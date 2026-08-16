@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState } from '../lib/svelte/app.svelte.ts';
+	import { appState } from '../../lib/svelte/app.svelte.ts';
 	import {
 		Check,
 		ChevronDown,
@@ -25,29 +25,29 @@
 		removeSvelteSearchParam,
 		setSvelteSearchParam,
 		unfocusAndExecute,
-	} from '../lib/utils.ts';
+	} from '../../lib/utils.ts';
 	import { ImageViewer } from 'svelte-image-viewer';
-	import Image from './Image.svelte';
-	import ProviderLabel from './ProviderLabel.svelte';
-	import ProviderSelector from './ProviderSelector.svelte';
-	import ProviderLangSelector from './ProviderLangSelector.svelte';
+	import Image from '../ui/Image.svelte';
+	import ProviderLabel from '../domain/ProviderLabel.svelte';
+	import ProviderSelector from '../domain/ProviderSelector.svelte';
+	import ProviderLangSelector from '../domain/ProviderLangSelector.svelte';
 	import {
 		automaticQualityPickerSetting,
 		bookSortOrderSetting,
 		fileSystemFolderSetting,
 		matureContentSetting,
 		autoMapSetting,
-	} from '../lib/svelte/settings.svelte.ts';
-	import { ALLOWED_EDIT_ROLES } from '../lib/constants.ts';
-	import userState from '../lib/svelte/user.svelte.ts';
-	import DynamicIcon from './DynamicIcon.svelte';
-	import Pagination from './Pagination.svelte';
+	} from '../../lib/svelte/settings.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../../lib/constants.ts';
+	import userState from '../../lib/svelte/user.svelte.ts';
+	import DynamicIcon from '../ui/DynamicIcon.svelte';
+	import Pagination from '../ui/Pagination.svelte';
 	import { onMount } from 'svelte';
-	import Downloader from '../lib/svelte/downloader.svelte.ts';
-	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
-	import { downloadLocation } from '../lib/locations.ts';
-	import Tooltip from './Tooltip.svelte';
-	import WsrvApi from '../lib/apis/wsrv';
+	import Downloader from '../../lib/svelte/downloader.svelte.ts';
+	import { FileSystem } from '../../lib/svelte/filesystem.svelte.ts';
+	import { downloadLocation } from '../../lib/locations.ts';
+	import Tooltip from '../ui/Tooltip.svelte';
+	import WsrvApi from '../../lib/apis/wsrv';
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();

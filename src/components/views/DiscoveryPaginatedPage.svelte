@@ -3,11 +3,11 @@
 		type BBCSeriesDetail,
 		type BBCBookDetail,
 		type BBCListResponse,
-	} from '../lib/apis/bbc.ts';
-	import SeriesCard from './SeriesCard.svelte';
-	import BookCard from './BookCard.svelte';
-	import Pagination from './Pagination.svelte';
-	import { addAppError } from '../lib/svelte/app.svelte.ts';
+	} from '../../lib/apis/bbc.ts';
+	import SeriesCard from '../domain/SeriesCard.svelte';
+	import BookCard from '../domain/BookCard.svelte';
+	import Pagination from '../ui/Pagination.svelte';
+	import { addAppError } from '../../lib/svelte/app.svelte.ts';
 
 	let {
 		type,

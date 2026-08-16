@@ -31,7 +31,7 @@ import {
 } from './settings.svelte.ts';
 import { ALLOWED_EDIT_ROLES } from '../constants.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
-import { PROVIDER_LANG_PARAM_KEY } from '../../components/ProviderLangSelector.svelte';
+import { PROVIDER_LANG_PARAM_KEY } from '../../components/domain/ProviderLangSelector.svelte';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';

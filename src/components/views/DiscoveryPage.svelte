@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import BBC_API, { type BBCSeriesDetail, type BBCBookDetail } from '../lib/apis/bbc.ts';
-	import SeriesCard from './SeriesCard.svelte';
-	import BookCard from './BookCard.svelte';
-	import GlobalSearchBox from './GlobalSearchBox.svelte';
-	import { appState, addAppError } from '../lib/svelte/app.svelte.ts';
+	import BBC_API, { type BBCSeriesDetail, type BBCBookDetail } from '../../lib/apis/bbc.ts';
+	import SeriesCard from '../domain/SeriesCard.svelte';
+	import BookCard from '../domain/BookCard.svelte';
+	import GlobalSearchBox from '../domain/GlobalSearchBox.svelte';
+	import { appState, addAppError } from '../../lib/svelte/app.svelte.ts';
 	import {
 		discoveryBooksNewLocation,
 		discoveryBooksReleasedLocation,
 		discoverySearchLocation,
 		discoverySeriesMergedLocation,
 		discoverySeriesNewLocation,
-	} from '../lib/locations.ts';
+	} from '../../lib/locations.ts';
 
 	const api = new BBC_API();
 
@@ -118,10 +118,10 @@
 							{#each section.items as item (item.providerId + '-' + item.id)}
 								<div class="w-32 shrink-0 snap-start md:w-48 lg:w-56">
 									{#if section.type === 'series'}
-										<SeriesCard series={item as import('../lib/apis/bbc.ts').BBCSeriesDetail} />
+										<SeriesCard series={item as import('../../lib/apis/bbc.ts').BBCSeriesDetail} />
 									{:else}
 										<BookCard
-											book={item as import('../lib/apis/bbc.ts').BBCBookDetail}
+											book={item as import('../../lib/apis/bbc.ts').BBCBookDetail}
 											showSeriesLink={true}
 										/>
 									{/if}

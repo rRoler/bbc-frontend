@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { LayoutGrid, X, ExternalLink, EllipsisVertical, Link2 } from 'lucide-svelte';
-	import BBC_API, { type BBCSeries, type BBCSeriesSearchResult } from '../lib/apis/bbc.ts';
-	import WsrvApi from '../lib/apis/wsrv.ts';
-	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
-	import allProviders, { type Provider } from '../lib/svelte/providers.svelte.ts';
+	import BBC_API, { type BBCSeries, type BBCSeriesSearchResult } from '../../lib/apis/bbc.ts';
+	import WsrvApi from '../../lib/apis/wsrv.ts';
+	import { addAppError, appState } from '../../lib/svelte/app.svelte.ts';
+	import allProviders, { type Provider } from '../../lib/svelte/providers.svelte.ts';
 	import { SvelteDate, SvelteSet, SvelteURLSearchParams } from 'svelte/reactivity';
 	import {
 		addKeyHold,
@@ -12,26 +12,26 @@
 		removeSvelteSearchParam,
 		replaceTextVariables,
 		setSvelteSearchParam,
-	} from '../lib/utils.ts';
-	import Image from './Image.svelte';
-	import ProviderLabel from './ProviderLabel.svelte';
-	import MainSearchBox from './MainSearchBox.svelte';
-	import ProviderSelector from './ProviderSelector.svelte';
+	} from '../../lib/utils.ts';
+	import Image from '../ui/Image.svelte';
+	import ProviderLabel from '../domain/ProviderLabel.svelte';
+	import MainSearchBox from '../domain/MainSearchBox.svelte';
+	import ProviderSelector from '../domain/ProviderSelector.svelte';
 	import {
 		autoMatchResultsSetting,
 		searchCopyFormatSetting,
 		textVariables,
 		matureContentSetting,
 		matchFlagsFromLevel,
-	} from '../lib/svelte/settings.svelte.ts';
-	import { ALLOWED_EDIT_ROLES } from '../lib/constants.ts';
-	import type { AutoMatchLevel } from '../lib/svelte/settings.svelte.ts';
-	import userState from '../lib/svelte/user.svelte.ts';
+	} from '../../lib/svelte/settings.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../../lib/constants.ts';
+	import type { AutoMatchLevel } from '../../lib/svelte/settings.svelte.ts';
+	import userState from '../../lib/svelte/user.svelte.ts';
 	import { onMount } from 'svelte';
-	import { downloadLocation, searchLocation } from '../lib/locations.ts';
-	import DynamicIcon from './DynamicIcon.svelte';
-	import Tooltip from './Tooltip.svelte';
-	import { MAX_SELECTED_SEARCH_RESULTS } from '../lib/constants.ts';
+	import { downloadLocation, searchLocation } from '../../lib/locations.ts';
+	import DynamicIcon from '../ui/DynamicIcon.svelte';
+	import Tooltip from '../ui/Tooltip.svelte';
+	import { MAX_SELECTED_SEARCH_RESULTS } from '../../lib/constants.ts';
 
 	const MAX_SEARCH_TIME = 10000;
 

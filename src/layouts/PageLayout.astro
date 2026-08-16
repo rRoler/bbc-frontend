@@ -2,10 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type PageProps from '../lib/types/pageProps';
 import { ArrowLeft } from 'lucide-svelte';
-import ErrorAlert from '../components/ErrorAlert.svelte';
-import AppContent from '../components/AppContent.svelte';
-import GlobalSearchBox from '../components/GlobalSearchBox.svelte';
-import AppTitle from '../components/AppTitle.astro';
+import ErrorAlert from '../components/ui/ErrorAlert.svelte';
+import AppContent from '../components/layout/AppContent.svelte';
+import GlobalSearchBox from '../components/domain/GlobalSearchBox.svelte';
+import AppTitle from '../components/layout/AppTitle.astro';
 import {
 	aboutLocation,
 	dockLocations,
@@ -16,7 +16,7 @@ import {
 	discoveryLocation,
 	homeLocation,
 } from '../lib/locations.ts';
-import Tooltip from '../components/Tooltip.svelte';
+import Tooltip from '../components/ui/Tooltip.svelte';
 
 const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: boolean };
 ---

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import BBC_API, { type BBCSeriesDetail, type BBCListResponse } from '../lib/apis/bbc.ts';
-	import SeriesCard from './SeriesCard.svelte';
+	import BBC_API, { type BBCSeriesDetail, type BBCListResponse } from '../../lib/apis/bbc.ts';
+	import SeriesCard from '../domain/SeriesCard.svelte';
 	import { Search } from 'lucide-svelte';
-	import { matureContentSetting } from '../lib/svelte/settings.svelte.ts';
-	import { getSvelteSearchParam, setSvelteSearchParam } from '../lib/utils.ts';
-	import { addAppError } from '../lib/svelte/app.svelte.ts';
-	import MainSearchBox from './MainSearchBox.svelte';
+	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
+	import { getSvelteSearchParam, setSvelteSearchParam } from '../../lib/utils.ts';
+	import { addAppError } from '../../lib/svelte/app.svelte.ts';
+	import MainSearchBox from '../domain/MainSearchBox.svelte';
 
 	const api = new BBC_API();
 

@@ -10,9 +10,9 @@
 		getLocaleName,
 		langToFlag,
 		setSvelteSearchParamsArray,
-	} from '../lib/utils.ts';
+	} from '../../lib/utils.ts';
 	import { Globe } from 'lucide-svelte';
-	import Tooltip from './Tooltip.svelte';
+	import Tooltip from '../ui/Tooltip.svelte';
 
 	let {
 		languages = [] as string[],

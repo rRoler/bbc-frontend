@@ -1,10 +1,10 @@
 <script lang="ts">
-	import allProviders from '../lib/svelte/providers.svelte.ts';
-	import { addAppError } from '../lib/svelte/app.svelte.ts';
-	import BBC_API, { endpointLabels, type ProviderStatus } from '../lib/apis/bbc.ts';
+	import allProviders from '../../lib/svelte/providers.svelte.ts';
+	import { addAppError } from '../../lib/svelte/app.svelte.ts';
+	import BBC_API, { endpointLabels, type ProviderStatus } from '../../lib/apis/bbc.ts';
 	import { onMount } from 'svelte';
 	import prettyMilliseconds from 'pretty-ms';
-	import ProviderLabel from './ProviderLabel.svelte';
+	import ProviderLabel from '../domain/ProviderLabel.svelte';
 
 	const api = new BBC_API();
 

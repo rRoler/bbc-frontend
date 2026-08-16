@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts">
-	import allProviders, { sortProviders, type Provider } from '../lib/svelte/providers.svelte.ts';
+	import allProviders, { sortProviders, type Provider } from '../../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import {
 		getAllSvelteSearchParams,
@@ -12,10 +12,10 @@
 		langToFlag,
 		removeSvelteSearchParam,
 		setSvelteSearchParamsArray,
-	} from '../lib/utils.ts';
+	} from '../../lib/utils.ts';
 	import { onMount } from 'svelte';
 	import { Search } from 'lucide-svelte';
-	import Tooltip from './Tooltip.svelte';
+	import Tooltip from '../ui/Tooltip.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 
 	let {

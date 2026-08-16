@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState, removeAppError } from '../lib/svelte/app.svelte.ts';
+	import { appState, removeAppError } from '../../lib/svelte/app.svelte.ts';
 	import { X } from 'lucide-svelte';
 </script>
 
