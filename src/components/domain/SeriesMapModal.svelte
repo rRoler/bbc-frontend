@@ -143,7 +143,7 @@
 				providers={allProviders.sorted}
 				bind:selected={selectedProviders}
 				paramsEnabled={false}
-				class="mx-auto sm:mx-0"
+				class="mx-auto max-w-full sm:mx-0 sm:max-w-64 md:max-w-xs"
 				onchange={() => {
 					if (searchQuery) performSearch();
 				}}
