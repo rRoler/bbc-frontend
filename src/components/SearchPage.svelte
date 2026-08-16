@@ -84,6 +84,12 @@
 		}
 	}
 
+	function getBaseProviderId(id: string) {
+		if (id === 'bw-r' || id === 'bl-r') return id.replace('-r', '');
+		if (id === 'bw-gr' || id === 'bw-twr' || id === 'bw-war') return id.slice(0, -1);
+		return id;
+	}
+
 	async function handleSeriesClick(
 		provider: Provider,
 		series: BBCSeriesSearchResult,
@@ -98,6 +104,16 @@
 		const flags = matchFlagsFromLevel(level);
 		let didMatch = false;
 		const targetLanguage = series.language || provider.locale;
+
+		Object.entries(searchResults).forEach(([pId, seriesList]) => {
+			if (getBaseProviderId(pId) === getBaseProviderId(provider.id)) {
+				const exactMatch = seriesList.find((s) => s.id === series.id);
+				if (exactMatch) {
+					didMatch = true;
+					toggleSeries(pId, exactMatch, !isSelected);
+				}
+			}
+		});
 
 		if (flags.useMapped) {
 			isAutoMapping = true;
