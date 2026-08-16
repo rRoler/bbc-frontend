@@ -22,9 +22,9 @@
 		searchCopyFormatSetting,
 		textVariables,
 		matureContentSetting,
-		ALLOWED_EDIT_ROLES,
 		matchFlagsFromLevel,
 	} from '../lib/svelte/settings.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../lib/constants.ts';
 	import type { AutoMatchLevel } from '../lib/svelte/settings.svelte.ts';
 	import userState from '../lib/svelte/user.svelte.ts';
 	import { onMount } from 'svelte';

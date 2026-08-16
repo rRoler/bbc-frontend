@@ -28,8 +28,8 @@ import {
 	userSettings,
 	editAutoSyncSetting,
 	autoMapSetting,
-	ALLOWED_EDIT_ROLES,
 } from './settings.svelte.ts';
+import { ALLOWED_EDIT_ROLES } from '../constants.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
 import { PROVIDER_LANG_PARAM_KEY } from '../../components/ProviderLangSelector.svelte';
 import { fileTypeFromBuffer } from 'file-type';

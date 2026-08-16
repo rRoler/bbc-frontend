@@ -36,9 +36,9 @@
 		bookSortOrderSetting,
 		fileSystemFolderSetting,
 		matureContentSetting,
-		ALLOWED_EDIT_ROLES,
 		autoMapSetting,
 	} from '../lib/svelte/settings.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../lib/constants.ts';
 	import userState from '../lib/svelte/user.svelte.ts';
 	import DynamicIcon from './DynamicIcon.svelte';
 	import Pagination from './Pagination.svelte';

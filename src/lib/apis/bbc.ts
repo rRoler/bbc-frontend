@@ -609,6 +609,20 @@ export default class BBC_API {
 		return allData;
 	}
 
+	async unmapSeries(providerId: string, seriesId: string): Promise<void> {
+		const res = await fetch(
+			`${this.apiUrl}/map/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`,
+			{
+				method: 'DELETE',
+				headers: userState.headers,
+			}
+		);
+		if (!res.ok) {
+			const errorData = await res.json().catch(() => null);
+			throw new BBC_API_Error(errorData?.error || `Failed to unmap series: HTTP ${res.status}`);
+		}
+	}
+
 	async getDiscoverySeriesMapped(mappedId: string): Promise<{ data: BBCSeriesDetail }> {
 		const res = await fetch(`${this.apiUrl}/discovery/series/${encodeURIComponent(mappedId)}`);
 		if (!res.ok) {

@@ -3,9 +3,11 @@
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { capitalizeFirstLetter, getAllSvelteSearchParams } from '../lib/utils.ts';
 	import { downloadLocation } from '../lib/locations.ts';
-	import { Download } from 'lucide-svelte';
+	import { Download, EllipsisVertical, X, Check } from 'lucide-svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Hover3D from './Hover3D.svelte';
+	import userState from '../lib/svelte/user.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../lib/constants.ts';
 	import BBC_API, { type BBCSeriesDetail, type BBCBook } from '../lib/apis/bbc.ts';
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import allProviders from '../lib/svelte/providers.svelte.ts';
@@ -56,6 +58,41 @@
 	let booksData = $state<Record<string, BBCBook[]>>({});
 	let booksLoading = $state<boolean>(false);
 	let subSeriesLoading = $state<boolean>(false);
+
+	// Edit Mapping state
+	let canEdit = $derived(userState.session && ALLOWED_EDIT_ROLES.includes(userState.session.role));
+	let isEditing = $state(false);
+	let applyingEdits = $state(false);
+	let seriesToUnmap = new SvelteSet<string>();
+
+	async function applyEdits() {
+		if (applyingEdits) return;
+		applyingEdits = true;
+		try {
+			for (const compositeId of seriesToUnmap) {
+				const [pId, sId] = compositeId.split('::');
+				await api.unmapSeries(pId, sId);
+
+				if (mergedSeriesData[pId]) {
+					mergedSeriesData[pId] = mergedSeriesData[pId].filter((s) => s.id !== sId);
+					if (mergedSeriesData[pId].length === 0) {
+						delete mergedSeriesData[pId];
+					}
+				}
+			}
+			isEditing = false;
+			seriesToUnmap.clear();
+		} catch (e) {
+			addAppError(e);
+		} finally {
+			applyingEdits = false;
+		}
+	}
+
+	function cancelEdits() {
+		isEditing = false;
+		seriesToUnmap.clear();
+	}
 
 	onMount(() => {
 		const parseHash = async () => {
@@ -434,7 +471,19 @@
 					<h2 class="mb-4 text-2xl font-bold">Sub-Series ({allSubSeries.length})</h2>
 					<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
 						{#each allSubSeries as subSeries (subSeries.providerId + '-' + subSeries.id)}
-							<SeriesCard series={subSeries} />
+							{#if !seriesToUnmap.has(subSeries.providerId + '::' + subSeries.id)}
+								<div class="relative">
+									<SeriesCard series={subSeries} />
+									{#if isEditing}
+										<button
+											class="btn btn-sm btn-circle btn-error absolute -top-2 -right-2 z-50 shadow-lg"
+											onclick={() => seriesToUnmap.add(subSeries.providerId + '::' + subSeries.id)}
+										>
+											<X class="size-4" />
+										</button>
+									{/if}
+								</div>
+							{/if}
 						{/each}
 					</div>
 				</section>
@@ -486,14 +535,49 @@
 			</section>
 		</div>
 
-		<!-- Floating Download Button -->
+		<!-- Floating Action Bar -->
 		<div
-			class="pointer-events-none sticky bottom-4 left-0 z-50 flex w-full flex-row items-center justify-center pt-4"
+			class="pointer-events-none sticky bottom-4 left-0 z-50 flex w-full flex-row items-center justify-center gap-2 pt-4"
 		>
-			<a class="btn btn-lg btn-primary pointer-events-auto shadow-lg" href={openLink}>
-				<Download class="size-6" />
-				Download Covers
-			</a>
+			{#if isEditing}
+				<button class="btn btn-lg btn-soft pointer-events-auto shadow-lg" onclick={cancelEdits}>
+					<X class="size-6" />
+					Cancel
+				</button>
+				<button
+					class="btn btn-lg btn-primary pointer-events-auto shadow-lg"
+					onclick={applyEdits}
+					disabled={applyingEdits}
+				>
+					{#if applyingEdits}
+						<span class="loading loading-spinner loading-sm"></span>
+					{:else}
+						<Check class="size-6" />
+					{/if}
+					Apply
+				</button>
+			{:else}
+				{#if canEdit && isMerged}
+					<div class="dropdown dropdown-top pointer-events-auto">
+						<div tabindex="0" role="button" class="btn btn-lg btn-circle btn-soft shadow-lg">
+							<EllipsisVertical class="size-6" />
+						</div>
+						<ul
+							tabindex="-1"
+							class="dropdown-content menu rounded-box bg-base-100 z-50 mb-2 w-36 min-w-fit p-2 shadow-sm"
+						>
+							<li>
+								<button onclick={() => (isEditing = true)}>Edit Mapping</button>
+							</li>
+						</ul>
+					</div>
+				{/if}
+
+				<a class="btn btn-lg btn-primary pointer-events-auto shadow-lg" href={openLink}>
+					<Download class="size-6" />
+					Download Covers
+				</a>
+			{/if}
 		</div>
 	</div>
 {/if}
