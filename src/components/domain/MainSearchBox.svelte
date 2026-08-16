@@ -2,10 +2,12 @@
 	import { Search } from 'lucide-svelte';
 
 	let {
+		class: className = '',
 		value = $bindable(''),
 		placeholder = 'Search',
 		onsubmit,
 	}: {
+		class?: string;
 		value?: string;
 		placeholder?: string;
 		onsubmit?: () => void;
@@ -19,7 +21,7 @@
 	}
 </script>
 
-<label class="input input-xl input-primary w-full shrink-0">
+<label class="input input-xl input-primary w-full shrink-0 {className}">
 	<input bind:value onkeydown={handleKeys} type="search" required {placeholder} />
 	<button
 		onclick={(e) => {

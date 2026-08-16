@@ -13,10 +13,14 @@
 		series,
 		href,
 		showProvider = true,
+		disableLink = false,
+		selected = false,
 	}: {
 		series: BBCSeries | BBCSeriesDetail | BBCSeriesSearchResult;
 		href?: string;
 		showProvider?: boolean;
+		disableLink?: boolean;
+		selected?: boolean;
 	} = $props();
 
 	const imageApi = new WsrvApi();
@@ -35,11 +39,20 @@
 </script>
 
 <div
-	class="card bg-base-200 group hover:ring-primary relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl hover:ring-2"
+	class="card group relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
+	class:bg-base-200={!selected}
+	class:hover:ring-primary={!selected}
+	class:hover:ring-2={!selected}
+	class:bg-primary={selected}
+	class:text-primary-content={selected}
+	class:ring-2={selected}
+	class:ring-primary={selected}
 >
-	<a href={linkHref} class="absolute inset-0 z-10">
-		<span class="sr-only">View {series.title}</span>
-	</a>
+	{#if !disableLink}
+		<a href={linkHref} class="absolute inset-0 z-10">
+			<span class="sr-only">View {series.title}</span>
+		</a>
+	{/if}
 
 	<figure class="relative aspect-[2.1/3] w-full overflow-hidden">
 		{#if series.thumbnail}

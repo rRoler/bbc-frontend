@@ -14,10 +14,12 @@
 		book,
 		showProvider = true,
 		showSeriesLink = false,
+		selected = false,
 	}: {
 		book: BBCBook | BBCBookDetail;
 		showProvider?: boolean;
 		showSeriesLink?: boolean;
+		selected?: boolean;
 	} = $props();
 
 	const imageApi = new WsrvApi();
@@ -26,7 +28,14 @@
 </script>
 
 <div
-	class="card bg-base-200 group hover:ring-primary relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl hover:ring-2"
+	class="card group relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
+	class:bg-base-200={!selected}
+	class:hover:ring-primary={!selected}
+	class:hover:ring-2={!selected}
+	class:bg-primary={selected}
+	class:text-primary-content={selected}
+	class:ring-2={selected}
+	class:ring-primary={selected}
 >
 	<a
 		href={`${downloadLocation.path}?book(${displayProvider?.id || book.providerId})=${book.id}`}

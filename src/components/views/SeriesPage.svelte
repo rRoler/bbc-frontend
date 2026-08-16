@@ -3,15 +3,20 @@
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { capitalizeFirstLetter, getAllSvelteSearchParams } from '../../lib/utils.ts';
 	import { downloadLocation } from '../../lib/locations.ts';
-	import { Download, EllipsisVertical, X, Check } from 'lucide-svelte';
+	import { Download, EllipsisVertical, X, Check, Plus } from 'lucide-svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Hover3D from '../ui/Hover3D.svelte';
 	import userState from '../../lib/svelte/user.svelte.ts';
 	import { ALLOWED_EDIT_ROLES } from '../../lib/constants.ts';
-	import BBC_API, { type BBCSeriesDetail, type BBCBook } from '../../lib/apis/bbc.ts';
+	import BBC_API, {
+		type BBCSeriesDetail,
+		type BBCBook,
+		type BBCSeriesSearchResult,
+	} from '../../lib/apis/bbc.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import allProviders from '../../lib/svelte/providers.svelte.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
+	import SeriesMapModal from '../domain/SeriesMapModal.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import Image from '../ui/Image.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
@@ -34,7 +39,20 @@
 	let mergedHeroSeries = $state<BBCSeriesDetail | null>(null);
 	let heroSeries = $derived(isMerged ? mergedHeroSeries : singleSeriesData);
 
-	let allSubSeries = $derived(isMerged ? Object.values(mergedSeriesData).flat() : []);
+	let allSubSeries = $derived.by(() => {
+		const raw = isMerged
+			? Object.values(mergedSeriesData).flat()
+			: singleSeriesData
+				? [singleSeriesData]
+				: [];
+		const seen = new SvelteSet<string>();
+		return raw.filter((s) => {
+			const key = s.providerId + '::' + s.id;
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+	});
 
 	let activeProviders = $state<Provider[]>([]);
 
@@ -64,11 +82,21 @@
 	let isEditing = $state(false);
 	let applyingEdits = $state(false);
 	let seriesToUnmap = new SvelteSet<string>();
+	let seriesToAdd = new SvelteSet<BBCSeriesDetail | BBCSeriesSearchResult>();
+	let mapModal = $state<ReturnType<typeof SeriesMapModal>>();
+
+	let excludeIds = $derived.by(() => {
+		const set = new SvelteSet<string>();
+		allSubSeries.forEach((s) => set.add(s.providerId + '::' + s.id));
+		seriesToAdd.forEach((s) => set.add(s.providerId + '::' + s.id));
+		return set;
+	});
 
 	async function applyEdits() {
 		if (applyingEdits) return;
 		applyingEdits = true;
 		try {
+			// Process Unmaps
 			for (const compositeId of seriesToUnmap) {
 				const [pId, sId] = compositeId.split('::');
 				await api.unmapSeries(pId, sId);
@@ -80,8 +108,31 @@
 					}
 				}
 			}
+
+			// Process Maps
+			if (seriesToAdd.size > 0) {
+				const seriesList = Array.from(seriesToAdd).map((s) => ({
+					providerId: s.providerId,
+					id: s.id,
+				}));
+
+				if (!isMerged && singleSeriesData) {
+					seriesList.push({
+						providerId: singleSeriesData.providerId,
+						id: singleSeriesData.id,
+					});
+				}
+
+				const existingMappedId = heroSeries?.mappedId || singleSeriesData?.mappedId || undefined;
+				await api.mapSeries(seriesList, existingMappedId);
+			}
+
 			isEditing = false;
 			seriesToUnmap.clear();
+			seriesToAdd.clear();
+
+			// Reload page to fetch new mapping data
+			await init();
 		} catch (e) {
 			addAppError(e);
 		} finally {
@@ -92,6 +143,30 @@
 	function cancelEdits() {
 		isEditing = false;
 		seriesToUnmap.clear();
+		seriesToAdd.clear();
+	}
+
+	function getBestSearchTitle(): string {
+		const cjkRegex = /[\u4e00-\u9faf\u3040-\u309f\u30a0-\u30ff\uac00-\ud7a3]/;
+
+		for (const series of allSubSeries) {
+			if (series.title && cjkRegex.test(series.title)) return series.title;
+			if (series.altTitles) {
+				const cjkAlt = series.altTitles.find((t) => cjkRegex.test(t));
+				if (cjkAlt) return cjkAlt;
+			}
+		}
+
+		if (heroSeries) {
+			if (heroSeries.title && cjkRegex.test(heroSeries.title)) return heroSeries.title;
+			if (heroSeries.altTitles) {
+				const cjkAlt = heroSeries.altTitles.find((t) => cjkRegex.test(t));
+				if (cjkAlt) return cjkAlt;
+			}
+			return heroSeries.title ?? '';
+		}
+
+		return '';
 	}
 
 	onMount(() => {
@@ -243,7 +318,16 @@
 				}
 				return true;
 			});
-		return result.sort((a, b) => {
+
+		const seen = new SvelteSet<string>();
+		const deduplicated = result.filter((b) => {
+			const key = b.providerId + '::' + b.id;
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+
+		return deduplicated.sort((a, b) => {
 			const volA = parseFloat(a.volume.number || '0');
 			const volB = parseFloat(b.volume.number || '0');
 			return volB - volA; // desc
@@ -466,9 +550,11 @@
 						<p class="text-base-content/70 text-lg font-semibold">Loading sub-series...</p>
 					</div>
 				</section>
-			{:else if isMerged && allSubSeries.length > 0}
+			{:else if isEditing || (isMerged && allSubSeries.length > 0)}
 				<section>
-					<h2 class="mb-4 text-2xl font-bold">Sub-Series ({allSubSeries.length})</h2>
+					<h2 class="mb-4 text-2xl font-bold">
+						Sub-Series {isMerged ? `(${allSubSeries.length})` : ''}
+					</h2>
 					<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
 						{#each allSubSeries as subSeries (subSeries.providerId + '-' + subSeries.id)}
 							{#if !seriesToUnmap.has(subSeries.providerId + '::' + subSeries.id)}
@@ -488,6 +574,33 @@
 								</div>
 							{/if}
 						{/each}
+
+						{#if isEditing}
+							{#each Array.from(seriesToAdd) as newSeries (newSeries.providerId + '-' + newSeries.id)}
+								<div class="relative opacity-80">
+									<div
+										class="badge badge-success absolute -top-2 left-2 z-50 font-semibold shadow-lg"
+									>
+										New
+									</div>
+									<SeriesCard series={newSeries} disableLink={true} />
+									<button
+										class="btn btn-sm btn-circle btn-error absolute -top-2 -right-2 z-50 shadow-lg"
+										onclick={() => seriesToAdd.delete(newSeries)}
+									>
+										<X class="size-4" />
+									</button>
+								</div>
+							{/each}
+
+							<button
+								class="border-base-300 bg-base-200/50 text-base-content/50 hover:border-primary hover:text-primary hover:bg-base-200 rounded-box flex aspect-[2.1/3] w-full flex-col items-center justify-center gap-2 border-2 border-dashed transition-colors"
+								onclick={() => mapModal?.showModal(getBestSearchTitle())}
+							>
+								<Plus class="size-12" />
+								<span class="font-semibold">Add Series</span>
+							</button>
+						{/if}
 					</div>
 				</section>
 			{/if}
@@ -550,7 +663,7 @@
 				<button
 					class="btn btn-lg btn-primary pointer-events-auto shadow-lg"
 					onclick={applyEdits}
-					disabled={applyingEdits}
+					disabled={applyingEdits || (seriesToAdd.size === 0 && seriesToUnmap.size === 0)}
 				>
 					{#if applyingEdits}
 						<span class="loading loading-spinner loading-sm"></span>
@@ -583,4 +696,21 @@
 			{/if}
 		</div>
 	</div>
+
+	<SeriesMapModal
+		bind:this={mapModal}
+		{excludeIds}
+		onAdd={(seriesArray) => {
+			const currentPending = Array.from(seriesToAdd);
+			seriesArray.forEach((s) => {
+				const isDuplicate = currentPending.some(
+					(existing) => existing.providerId === s.providerId && existing.id === s.id
+				);
+				if (!isDuplicate) {
+					seriesToAdd.add(s);
+					currentPending.push(s);
+				}
+			});
+		}}
+	/>
 {/if}
