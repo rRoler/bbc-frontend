@@ -473,7 +473,10 @@
 						{#each allSubSeries as subSeries (subSeries.providerId + '-' + subSeries.id)}
 							{#if !seriesToUnmap.has(subSeries.providerId + '::' + subSeries.id)}
 								<div class="relative">
-									<SeriesCard series={subSeries} />
+									<SeriesCard
+										series={subSeries}
+										href={`${downloadLocation.path}?${subSeries.type}(${subSeries.providerId})=${subSeries.id}`}
+									/>
 									{#if isEditing}
 										<button
 											class="btn btn-sm btn-circle btn-error absolute -top-2 -right-2 z-50 shadow-lg"
