@@ -77,8 +77,32 @@
 				{#if series.isMature}
 					<div class="badge badge-error badge-sm font-bold shadow-sm">18+</div>
 				{/if}
-				{#if series.bookType}
+				{#if series.bookType === 'manga'}
+					<div class="badge badge-primary badge-sm shadow-sm">Manga</div>
+				{:else if series.bookType === 'novel'}
+					<div class="badge badge-secondary badge-sm shadow-sm">Novel</div>
+				{:else if series.bookType === 'webtoon'}
+					<div class="badge badge-accent badge-sm shadow-sm">Webtoon</div>
+				{:else if series.bookType === 'audiobook'}
+					<div class="badge badge-neutral badge-sm shadow-sm">Audiobook</div>
+				{:else if series.bookType}
 					<div class="badge badge-secondary badge-sm capitalize shadow-sm">{series.bookType}</div>
+				{/if}
+
+				{#if 'publicationType' in series}
+					{#if series.publicationType === 'digital'}
+						<div class="badge badge-soft badge-primary badge-sm shadow-sm">Digital</div>
+					{:else if series.publicationType === 'physical'}
+						<div class="badge badge-soft badge-secondary badge-sm shadow-sm">Physical</div>
+					{/if}
+				{/if}
+
+				{#if 'type' in series}
+					{#if series.type === 'series'}
+						<div class="badge badge-success badge-soft badge-sm shadow-sm">Series</div>
+					{:else if series.type === 'book'}
+						<div class="badge badge-warning badge-soft badge-sm shadow-sm">Book</div>
+					{/if}
 				{/if}
 			</div>
 

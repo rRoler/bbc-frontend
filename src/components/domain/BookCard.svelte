@@ -7,7 +7,7 @@
 	import Tooltip from '../ui/Tooltip.svelte';
 	import { ExternalLink, Library } from 'lucide-svelte';
 	import { downloadLocation, seriesLocation } from '../../lib/locations.ts';
-	import { getDisplayPrice } from '../../lib/utils.ts';
+	import { getDisplayPrice, formatDate } from '../../lib/utils.ts';
 	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
 
 	let {
@@ -57,23 +57,26 @@
 			class="pointer-events-none absolute inset-x-0 top-2 z-20 flex items-start justify-between px-2"
 		>
 			<div class="flex flex-col items-start gap-1">
-				{#if book.volume?.number}
-					<div class="badge badge-accent badge-sm font-bold shadow-sm">
-						{book.volume.type === 'chapter' ? 'Ch.' : 'Vol.'}
-						{book.volume.number}
-					</div>
+				{#if book.isMature}
+					<div class="badge badge-error badge-sm font-bold shadow-sm">18+</div>
 				{/if}
-				{#if book.price !== null && book.currency}
-					{#if book.price === 0}
-						<div
-							class="badge badge-success badge-sm text-success-content border-none font-bold shadow-sm"
-						>
-							Free
-						</div>
-					{:else}
-						<div class="badge badge-neutral badge-sm border-none font-bold opacity-90 shadow-sm">
-							{getDisplayPrice(book.currency, book.price)}
-						</div>
+				{#if book.bookType === 'manga'}
+					<div class="badge badge-primary badge-sm shadow-sm">Manga</div>
+				{:else if book.bookType === 'novel'}
+					<div class="badge badge-secondary badge-sm shadow-sm">Novel</div>
+				{:else if book.bookType === 'webtoon'}
+					<div class="badge badge-accent badge-sm shadow-sm">Webtoon</div>
+				{:else if book.bookType === 'audiobook'}
+					<div class="badge badge-neutral badge-sm shadow-sm">Audiobook</div>
+				{:else if book.bookType}
+					<div class="badge badge-secondary badge-sm capitalize shadow-sm">{book.bookType}</div>
+				{/if}
+
+				{#if 'publicationType' in book}
+					{#if book.publicationType === 'digital'}
+						<div class="badge badge-soft badge-primary badge-sm shadow-sm">Digital</div>
+					{:else if book.publicationType === 'physical'}
+						<div class="badge badge-soft badge-secondary badge-sm shadow-sm">Physical</div>
 					{/if}
 				{/if}
 			</div>
@@ -103,12 +106,45 @@
 				{/if}
 			</div>
 		</div>
+
+		<div
+			class="pointer-events-none absolute inset-x-0 bottom-2 z-20 flex items-end justify-between px-2"
+		>
+			<div class="flex flex-col items-start gap-1">
+				{#if book.volume?.number}
+					<div class="badge badge-accent badge-sm font-bold shadow-sm">
+						{book.volume.type === 'chapter' ? 'Ch.' : 'Vol.'}
+						{book.volume.number}
+					</div>
+				{/if}
+			</div>
+
+			<div class="flex flex-col items-end gap-1">
+				{#if book.price !== null && book.currency}
+					{#if book.price === 0}
+						<div
+							class="badge badge-success badge-sm text-success-content border-none font-bold shadow-sm"
+						>
+							Free
+						</div>
+					{:else}
+						<div class="badge badge-neutral badge-sm border-none font-bold opacity-90 shadow-sm">
+							{getDisplayPrice(book.currency, book.price)}
+						</div>
+					{/if}
+				{/if}
+			</div>
+		</div>
 	</figure>
 
 	<div class="card-body items-center p-4">
 		<h3 class="line-clamp-2 text-center text-sm leading-tight font-bold sm:text-base">
 			{book.title}
 		</h3>
+
+		{#if book.releaseDate}
+			<p class="text-base-content/70 text-xs font-semibold">{formatDate(book.releaseDate)}</p>
+		{/if}
 
 		<div class="mt-auto flex flex-col items-center gap-2 pt-2">
 			{#if showProvider && displayProvider}

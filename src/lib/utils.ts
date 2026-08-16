@@ -382,3 +382,17 @@ export function getDisplayPrice(currency: string, price: number) {
 		return `${price} ${currency}`;
 	}
 }
+
+export function formatDate(dateString: string): string {
+	try {
+		const date = new Date(dateString);
+		if (isNaN(date.getTime())) return dateString;
+		return date.toLocaleDateString(undefined, {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+		});
+	} catch {
+		return dateString;
+	}
+}
