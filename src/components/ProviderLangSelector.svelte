@@ -73,7 +73,7 @@
 
 	<ul
 		tabindex="-1"
-		class="menu dropdown-content bg-base-100 rounded-box z-1 w-fit min-w-44 shadow-sm [&_label]:justify-start"
+		class="menu dropdown-content bg-base-100 rounded-box z-50 w-fit min-w-44 shadow-sm [&_label]:justify-start"
 	>
 		{#each languages as lang (lang)}
 			{@const isSelected = selected.has(lang)}

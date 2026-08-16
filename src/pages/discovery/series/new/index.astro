@@ -1,0 +1,14 @@
+---
+import PageLayout from '../../../../layouts/PageLayout.astro';
+import DiscoveryPaginatedPage from '../../../../components/DiscoveryPaginatedPage.svelte';
+import { discoverySeriesNewLocation } from '../../../../lib/locations.ts';
+---
+
+<PageLayout title={discoverySeriesNewLocation.label}>
+	<DiscoveryPaginatedPage
+		client:load
+		type="series-new"
+		title={discoverySeriesNewLocation.label}
+		gradient="from-secondary to-accent"
+	/>
+</PageLayout>

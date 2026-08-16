@@ -36,6 +36,11 @@ export interface ImageInfo {
 
 export const wsrvApi = new WsrvApi();
 
+export function capitalizeFirstLetter(str: string): string {
+	if (!str) return str;
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function natsort(a: string, b: string) {
 	return a.localeCompare(b, undefined, {
 		numeric: true,
@@ -58,9 +63,13 @@ export function getAllSvelteSearchParams(param: string): string[] {
 	return searchParams.getAll(param);
 }
 
-export function setSvelteSearchParam(param: string, value: string): void {
+export function setSvelteSearchParam(param: string, value: string | null): void {
 	const searchParams = new SvelteURLSearchParams(window.location.search);
-	searchParams.set(param, value);
+	if (value === null) {
+		searchParams.delete(param);
+	} else {
+		searchParams.set(param, value);
+	}
 	window.history.replaceState(null, '', `${window.location.pathname}?${searchParams}`);
 }
 
@@ -362,5 +371,14 @@ export async function getImageInfo(url: string): Promise<ImageInfo> {
 		};
 	} catch {
 		return getImageInfoLocally(url);
+	}
+}
+
+export function getDisplayPrice(currency: string, price: number) {
+	try {
+		return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency }).format(price);
+	} catch (e) {
+		console.warn('Failed to get display price', e);
+		return `${price} ${currency}`;
 	}
 }

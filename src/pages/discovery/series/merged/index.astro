@@ -1,0 +1,14 @@
+---
+import PageLayout from '../../../../layouts/PageLayout.astro';
+import DiscoveryPaginatedPage from '../../../../components/DiscoveryPaginatedPage.svelte';
+import { discoverySeriesMergedLocation } from '../../../../lib/locations.ts';
+---
+
+<PageLayout title={discoverySeriesMergedLocation.label}>
+	<DiscoveryPaginatedPage
+		client:load
+		type="series-merged"
+		title={discoverySeriesMergedLocation.label}
+		gradient="from-accent to-info"
+	/>
+</PageLayout>

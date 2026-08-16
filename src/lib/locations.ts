@@ -6,6 +6,10 @@ import {
 	FolderGit2,
 	Heart,
 	SquareActivity,
+	Compass,
+	House,
+	Library,
+	BookOpen,
 	type Icon,
 } from 'lucide-svelte';
 
@@ -16,6 +20,12 @@ export interface DockLocation {
 	storageKey?: string;
 	onclick?: () => void;
 }
+
+export const homeLocation: DockLocation = {
+	path: '/',
+	Icon: House,
+	label: 'Home',
+};
 
 export const searchLocation: DockLocation = {
 	path: '/search',
@@ -67,8 +77,51 @@ export const statusLocation: DockLocation = {
 	label: 'Status Page',
 };
 
+export const discoveryLocation: DockLocation = {
+	path: '/discovery',
+	Icon: Compass,
+	label: 'Discovery',
+};
+
+export const discoverySearchLocation: DockLocation = {
+	path: `${discoveryLocation.path}/search`,
+	Icon: Search,
+	label: 'Discovery Search',
+};
+
+export const discoverySeriesMergedLocation: DockLocation = {
+	path: `${discoveryLocation.path}/series/merged`,
+	Icon: Library,
+	label: 'Newly Merged Series',
+};
+
+export const discoverySeriesNewLocation: DockLocation = {
+	path: `${discoveryLocation.path}/series/new`,
+	Icon: Library,
+	label: 'Recently Added Series',
+};
+
+export const discoveryBooksNewLocation: DockLocation = {
+	path: `${discoveryLocation.path}/books/new`,
+	Icon: BookOpen,
+	label: 'Recently Added Books',
+};
+
+export const discoveryBooksReleasedLocation: DockLocation = {
+	path: `${discoveryLocation.path}/books/released`,
+	Icon: BookOpen,
+	label: 'Recently Released Books',
+};
+
+export const seriesLocation: DockLocation = {
+	path: '/series',
+	Icon: Library,
+	label: 'Series',
+};
+
 export const dockLocations: DockLocation[] = [
 	searchLocation,
+	discoveryLocation,
 	downloadLocation,
 	aboutLocation,
 	settingsLocation,

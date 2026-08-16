@@ -261,7 +261,7 @@
 		{/if}
 	</div>
 
-	<div class="dropdown-content bg-base-100 rounded-box z-1 w-fit max-w-96 min-w-69 shadow-sm">
+	<div class="dropdown-content bg-base-100 rounded-box z-50 w-fit max-w-96 min-w-69 shadow-sm">
 		<div class="w-full p-2">
 			<label class="input input-bordered flex w-full items-center gap-2 font-normal">
 				<Search class="size-5 shrink-0 opacity-80" />

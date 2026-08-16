@@ -80,6 +80,7 @@ export interface BBCSeriesDetail extends BBCSeries {
 	mappedId: string | null;
 	mappedBy: string | null;
 	mappedAt: string | null;
+	mergedProviders?: string[] | null;
 	lastFetchedAt: string | null;
 	createdAt: string | null;
 	updatedAt: string | null;
@@ -104,6 +105,7 @@ export interface BBCBook {
 	isbn: string | null;
 	price: number | null;
 	currency: string | null;
+	isMature?: boolean;
 	pageCount: number | null;
 	tags: string[] | null;
 	rating: number | null;
@@ -127,10 +129,13 @@ export interface BBCBookDetail extends BBCBook {
 
 export interface BBCSeriesSearchResult {
 	id: BBCSeries['id'];
+	providerId: BBCSeries['providerId'];
 	url: BBCSeries['url'];
 	type: BBCSeries['type'];
 	title: BBCSeries['title'];
 	thumbnail: BBCSeries['thumbnail'];
+	mappedId?: string | null;
+	mergedProviders?: string[];
 	bookType: BBCSeries['bookType'];
 	publicationType: BBCSeries['publicationType'];
 	isMature: BBCSeries['isMature'];
@@ -602,5 +607,58 @@ export default class BBC_API {
 		);
 
 		return allData;
+	}
+
+	async getDiscoverySeriesMapped(mappedId: string): Promise<{ data: BBCSeriesDetail }> {
+		const res = await fetch(`${this.apiUrl}/discovery/series/${encodeURIComponent(mappedId)}`);
+		if (!res.ok) {
+			throw new BBC_API_Error(`Failed to fetch mapped series: HTTP ${res.status}`);
+		}
+		return await res.json();
+	}
+
+	async getDiscovery(): Promise<{
+		newlyAddedBooks: BBCBookDetail[];
+		newlyAddedSeries: BBCSeriesDetail[];
+		newlyMergedSeries: BBCSeriesDetail[];
+		recentlyReleasedBooks: BBCBookDetail[];
+	}> {
+		const res = await fetch(`${this.apiUrl}/discovery`);
+		if (!res.ok) throw new BBC_API_Error(`Failed to fetch discovery: HTTP ${res.status}`);
+		const json = await res.json();
+		return json.data;
+	}
+
+	async searchMergedSeries(
+		query: string,
+		mature: boolean
+	): Promise<BBCListResponse<BBCSeriesDetail>> {
+		const res = await fetch(
+			`${this.apiUrl}/discovery/search?q=${encodeURIComponent(query)}&mature=${mature}`
+		);
+		if (!res.ok) throw new BBC_API_Error(`Failed to search discovery: HTTP ${res.status}`);
+		return res.json();
+	}
+
+	private async fetchPaginated<T>(url: string, page: number): Promise<BBCListResponse<T>> {
+		const res = await fetch(`${url}?page=${page}`);
+		if (!res.ok) throw new BBC_API_Error(`Failed to fetch paginated data: HTTP ${res.status}`);
+		return res.json();
+	}
+
+	async getDiscoverySeriesMerged(page: number = 1): Promise<BBCListResponse<BBCSeriesDetail>> {
+		return this.fetchPaginated(`${this.apiUrl}/discovery/series/merged`, page);
+	}
+
+	async getDiscoverySeriesNew(page: number = 1): Promise<BBCListResponse<BBCSeriesDetail>> {
+		return this.fetchPaginated(`${this.apiUrl}/discovery/series/new`, page);
+	}
+
+	async getDiscoveryBooksNew(page: number = 1): Promise<BBCListResponse<BBCBookDetail>> {
+		return this.fetchPaginated(`${this.apiUrl}/discovery/books/new`, page);
+	}
+
+	async getDiscoveryBooksReleased(page: number = 1): Promise<BBCListResponse<BBCBookDetail>> {
+		return this.fetchPaginated(`${this.apiUrl}/discovery/books/released`, page);
 	}
 }

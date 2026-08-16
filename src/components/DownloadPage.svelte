@@ -47,9 +47,11 @@
 	import { FileSystem } from '../lib/svelte/filesystem.svelte.ts';
 	import { downloadLocation } from '../lib/locations.ts';
 	import Tooltip from './Tooltip.svelte';
+	import WsrvApi from '../lib/apis/wsrv';
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();
+	const imageApi = new WsrvApi();
 
 	function updateLocationStorage() {
 		if (downloadLocation.storageKey)
@@ -353,7 +355,7 @@
 
 							<figure class="z-0 size-full">
 								<Image
-									src={book.thumbnail}
+									src={imageApi.getUrl(book.thumbnail, { width: 320, output: 'webp' }).href}
 									alt="{book.title} book cover"
 									class="w-full {bookSeries?.isMature &&
 									matureContentSetting.value === 'blur' &&
@@ -428,7 +430,7 @@
 
 							<ul
 								tabindex="-1"
-								class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm sm:hidden"
+								class="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow-sm sm:hidden"
 							>
 								<li>
 									<button
@@ -505,7 +507,7 @@
 
 						<ul
 							tabindex="-1"
-							class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+							class="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow-sm"
 						>
 							<li>
 								<button

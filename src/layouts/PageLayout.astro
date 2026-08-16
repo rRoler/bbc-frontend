@@ -13,6 +13,8 @@ import {
 	settingsLocation,
 	sourceCodeLocation,
 	statusLocation,
+	discoveryLocation,
+	homeLocation,
 } from '../lib/locations.ts';
 import Tooltip from '../components/Tooltip.svelte';
 
@@ -41,25 +43,15 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 				<div class="navbar-center gap-2">
 					<a
 						class={'btn-ghost btn' + (!props.disableSearch ? ' hidden sm:inline-flex' : '')}
-						href="/"
+						href={homeLocation.path}
 						title="Big Book Covers"
 					>
 						<AppTitle />
 					</a>
-
-					{
-						!props.disableSearch && (
-							<GlobalSearchBox client:load class="inline-flex lg:hidden" size="md" />
-						)
-					}
 				</div>
 
 				<div class="navbar-end gap-2">
-					{
-						!props.disableSearch && (
-							<GlobalSearchBox client:load class="hidden lg:inline-flex" size="lg" />
-						)
-					}
+					{!props.disableSearch && <GlobalSearchBox client:load size="lg" />}
 
 					<Tooltip client:load position="bottom" tip={donationLocation.label}>
 						<a
@@ -84,6 +76,12 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 					<Tooltip client:load position="bottom" tip={statusLocation.label}>
 						<a class="btn btn-ghost btn-circle hidden lg:inline-flex" href={statusLocation.path}>
 							<statusLocation.Icon class="size-6" />
+						</a>
+					</Tooltip>
+
+					<Tooltip client:load position="bottom" tip={discoveryLocation.label}>
+						<a class="btn btn-ghost btn-circle" href={discoveryLocation.path}>
+							<discoveryLocation.Icon class="size-6" />
 						</a>
 					</Tooltip>
 

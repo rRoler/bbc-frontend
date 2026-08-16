@@ -1,0 +1,14 @@
+---
+import PageLayout from '../../../../layouts/PageLayout.astro';
+import DiscoveryPaginatedPage from '../../../../components/DiscoveryPaginatedPage.svelte';
+import { discoveryBooksNewLocation } from '../../../../lib/locations.ts';
+---
+
+<PageLayout title={discoveryBooksNewLocation.label}>
+	<DiscoveryPaginatedPage
+		client:load
+		type="books-new"
+		title={discoveryBooksNewLocation.label}
+		gradient="from-warning to-error"
+	/>
+</PageLayout>

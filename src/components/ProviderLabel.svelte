@@ -7,11 +7,13 @@
 		class: className,
 		textClass,
 		iconClass,
+		showText = true,
 	}: {
 		provider: Provider;
 		class?: string;
 		textClass?: string;
 		iconClass?: string;
+		showText?: boolean;
 	} = $props();
 
 	const Flag = $derived(langToFlag(provider.locale));
@@ -40,11 +42,13 @@
 			alt="{provider.name} logo"
 		/>
 	</div>
-	<p
-		class="bg-clip-text! font-semibold text-transparent text-shadow-sm {textClass || ''}"
-		style="background: linear-gradient(to right, {provider.colors.primary}, {provider.colors
-			.secondary});"
-	>
-		{provider.name}
-	</p>
+	{#if showText}
+		<p
+			class="bg-clip-text! font-semibold text-transparent text-shadow-sm {textClass || ''}"
+			style="background: linear-gradient(to right, {provider.colors.primary}, {provider.colors
+				.secondary});"
+		>
+			{provider.name}
+		</p>
+	{/if}
 </div>

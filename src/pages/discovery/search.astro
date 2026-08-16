@@ -1,0 +1,9 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import DiscoverySearchPage from '../../components/DiscoverySearchPage.svelte';
+import { discoverySearchLocation } from '../../lib/locations.ts';
+---
+
+<PageLayout title={discoverySearchLocation.label} disableSearch={true}>
+	<DiscoverySearchPage client:load />
+</PageLayout>

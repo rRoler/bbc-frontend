@@ -1,6 +1,7 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
 import GlobalSearchBox from '../components/GlobalSearchBox.svelte';
+import Hover3D from '../components/Hover3D.svelte';
 ---
 
 <PageLayout fixedNav={true} disableSearch={true}>
@@ -9,21 +10,12 @@ import GlobalSearchBox from '../components/GlobalSearchBox.svelte';
 	>
 		<div class="h-0 bg-transparent sm:h-8"></div>
 
-		<div class="hover-3d max-w-full p-8">
+		<Hover3D class="max-w-full p-8">
 			<!-- content -->
 			<figure class="max-h-98 max-w-98 rounded-full p-2">
 				<img class="size-52 sm:size-96" src="/favicon.svg" alt="Big Book Covers Logo" />
 			</figure>
-			<!-- 8 empty divs needed for the 3D effect -->
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
+		</Hover3D>
 
 		<GlobalSearchBox client:load class="w-xl" size="xl" />
 	</div>

@@ -6,10 +6,14 @@
 		value = $bindable(''),
 		class: className = $bindable(''),
 		size = $bindable('md'),
+		searchPath = searchLocation.path,
+		placeholder = 'Search',
 	}: {
 		value?: string;
 		class?: string;
 		size?: 'md' | 'lg' | 'xl';
+		searchPath?: string;
+		placeholder?: string;
 	} = $props();
 
 	let inputEl = $state<HTMLInputElement>();
@@ -18,7 +22,7 @@
 	let iconClass = $state<string>('');
 	let kbdClass = $state<string>('');
 
-	let searchValue = $derived<string>(`${searchLocation.path}?q=${encodeURIComponent(value)}`);
+	let searchValue = $derived<string>(`${searchPath}?q=${encodeURIComponent(value)}`);
 
 	switch (size) {
 		case 'md':
@@ -61,7 +65,9 @@
 		bind:value
 		onkeydown={handleKeyDown}
 		type="search"
-		placeholder="Search"
+		required
+		{placeholder}
+		class="w-full grow"
 	/>
 
 	<span

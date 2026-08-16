@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Search, LayoutGrid, X, ExternalLink, EllipsisVertical, Link2 } from 'lucide-svelte';
+	import { LayoutGrid, X, ExternalLink, EllipsisVertical, Link2 } from 'lucide-svelte';
 	import BBC_API, { type BBCSeries, type BBCSeriesSearchResult } from '../lib/apis/bbc.ts';
 	import WsrvApi from '../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../lib/svelte/app.svelte.ts';
@@ -15,6 +15,7 @@
 	} from '../lib/utils.ts';
 	import Image from './Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
+	import MainSearchBox from './MainSearchBox.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
 	import {
 		autoMatchResultsSetting,
@@ -201,10 +202,6 @@
 		if (!currentAbortController.signal.aborted) searching = false;
 	}
 
-	function handleKeys(event: KeyboardEvent) {
-		if (event.key === 'Enter') handleSubmit();
-	}
-
 	function parseTextVariables(series: Partial<BBCSeries>, { providerId }: { providerId?: string }) {
 		const vars: [string, string][] = [];
 		const provider = allProviders.updated.find((p) => p.id === providerId);
@@ -350,18 +347,7 @@
 </script>
 
 <div class="relative flex h-full w-full flex-col items-center lg:w-5/6">
-	<label class="input input-xl input-primary w-full shrink-0">
-		<input
-			bind:value={searchQuery}
-			onkeydown={handleKeys}
-			type="search"
-			required
-			placeholder="Search"
-		/>
-		<button onclick={handleSubmit} class="btn btn-circle btn-ghost">
-			<Search class="size-6" />
-		</button>
-	</label>
+	<MainSearchBox bind:value={searchQuery} onsubmit={handleSubmit} />
 
 	<div class="flex w-fit flex-col items-center justify-start gap-4 pt-4 sm:w-full sm:flex-row">
 		<ProviderSelector
@@ -481,7 +467,7 @@
 										<figure class="z-0 size-full">
 											<Image
 												src={series.thumbnail
-													? imageApi.getUrl(series.thumbnail, { width: 168 }).href
+													? imageApi.getUrl(series.thumbnail, { width: 168, output: 'webp' }).href
 													: ''}
 												alt="{series.title} series thumbnail"
 												class="w-full {series.isMature &&
@@ -524,7 +510,7 @@
 
 				<ul
 					tabindex="-1"
-					class="dropdown-content menu bg-base-100 rounded-box z-1 w-36 min-w-fit p-2 shadow-sm"
+					class="dropdown-content menu bg-base-100 rounded-box z-50 w-36 min-w-fit p-2 shadow-sm"
 				>
 					<li>
 						<button onclick={() => copySelectedLinksToClipboard()}>
