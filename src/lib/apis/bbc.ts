@@ -114,7 +114,7 @@ export interface BBCBook {
 	isbn: string | null;
 	price: number | null;
 	currency: string | null;
-	isMature?: boolean;
+	isMature: boolean;
 	pageCount: number | null;
 	tags: string[] | null;
 	rating: number | null;
