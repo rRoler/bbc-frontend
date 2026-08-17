@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BBC_API, {
 		type BBCSeriesDetail,
+		type BBCSeriesMerged,
 		type BBCBookDetail,
 		type BBCListResponse,
 	} from '../../lib/apis/bbc.ts';
@@ -21,7 +22,9 @@
 
 	const api = new BBC_API();
 	let currentPage = $state<number>(1);
-	let data = $state<BBCListResponse<BBCSeriesDetail | BBCBookDetail> | null>(null);
+	let data = $state<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged | BBCBookDetail> | null>(
+		null
+	);
 	let loading = $state<boolean>(true);
 
 	const books = $derived(
@@ -31,7 +34,7 @@
 	);
 	const seriesList = $derived(
 		type !== 'books-new' && type !== 'books-released' && data
-			? (data.data as BBCSeriesDetail[])
+			? (data.data as (BBCSeriesDetail | BBCSeriesMerged)[])
 			: []
 	);
 
@@ -101,7 +104,7 @@
 						<BookCard book={item} />
 					{/each}
 				{:else}
-					{#each seriesList as item (item.providerId + '-' + item.id)}
+					{#each seriesList as item (('providerId' in item ? item.providerId : 'merged') + '-' + item.id)}
 						<SeriesCard series={item} />
 					{/each}
 				{/if}

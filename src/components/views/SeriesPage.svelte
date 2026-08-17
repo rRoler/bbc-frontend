@@ -1,15 +1,30 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { capitalizeFirstLetter, getAllSvelteSearchParams } from '../../lib/utils.ts';
+	import {
+		capitalizeFirstLetter,
+		getAllSvelteSearchParams,
+		getLocaleName,
+		langToFlag,
+	} from '../../lib/utils.ts';
+	import { fade } from 'svelte/transition';
 	import { downloadLocation } from '../../lib/locations.ts';
-	import { Download, EllipsisVertical, X, Check, Plus } from 'lucide-svelte';
+	import {
+		Download,
+		EllipsisVertical,
+		X,
+		Check,
+		Plus,
+		ChevronLeft,
+		ChevronRight,
+	} from 'lucide-svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Hover3D from '../ui/Hover3D.svelte';
 	import userState from '../../lib/svelte/user.svelte.ts';
 	import { ALLOWED_EDIT_ROLES } from '../../lib/constants.ts';
 	import BBC_API, {
 		type BBCSeriesDetail,
+		type BBCSeriesMerged,
 		type BBCBook,
 		type BBCSeriesSearchResult,
 	} from '../../lib/apis/bbc.ts';
@@ -21,6 +36,7 @@
 	import Image from '../ui/Image.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
 	import ProviderLangSelector from '../domain/ProviderLangSelector.svelte';
+	import ProviderLabel from '../domain/ProviderLabel.svelte';
 	import { appState, addAppError } from '../../lib/svelte/app.svelte.ts';
 	import type { Provider } from '../../lib/svelte/providers.svelte.ts';
 	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
@@ -35,9 +51,35 @@
 
 	let isMerged = $derived(Object.keys(mergedSeriesData).length > 0);
 
-	// Aggregated Hero Data
-	let mergedHeroSeries = $state<BBCSeriesDetail | null>(null);
+	let mergedHeroSeries = $state<BBCSeriesMerged | null>(null);
 	let heroSeries = $derived(isMerged ? mergedHeroSeries : singleSeriesData);
+
+	let mainTitle = $derived.by(() => {
+		if (!heroSeries) return '';
+		const cjkRegex = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\uFAFF]/;
+
+		if ('titles' in heroSeries) {
+			if (!heroSeries.titles || heroSeries.titles.length === 0) return '';
+			const cjkTitle = heroSeries.titles.find((t) => cjkRegex.test(t.title));
+			if (cjkTitle) return cjkTitle.title;
+			return heroSeries.titles[0].title;
+		}
+
+		if (heroSeries.title && cjkRegex.test(heroSeries.title)) return heroSeries.title;
+		if (heroSeries.altTitles) {
+			const cjkAlt = heroSeries.altTitles.find((t) => cjkRegex.test(t));
+			if (cjkAlt) return cjkAlt;
+		}
+		return heroSeries.title ?? '';
+	});
+
+	let mainDescription = $derived.by(() => {
+		if (!heroSeries) return '';
+		if ('descriptions' in heroSeries) {
+			return heroSeries.descriptions?.[0]?.description ?? '';
+		}
+		return heroSeries.description ?? '';
+	});
 
 	let allSubSeries = $derived.by(() => {
 		const raw = isMerged
@@ -152,18 +194,26 @@
 		for (const series of allSubSeries) {
 			if (series.title && cjkRegex.test(series.title)) return series.title;
 			if (series.altTitles) {
-				const cjkAlt = series.altTitles.find((t) => cjkRegex.test(t));
-				if (cjkAlt) return cjkAlt;
+				const cjkAlt = series.altTitles.find((t) => typeof t === 'string' && cjkRegex.test(t));
+				if (cjkAlt) return cjkAlt as string;
 			}
 		}
 
 		if (heroSeries) {
-			if (heroSeries.title && cjkRegex.test(heroSeries.title)) return heroSeries.title;
-			if (heroSeries.altTitles) {
-				const cjkAlt = heroSeries.altTitles.find((t) => cjkRegex.test(t));
-				if (cjkAlt) return cjkAlt;
+			if ('titles' in heroSeries) {
+				const cjkTitle = heroSeries.titles?.find((t) => cjkRegex.test(t.title));
+				if (cjkTitle) return cjkTitle.title;
+				return heroSeries.titles?.[0]?.title ?? '';
+			} else {
+				if (heroSeries.title && cjkRegex.test(heroSeries.title)) return heroSeries.title;
+				if (heroSeries.altTitles) {
+					const cjkAlt = heroSeries.altTitles.find(
+						(t) => typeof t === 'string' && cjkRegex.test(t)
+					);
+					if (cjkAlt) return cjkAlt as string;
+				}
+				return heroSeries.title ?? '';
 			}
-			return heroSeries.title ?? '';
 		}
 
 		return '';
@@ -418,6 +468,50 @@
 
 		return list;
 	});
+
+	function getProviderName(providerId: string): string {
+		return allProviders.providers.find((p) => p.id === providerId)?.name || providerId;
+	}
+
+	let mergedDescriptions = $derived.by(() => {
+		if (!mergedHeroSeries?.descriptions) return [];
+		return mergedHeroSeries.descriptions;
+	});
+
+	let mergedTitles = $derived.by(() => {
+		if (!mergedHeroSeries) return [];
+		const titles: { language: string | null; title: string; isAlt: boolean }[] = [];
+		if (mergedHeroSeries.titles) {
+			mergedHeroSeries.titles.forEach((mt) => {
+				if (mt.title !== mainTitle) {
+					titles.push({ language: mt.language, title: mt.title, isAlt: false });
+				}
+			});
+		}
+		if (mergedHeroSeries.altTitles) {
+			mergedHeroSeries.altTitles.forEach((mat) => {
+				mat.altTitles.forEach((altTitle) => {
+					titles.push({
+						language: mat.language,
+						title: altTitle,
+						isAlt: true,
+					});
+				});
+			});
+		}
+
+		const seen = new SvelteSet<string>();
+		return titles.filter((t) => {
+			const key = `${t.title}-${t.language}`;
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+	});
+
+	let activeDescIdx = $state(0);
+	let showAllTitles = $state(false);
+	let showAllTags = $state(false);
 </script>
 
 {#if heroSeries}
@@ -435,15 +529,15 @@
 			{/if}
 
 			<div
-				class="hero-content relative z-10 w-full max-w-6xl flex-col items-center gap-8 py-12 md:flex-row md:items-start md:gap-12 md:py-20"
+				class="hero-content z-10 w-full max-w-7xl flex-col items-start gap-8 p-4 py-8 md:flex-row"
 			>
 				<!-- Cover -->
-				<Hover3D class="z-10 w-48 shrink-0 md:w-64 lg:w-72">
+				<Hover3D class="z-10 mx-auto w-48 shrink-0 md:mx-0 md:w-64 lg:w-72">
 					<div class="rounded-box bg-base-300 overflow-hidden shadow-2xl">
 						{#if heroSeries.thumbnail}
 							<Image
 								src={imageApi.getUrl(heroSeries.thumbnail, { width: 640, output: 'webp' }).href}
-								alt="{heroSeries.title} cover"
+								alt="{mainTitle} cover"
 								class="aspect-[2.1/3] h-auto w-full object-cover {heroSeries.isMature &&
 								matureContentSetting.value === 'blur'
 									? 'blur-lg'
@@ -451,7 +545,7 @@
 							/>
 						{:else}
 							<div
-								class="bg-base-300 flex aspect-[2.1/3] h-auto w-full items-center justify-center rounded-lg"
+								class="flex aspect-[2.1/3] w-full items-center justify-center font-bold opacity-30"
 							>
 								No Cover
 							</div>
@@ -463,17 +557,19 @@
 				</Hover3D>
 
 				<!-- Details -->
-				<div class="flex w-full flex-col gap-4 text-center md:text-left">
-					<div class="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-						<h1 class="line-clamp-3 text-3xl leading-tight font-bold md:text-5xl">
+				<div class="z-10 flex w-full flex-col">
+					<div class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+						<h1
+							class="line-clamp-3 text-center text-3xl leading-tight font-bold md:text-left md:text-5xl"
+						>
 							<span class="from-primary to-secondary bg-linear-to-r bg-clip-text text-transparent">
-								{heroSeries.title}
+								{mainTitle}
 							</span>
 						</h1>
 					</div>
 
 					<div
-						class="flex flex-wrap justify-center gap-2 text-sm font-semibold opacity-80 md:justify-start"
+						class="mb-4 ml-2 flex flex-wrap justify-center gap-2 text-sm font-semibold opacity-80 md:justify-start"
 					>
 						{#if heroSeries.authors?.length}
 							<span
@@ -490,7 +586,35 @@
 						{/if}
 					</div>
 
-					<div class="my-2 flex flex-wrap justify-center gap-2 md:justify-start">
+					{#if mergedTitles.length > 0}
+						<div class="mb-5 flex flex-wrap items-center justify-center gap-2 md:justify-start">
+							{#each mergedTitles.slice(0, showAllTitles ? mergedTitles.length : 4) as title, idx (title.title + '-' + title.language + '-' + idx)}
+								<div class="badge badge-neutral shadow-sm">
+									{#if title.language}
+										{@const Flag = langToFlag(title.language)}
+										{#if Flag}
+											<Flag size="14" class="rounded-xs opacity-80" />
+										{:else}
+											<span class="text-[10px] uppercase opacity-40"
+												>({getLocaleName(title.language)})</span
+											>
+										{/if}
+									{/if}
+									<span class="text-xs font-semibold">{title.title}</span>
+								</div>
+							{/each}
+							{#if mergedTitles.length > 4}
+								<button
+									class="btn btn-ghost btn-xs text-xs font-normal opacity-70 hover:opacity-100"
+									onclick={() => (showAllTitles = !showAllTitles)}
+								>
+									{showAllTitles ? 'Show Less' : `+${mergedTitles.length - 4} More`}
+								</button>
+							{/if}
+						</div>
+					{/if}
+
+					<div class="mb-4 flex flex-wrap justify-center gap-2 md:justify-start">
 						{#if heroSeries.bookType}
 							<span class="badge badge-primary capitalize">{heroSeries.bookType}</span>
 						{/if}
@@ -499,26 +623,105 @@
 						{/if}
 					</div>
 
-					{#if heroSeries.description}
+					{#if mergedDescriptions.length > 0}
+						{@const currentDesc = mergedDescriptions[activeDescIdx]}
+						{@const prov = allProviders.providers.find((p) => p.id === currentDesc.providerId)}
+						<div class="mt-2 w-full max-w-full">
+							<div
+								class="bg-base-100/50 border-base-300 rounded-box relative overflow-hidden border p-4 shadow-sm backdrop-blur-sm"
+							>
+								<div class="mb-4 flex items-center justify-between">
+									<div class="flex flex-wrap items-center gap-2">
+										{#if prov}
+											<ProviderLabel provider={prov} />
+										{:else}
+											<span class="badge badge-primary font-semibold">
+												{getProviderName(currentDesc.providerId)}
+											</span>
+										{/if}
+									</div>
+
+									{#if mergedDescriptions.length > 1}
+										<div class="flex gap-2">
+											<button
+												class="btn btn-circle btn-xs sm:btn-sm"
+												onclick={() =>
+													(activeDescIdx =
+														(activeDescIdx - 1 + mergedDescriptions.length) %
+														mergedDescriptions.length)}
+												aria-label="Previous synopsis"
+											>
+												<ChevronLeft class="size-4" />
+											</button>
+											<button
+												class="btn btn-circle btn-xs sm:btn-sm"
+												onclick={() =>
+													(activeDescIdx = (activeDescIdx + 1) % mergedDescriptions.length)}
+												aria-label="Next synopsis"
+											>
+												<ChevronRight class="size-4" />
+											</button>
+										</div>
+									{/if}
+								</div>
+
+								<div class="relative w-full">
+									{#each mergedDescriptions as desc, i (desc.providerId + '-' + i)}
+										{#if i === activeDescIdx}
+											<div
+												class="prose prose-sm max-h-48 max-w-none overflow-y-auto"
+												in:fade={{ duration: 200 }}
+											>
+												<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+												{@html desc.description.replace(/\n/g, '<br/>')}
+											</div>
+										{/if}
+									{/each}
+								</div>
+
+								{#if mergedDescriptions.length > 1}
+									<div class="mt-4 flex justify-center gap-1">
+										{#each mergedDescriptions as _, i (i)}
+											<div
+												class="h-1.5 rounded-full transition-all duration-300 {i === activeDescIdx
+													? 'bg-primary w-4'
+													: 'bg-base-content/20 w-1.5'}"
+											></div>
+										{/each}
+									</div>
+								{/if}
+							</div>
+						</div>
+					{:else if mainDescription && !('descriptions' in heroSeries)}
 						<div
 							class="prose prose-sm md:prose-base mt-2 max-h-48 max-w-none overflow-y-auto opacity-80"
 						>
 							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-							{@html heroSeries.description.replace(/\n/g, '<br/>')}
+							{@html mainDescription.replace(/\n/g, '<br/>')}
 						</div>
 					{/if}
 
 					{#if heroSeries.tags?.length}
-						<div class="mt-4 flex flex-wrap justify-center gap-1 md:justify-start">
-							{#each heroSeries.tags.slice(0, 15) as tag (tag)}
+						<div
+							class="mt-4 mb-2 flex flex-wrap items-center justify-center gap-1 md:justify-start"
+						>
+							{#each heroSeries.tags.slice(0, showAllTags ? heroSeries.tags.length : 10) as tag (tag)}
 								<span class="badge badge-sm badge-neutral">{capitalizeFirstLetter(tag)}</span>
 							{/each}
+							{#if heroSeries.tags.length > 10}
+								<button
+									class="btn btn-ghost btn-xs text-xs font-normal opacity-70 hover:opacity-100"
+									onclick={() => (showAllTags = !showAllTags)}
+								>
+									{showAllTags ? 'Show Less' : `+${heroSeries.tags.length - 10} More`}
+								</button>
+							{/if}
 						</div>
 					{/if}
 
 					<!-- Tracking Sites -->
 					{#if trackers.length > 0}
-						<div class="my-2 mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
+						<div class="mt-3 mb-2 flex flex-wrap justify-center gap-2 md:justify-start">
 							{#each trackers as tracker (tracker.name)}
 								<a
 									href={tracker.url}

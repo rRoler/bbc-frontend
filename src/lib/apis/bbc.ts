@@ -80,12 +80,21 @@ export interface BBCSeriesDetail extends BBCSeries {
 	mappedId: string | null;
 	mappedBy: string | null;
 	mappedAt: string | null;
-	mergedProviders?: string[] | null;
 	lastFetchedAt: string | null;
 	createdAt: string | null;
 	updatedAt: string | null;
 	editedBy: string | null;
 	lastEditedAt: string | null;
+}
+
+export interface BBCSeriesMerged extends Omit<
+	BBCSeriesDetail,
+	'title' | 'description' | 'altTitles' | 'providerId'
+> {
+	providers?: string[] | null;
+	titles: { providerId: string; title: string; language: string | null }[];
+	descriptions: { providerId: string; description: string; language: string | null }[];
+	altTitles: { providerId: string; altTitles: string[]; language: string | null }[];
 }
 
 export interface BBCBook {
@@ -623,7 +632,7 @@ export default class BBC_API {
 		}
 	}
 
-	async getDiscoverySeriesMapped(mappedId: string): Promise<{ data: BBCSeriesDetail }> {
+	async getDiscoverySeriesMapped(mappedId: string): Promise<{ data: BBCSeriesMerged }> {
 		const res = await fetch(`${this.apiUrl}/discovery/series/${encodeURIComponent(mappedId)}`);
 		if (!res.ok) {
 			throw new BBC_API_Error(`Failed to fetch mapped series: HTTP ${res.status}`);
@@ -633,8 +642,8 @@ export default class BBC_API {
 
 	async getDiscovery(): Promise<{
 		newlyAddedBooks: BBCBookDetail[];
-		newlyAddedSeries: BBCSeriesDetail[];
-		newlyMergedSeries: BBCSeriesDetail[];
+		newlyAddedSeries: (BBCSeriesDetail | BBCSeriesMerged)[];
+		newlyMergedSeries: (BBCSeriesDetail | BBCSeriesMerged)[];
 		recentlyReleasedBooks: BBCBookDetail[];
 	}> {
 		const res = await fetch(`${this.apiUrl}/discovery`);
@@ -646,7 +655,7 @@ export default class BBC_API {
 	async searchMergedSeries(
 		query: string,
 		mature: boolean
-	): Promise<BBCListResponse<BBCSeriesDetail>> {
+	): Promise<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
 		const res = await fetch(
 			`${this.apiUrl}/discovery/search?q=${encodeURIComponent(query)}&mature=${mature}`
 		);
@@ -660,11 +669,15 @@ export default class BBC_API {
 		return res.json();
 	}
 
-	async getDiscoverySeriesMerged(page: number = 1): Promise<BBCListResponse<BBCSeriesDetail>> {
+	async getDiscoverySeriesMerged(
+		page: number = 1
+	): Promise<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
 		return this.fetchPaginated(`${this.apiUrl}/discovery/series/merged`, page);
 	}
 
-	async getDiscoverySeriesNew(page: number = 1): Promise<BBCListResponse<BBCSeriesDetail>> {
+	async getDiscoverySeriesNew(
+		page: number = 1
+	): Promise<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
 		return this.fetchPaginated(`${this.apiUrl}/discovery/series/new`, page);
 	}
 

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import type { BBCSeries, BBCSeriesDetail, BBCSeriesSearchResult } from '../../lib/apis/bbc.ts';
+	import type {
+		BBCSeries,
+		BBCSeriesDetail,
+		BBCSeriesMerged,
+		BBCSeriesSearchResult,
+	} from '../../lib/apis/bbc.ts';
 	import { seriesLocation } from '../../lib/locations.ts';
 	import allProviders from '../../lib/svelte/providers.svelte.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
@@ -16,7 +21,7 @@
 		disableLink = false,
 		selected = false,
 	}: {
-		series: BBCSeries | BBCSeriesDetail | BBCSeriesSearchResult;
+		series: BBCSeries | BBCSeriesDetail | BBCSeriesMerged | BBCSeriesSearchResult;
 		href?: string;
 		showProvider?: boolean;
 		disableLink?: boolean;
@@ -24,9 +29,7 @@
 	} = $props();
 
 	const imageApi = new WsrvApi();
-	const mergedProviderIds = $derived(
-		'mergedProviders' in series ? series.mergedProviders || [] : []
-	);
+	const mergedProviderIds = $derived('providers' in series ? series.providers || [] : []);
 	const isSingleMerged = $derived(mergedProviderIds.length === 1);
 
 	const linkHref = $derived(
@@ -34,8 +37,21 @@
 			? href
 			: 'mappedId' in series && series.mappedId
 				? `${seriesLocation.path}?id=${series.mappedId}`
-				: `${seriesLocation.path}?id=${series.providerId || 'unknown'}/${series.id}`
+				: `${seriesLocation.path}?id=${'providerId' in series ? series.providerId : 'merged'}/${series.id}`
 	);
+
+	const cardTitle = $derived.by(() => {
+		if ('titles' in series && series.titles && series.titles.length > 0) {
+			const cjkRegex = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\uFAFF]/;
+			const cjkTitle = series.titles.find((t) => cjkRegex.test(t.title));
+			if (cjkTitle) return cjkTitle.title;
+			return series.titles[0].title;
+		}
+		if ('title' in series) {
+			return series.title;
+		}
+		return 'Unknown Title';
+	});
 </script>
 
 <div
@@ -50,7 +66,7 @@
 >
 	{#if !disableLink}
 		<a href={linkHref} class="absolute inset-0 z-10">
-			<span class="sr-only">View {series.title}</span>
+			<span class="sr-only">View {cardTitle}</span>
 		</a>
 	{/if}
 
@@ -58,7 +74,7 @@
 		{#if series.thumbnail}
 			<Image
 				src={imageApi.getUrl(series.thumbnail, { width: 320, output: 'webp' }).href}
-				alt="{series.title} cover"
+				alt="{cardTitle} cover"
 				class="size-full object-cover transition-transform duration-300 group-hover:scale-105 {series.isMature &&
 				matureContentSetting.value === 'blur'
 					? 'blur-lg'
@@ -126,9 +142,9 @@
 	<div class="card-body items-center p-4">
 		<h3
 			class="line-clamp-2 text-center text-sm leading-tight font-bold sm:text-base"
-			title={series.title}
+			title={cardTitle}
 		>
-			{series.title}
+			{cardTitle}
 		</h3>
 
 		<div class="mt-auto flex flex-col items-center gap-2 pt-2">
@@ -146,7 +162,7 @@
 						{/if}
 					{/each}
 				</div>
-			{:else if showProvider && series.providerId}
+			{:else if showProvider && 'providerId' in series && series.providerId}
 				{@const p = allProviders.providers.find((p) => p.id === series.providerId)}
 				{#if p}
 					<ProviderLabel provider={p} iconClass="size-4" textClass="text-xs sm:text-sm" />

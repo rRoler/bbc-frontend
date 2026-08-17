@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import BBC_API, { type BBCSeriesDetail, type BBCBookDetail } from '../../lib/apis/bbc.ts';
+	import BBC_API, {
+		type BBCBookDetail,
+		type BBCSeriesDetail,
+		type BBCSeriesMerged,
+	} from '../../lib/apis/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import GlobalSearchBox from '../domain/GlobalSearchBox.svelte';
@@ -17,8 +21,8 @@
 
 	let data = $state<{
 		newlyAddedBooks: BBCBookDetail[];
-		newlyAddedSeries: BBCSeriesDetail[];
-		newlyMergedSeries: BBCSeriesDetail[];
+		newlyAddedSeries: (BBCSeriesDetail | BBCSeriesMerged)[];
+		newlyMergedSeries: (BBCSeriesDetail | BBCSeriesMerged)[];
 		recentlyReleasedBooks: BBCBookDetail[];
 	} | null>(null);
 
@@ -115,7 +119,7 @@
 							>
 						</div>
 						<div class="flex w-full snap-x snap-mandatory space-x-4 overflow-x-auto p-4 pb-6">
-							{#each section.items as item (item.providerId + '-' + item.id)}
+							{#each section.items as item (('providerId' in item ? item.providerId : 'merged') + '-' + item.id)}
 								<div class="w-32 shrink-0 snap-start md:w-48 lg:w-56">
 									{#if section.type === 'series'}
 										<SeriesCard series={item as import('../../lib/apis/bbc.ts').BBCSeriesDetail} />

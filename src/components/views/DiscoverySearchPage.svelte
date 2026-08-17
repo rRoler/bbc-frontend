@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import BBC_API, { type BBCSeriesDetail, type BBCListResponse } from '../../lib/apis/bbc.ts';
+	import BBC_API, {
+		type BBCSeriesDetail,
+		type BBCSeriesMerged,
+		type BBCListResponse,
+	} from '../../lib/apis/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import { Search } from 'lucide-svelte';
 	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
@@ -10,7 +14,7 @@
 
 	const api = new BBC_API();
 
-	let data = $state<BBCListResponse<BBCSeriesDetail> | null>(null);
+	let data = $state<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged> | null>(null);
 	let searchQuery = $state('');
 	let searching = $state(false);
 
@@ -82,7 +86,7 @@
 			{data.count === 100 ? '(Limit reached)' : ''}
 		</div>
 		<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-			{#each data.data as series (series.providerId + '-' + series.id)}
+			{#each data.data as series (('providerId' in series ? series.providerId : 'merged') + '-' + series.id)}
 				<SeriesCard {series} />
 			{/each}
 		</div>
