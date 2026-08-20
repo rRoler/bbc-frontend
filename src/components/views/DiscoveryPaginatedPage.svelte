@@ -8,7 +8,7 @@
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import Pagination from '../ui/Pagination.svelte';
-	import { addAppError } from '../../lib/svelte/app.svelte.ts';
+	import { addAppError, appState } from '../../lib/svelte/app.svelte.ts';
 
 	let {
 		type,
@@ -25,7 +25,6 @@
 	let data = $state<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged | BBCBookDetail> | null>(
 		null
 	);
-	let loading = $state<boolean>(true);
 
 	const books = $derived(
 		(type === 'books-new' || type === 'books-released') && data
@@ -39,7 +38,7 @@
 	);
 
 	async function fetchData(pageNum: number) {
-		loading = true;
+		appState.loading = true;
 		try {
 			switch (type) {
 				case 'series-merged':
@@ -58,7 +57,7 @@
 		} catch (e: unknown) {
 			addAppError(e);
 		} finally {
-			loading = false;
+			appState.loading = false;
 		}
 	}
 
@@ -93,11 +92,7 @@
 	</div>
 
 	<div class="container mx-auto flex flex-col gap-8 px-4 py-12">
-		{#if loading}
-			<div class="flex justify-center p-12">
-				<span class="loading loading-spinner loading-lg text-primary"></span>
-			</div>
-		{:else if data && data.data.length > 0}
+		{#if data && data.data.length > 0}
 			<div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
 				{#if type === 'books-new' || type === 'books-released'}
 					{#each books as item (item.providerId + '-' + item.id)}
