@@ -29,7 +29,11 @@
 
 	// Tracking multi-selection
 	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
-	let selectedSeries = $state<SvelteSet<BBCSeriesSearchResult>>(new SvelteSet());
+	let selectedSeries = $state<SvelteSet<string>>(new SvelteSet());
+
+	function seriesKey(series: BBCSeriesSearchResult) {
+		return series.providerId + '::' + series.id;
+	}
 
 	const api = new BBC_API();
 	const MAX_SEARCH_TIME = 10000;
@@ -54,15 +58,20 @@
 	}
 
 	function toggleSelection(series: BBCSeriesSearchResult) {
-		if (selectedSeries.has(series)) {
-			selectedSeries.delete(series);
+		const key = seriesKey(series);
+		if (selectedSeries.has(key)) {
+			selectedSeries.delete(key);
 		} else {
-			selectedSeries.add(series);
+			selectedSeries.add(key);
 		}
 	}
 
+	let selectedResults = $derived.by(() =>
+		flattenedResults.filter((s) => selectedSeries.has(seriesKey(s)))
+	);
+
 	function handleAdd() {
-		onAdd(Array.from(selectedSeries));
+		onAdd(selectedResults);
 		close();
 	}
 
@@ -168,7 +177,7 @@
 										{series}
 										disableLink={true}
 										showProvider={true}
-										selected={selectedSeries.has(series)}
+										selected={selectedSeries.has(seriesKey(series))}
 									/>
 								</button>
 							{/each}
@@ -181,7 +190,7 @@
 		</div>
 
 		<div
-			class="border-base-200 mt-4 flex flex-col-reverse justify-between gap-4 border-t pt-4 sm:flex-row sm:items-center"
+			class="border-base-200 mt-4 flex flex-col justify-between gap-4 border-t pt-4 sm:flex-row sm:items-center"
 		>
 			<div
 				class="flex min-h-6 w-full items-center justify-center gap-2 opacity-70 sm:w-auto sm:justify-start"
