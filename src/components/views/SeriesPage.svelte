@@ -593,9 +593,9 @@
 									{#if title.language}
 										{@const Flag = langToFlag(title.language)}
 										{#if Flag}
-											<Flag size="14" class="rounded-xs opacity-80" />
+											<Flag size="14" class="shrink-0 rounded-xs opacity-80" />
 										{:else}
-											<span class="text-[10px] uppercase opacity-40"
+											<span class="shrink-0 text-[10px] uppercase opacity-40"
 												>({getLocaleName(title.language)})</span
 											>
 										{/if}
