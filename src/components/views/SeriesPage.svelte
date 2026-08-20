@@ -560,7 +560,7 @@
 				<div class="z-10 flex w-full flex-col">
 					<div class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
 						<h1
-							class="line-clamp-3 text-center text-3xl leading-tight font-bold md:text-left md:text-5xl"
+							class="line-clamp-3 text-center text-2xl leading-tight font-bold md:text-left md:text-5xl"
 						>
 							<span class="from-primary to-secondary bg-linear-to-r bg-clip-text text-transparent">
 								{mainTitle}
@@ -589,7 +589,7 @@
 					{#if mergedTitles.length > 0}
 						<div class="mb-5 flex flex-wrap items-center justify-center gap-2 md:justify-start">
 							{#each mergedTitles.slice(0, showAllTitles ? mergedTitles.length : 4) as title, idx (title.title + '-' + title.language + '-' + idx)}
-								<div class="badge badge-neutral shadow-sm">
+								<div class="badge badge-neutral h-fit shadow-sm">
 									{#if title.language}
 										{@const Flag = langToFlag(title.language)}
 										{#if Flag}

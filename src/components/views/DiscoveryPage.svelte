@@ -9,6 +9,7 @@
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import GlobalSearchBox from '../domain/GlobalSearchBox.svelte';
+	import { ChevronRight } from 'lucide-svelte';
 	import { addAppError } from '../../lib/svelte/app.svelte.ts';
 	import {
 		discoveryBooksNewLocation,
@@ -121,15 +122,26 @@
 		{#each sections as section (section.title)}
 			{#if section.loading || section.items.length > 0}
 				<section>
-					<div class="mb-6 flex items-end justify-between">
+					<div class="relative mb-6 flex items-center justify-between gap-4">
+						<a
+							href={section.linkHref}
+							class="absolute inset-0 sm:hidden"
+							aria-hidden="true"
+							tabindex="-1"
+						></a>
 						<h2
-							class="{section.gradient} bg-linear-to-r bg-clip-text text-3xl font-bold text-transparent"
+							class="{section.gradient} bg-linear-to-r bg-clip-text text-2xl font-bold text-transparent sm:text-3xl"
 						>
 							{section.title}
 						</h2>
-						<a href={section.linkHref} class="link {section.linkColor} link-hover font-semibold"
-							>View all</a
+						<a
+							href={section.linkHref}
+							class="link {section.linkColor} link-hover relative font-semibold"
+							aria-label="View all {section.title}"
 						>
+							<span class="hidden sm:inline">View all</span>
+							<ChevronRight class="size-6 sm:hidden" />
+						</a>
 					</div>
 
 					{#if section.loading}
