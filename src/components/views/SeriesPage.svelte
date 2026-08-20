@@ -512,6 +512,47 @@
 	let activeDescIdx = $state(0);
 	let showAllTitles = $state(false);
 	let showAllTags = $state(false);
+
+	let visibleDescIdx = $derived.by(() => {
+		if (mergedDescriptions.length === 0) return 0;
+		return Math.min(mergedDescriptions.length - 1, Math.max(0, activeDescIdx));
+	});
+
+	let swipeStart = $state<{ x: number; y: number } | null>(null);
+
+	function cycleDesc(delta: number) {
+		const n = mergedDescriptions.length;
+		if (n === 0) return;
+		activeDescIdx = (activeDescIdx + delta + n) % n;
+	}
+
+	function onDescPointerDown(e: PointerEvent) {
+		if (mergedDescriptions.length <= 1) return;
+		if (
+			(e.target as HTMLElement | null)?.closest(
+				'button, a, input, select, textarea, [role="button"]'
+			)
+		) {
+			return;
+		}
+		swipeStart = { x: e.clientX, y: e.clientY };
+		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+	}
+
+	function onDescPointerUp(e: PointerEvent) {
+		if (!swipeStart) return;
+		const dx = e.clientX - swipeStart.x;
+		const dy = e.clientY - swipeStart.y;
+		swipeStart = null;
+		if ((e.target as HTMLElement | null)?.closest('button')) return;
+		if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+			cycleDesc(dx < 0 ? 1 : -1);
+		}
+	}
+
+	function onDescPointerCancel() {
+		swipeStart = null;
+	}
 </script>
 
 {#if heroSeries}
@@ -624,11 +665,15 @@
 					</div>
 
 					{#if mergedDescriptions.length > 0}
-						{@const currentDesc = mergedDescriptions[activeDescIdx]}
+						{@const currentDesc = mergedDescriptions[visibleDescIdx]}
 						{@const prov = allProviders.providers.find((p) => p.id === currentDesc.providerId)}
 						<div class="mt-2 w-full max-w-full">
 							<div
-								class="bg-base-100/50 border-base-300 rounded-box relative overflow-hidden border p-4 shadow-sm backdrop-blur-sm"
+								class="bg-base-100/50 border-base-300 rounded-box relative touch-pan-y overflow-hidden border p-4 shadow-sm backdrop-blur-sm"
+								role="group"
+								onpointerdown={onDescPointerDown}
+								onpointerup={onDescPointerUp}
+								onpointercancel={onDescPointerCancel}
 							>
 								<div class="mb-4 flex items-center justify-between">
 									<div class="flex flex-wrap items-center gap-2">
@@ -644,19 +689,15 @@
 									{#if mergedDescriptions.length > 1}
 										<div class="flex gap-2">
 											<button
-												class="btn btn-circle btn-xs sm:btn-sm"
-												onclick={() =>
-													(activeDescIdx =
-														(activeDescIdx - 1 + mergedDescriptions.length) %
-														mergedDescriptions.length)}
+												class="btn btn-circle btn-sm"
+												onclick={() => cycleDesc(-1)}
 												aria-label="Previous synopsis"
 											>
 												<ChevronLeft class="size-4" />
 											</button>
 											<button
-												class="btn btn-circle btn-xs sm:btn-sm"
-												onclick={() =>
-													(activeDescIdx = (activeDescIdx + 1) % mergedDescriptions.length)}
+												class="btn btn-circle btn-sm"
+												onclick={() => cycleDesc(1)}
 												aria-label="Next synopsis"
 											>
 												<ChevronRight class="size-4" />
@@ -683,7 +724,7 @@
 									<div class="mt-4 flex justify-center gap-1">
 										{#each mergedDescriptions as _, i (i)}
 											<div
-												class="h-1.5 rounded-full transition-all duration-300 {i === activeDescIdx
+												class="h-1.5 rounded-full transition-all duration-300 {i === visibleDescIdx
 													? 'bg-primary w-4'
 													: 'bg-base-content/20 w-1.5'}"
 											></div>

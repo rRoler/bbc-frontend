@@ -192,16 +192,16 @@
 		<div
 			class="border-base-200 mt-4 flex flex-col justify-between gap-4 border-t pt-4 sm:flex-row sm:items-center"
 		>
-			<div
-				class="flex min-h-6 w-full items-center justify-center gap-2 opacity-70 sm:w-auto sm:justify-start"
-			>
-				{#if loadingProviders.size > 0}
+			{#if loadingProviders.size > 0}
+				<div
+					class="flex min-h-6 w-full items-center justify-center gap-2 opacity-70 sm:w-auto sm:justify-start"
+				>
 					<span class="loading loading-spinner loading-sm"></span>
 					<span class="text-sm">Searching remaining providers...</span>
-				{/if}
-			</div>
+				</div>
+			{/if}
 
-			<div class="flex w-full items-center justify-end gap-2 sm:w-auto">
+			<div class="flex w-full items-center justify-end gap-2 sm:ml-auto sm:w-auto">
 				<button class="btn btn-ghost" onclick={close}>Cancel</button>
 				<button class="btn btn-primary" disabled={selectedSeries.size === 0} onclick={handleAdd}>
 					Add {selectedSeries.size > 0 ? selectedSeries.size : ''} Series
