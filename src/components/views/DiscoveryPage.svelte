@@ -4,11 +4,12 @@
 		type BBCBookDetail,
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
+		type BBCListResponse,
 	} from '../../lib/apis/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import GlobalSearchBox from '../domain/GlobalSearchBox.svelte';
-	import { appState, addAppError } from '../../lib/svelte/app.svelte.ts';
+	import { addAppError } from '../../lib/svelte/app.svelte.ts';
 	import {
 		discoveryBooksNewLocation,
 		discoveryBooksReleasedLocation,
@@ -19,63 +20,76 @@
 
 	const api = new BBC_API();
 
-	let data = $state<{
-		newlyAddedBooks: BBCBookDetail[];
-		newlyAddedSeries: (BBCSeriesDetail | BBCSeriesMerged)[];
-		newlyMergedSeries: (BBCSeriesDetail | BBCSeriesMerged)[];
-		recentlyReleasedBooks: BBCBookDetail[];
-	} | null>(null);
+	type SectionItem = BBCBookDetail | BBCSeriesDetail | BBCSeriesMerged;
 
-	const sections = $derived(
-		data
-			? [
-					{
-						title: discoveryBooksReleasedLocation.label,
-						gradient: 'from-error to-primary',
-						linkHref: discoveryBooksReleasedLocation.path,
-						linkColor: 'link-error',
-						items: data.recentlyReleasedBooks,
-						type: 'book',
-					},
-					{
-						title: discoverySeriesMergedLocation.label,
-						gradient: 'from-accent to-info',
-						linkHref: discoverySeriesMergedLocation.path,
-						linkColor: 'link-accent',
-						items: data.newlyMergedSeries,
-						type: 'series',
-					},
-					{
-						title: discoverySeriesNewLocation.label,
-						gradient: 'from-secondary to-accent',
-						linkHref: discoverySeriesNewLocation.path,
-						linkColor: 'link-secondary',
-						items: data.newlyAddedSeries,
-						type: 'series',
-					},
-					{
-						title: discoveryBooksNewLocation.label,
-						gradient: 'from-warning to-error',
-						linkHref: discoveryBooksNewLocation.path,
-						linkColor: 'link-warning',
-						items: data.newlyAddedBooks,
-						type: 'book',
-					},
-				].filter((s) => s.items.length > 0)
-			: []
-	);
+	type DiscoverySection = {
+		title: string;
+		gradient: string;
+		linkHref: string;
+		linkColor: string;
+		type: 'book' | 'series';
+		loading: boolean;
+		items: SectionItem[];
+		fetch: () => Promise<BBCListResponse<SectionItem>>;
+	};
+
+	const sections = $state<DiscoverySection[]>([
+		{
+			title: discoveryBooksReleasedLocation.label,
+			gradient: 'from-error to-primary',
+			linkHref: discoveryBooksReleasedLocation.path,
+			linkColor: 'link-error',
+			type: 'book',
+			loading: true,
+			items: [],
+			fetch: () => api.getDiscoveryBooksReleased(),
+		},
+		{
+			title: discoverySeriesMergedLocation.label,
+			gradient: 'from-accent to-info',
+			linkHref: discoverySeriesMergedLocation.path,
+			linkColor: 'link-accent',
+			type: 'series',
+			loading: true,
+			items: [],
+			fetch: () => api.getDiscoverySeriesMerged(),
+		},
+		{
+			title: discoverySeriesNewLocation.label,
+			gradient: 'from-secondary to-accent',
+			linkHref: discoverySeriesNewLocation.path,
+			linkColor: 'link-secondary',
+			type: 'series',
+			loading: true,
+			items: [],
+			fetch: () => api.getDiscoverySeriesNew(),
+		},
+		{
+			title: discoveryBooksNewLocation.label,
+			gradient: 'from-warning to-error',
+			linkHref: discoveryBooksNewLocation.path,
+			linkColor: 'link-warning',
+			type: 'book',
+			loading: true,
+			items: [],
+			fetch: () => api.getDiscoveryBooksNew(),
+		},
+	]);
 
 	let searchQuery = $state('');
 
-	onMount(async () => {
-		appState.loading = true;
-		try {
-			data = await api.getDiscovery();
-		} catch (e: unknown) {
-			addAppError(e);
-		} finally {
-			appState.loading = false;
-		}
+	onMount(() => {
+		Promise.all(
+			sections.map(async (section) => {
+				try {
+					section.items = (await section.fetch()).data;
+				} catch (e: unknown) {
+					addAppError(e);
+				} finally {
+					section.loading = false;
+				}
+			})
+		);
 	});
 </script>
 
@@ -104,37 +118,50 @@
 
 	<!-- Content Sections -->
 	<div class="container mx-auto flex flex-col gap-12 px-4 py-12">
-		{#if data}
-			{#if sections.length > 0}
-				{#each sections as section (section.title)}
-					<section>
-						<div class="mb-6 flex items-end justify-between">
-							<h2
-								class="{section.gradient} bg-linear-to-r bg-clip-text text-3xl font-bold text-transparent"
-							>
-								{section.title}
-							</h2>
-							<a href={section.linkHref} class="link {section.linkColor} link-hover font-semibold"
-								>View all</a
-							>
+		{#each sections as section (section.title)}
+			{#if section.loading || section.items.length > 0}
+				<section>
+					<div class="mb-6 flex items-end justify-between">
+						<h2
+							class="{section.gradient} bg-linear-to-r bg-clip-text text-3xl font-bold text-transparent"
+						>
+							{section.title}
+						</h2>
+						<a href={section.linkHref} class="link {section.linkColor} link-hover font-semibold"
+							>View all</a
+						>
+					</div>
+
+					{#if section.loading}
+						<div
+							class="flex w-full snap-x snap-mandatory space-x-4 overflow-x-auto p-4 pb-6"
+							aria-hidden="true"
+						>
+							{#each Array.from({ length: 6 }, () => 0) as _, skeletonIndex (skeletonIndex)}
+								<div class="w-32 shrink-0 snap-start md:w-48 lg:w-56">
+									<div class="flex flex-col gap-3">
+										<div class="skeleton aspect-[2.1/3] w-full rounded-2xl"></div>
+										<div class="skeleton h-4 w-4/5 rounded"></div>
+										<div class="skeleton h-3 w-1/2 rounded"></div>
+									</div>
+								</div>
+							{/each}
 						</div>
+					{:else}
 						<div class="flex w-full snap-x snap-mandatory space-x-4 overflow-x-auto p-4 pb-6">
 							{#each section.items as item (('providerId' in item ? item.providerId : 'merged') + '-' + item.id)}
 								<div class="w-32 shrink-0 snap-start md:w-48 lg:w-56">
 									{#if section.type === 'series'}
-										<SeriesCard series={item as import('../../lib/apis/bbc.ts').BBCSeriesDetail} />
+										<SeriesCard series={item as BBCSeriesDetail} />
 									{:else}
-										<BookCard
-											book={item as import('../../lib/apis/bbc.ts').BBCBookDetail}
-											showSeriesLink={true}
-										/>
+										<BookCard book={item as BBCBookDetail} showSeriesLink={true} />
 									{/if}
 								</div>
 							{/each}
 						</div>
-					</section>
-				{/each}
+					{/if}
+				</section>
 			{/if}
-		{/if}
+		{/each}
 	</div>
 </div>
