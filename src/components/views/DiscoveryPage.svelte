@@ -166,7 +166,7 @@
 									{#if section.type === 'series'}
 										<SeriesCard series={item as BBCSeriesDetail} />
 									{:else}
-										<BookCard book={item as BBCBookDetail} showSeriesLink={true} />
+										<BookCard book={item as BBCBookDetail} />
 									{/if}
 								</div>
 							{/each}

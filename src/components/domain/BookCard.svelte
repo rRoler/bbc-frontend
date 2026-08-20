@@ -13,12 +13,10 @@
 	let {
 		book,
 		showProvider = true,
-		showSeriesLink = false,
 		selected = false,
 	}: {
 		book: BBCBook | BBCBookDetail;
 		showProvider?: boolean;
-		showSeriesLink?: boolean;
 		selected?: boolean;
 	} = $props();
 
@@ -74,19 +72,17 @@
 					</div>
 				{/if}
 
-				{#if 'publicationType' in book}
-					{#if book.publicationType === 'digital'}
-						<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">Digital</div>
-					{:else if book.publicationType === 'physical'}
-						<div class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm">
-							Physical
-						</div>
-					{/if}
+				{#if book.publicationType === 'digital'}
+					<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">Digital</div>
+				{:else if book.publicationType === 'physical'}
+					<div class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm">
+						Physical
+					</div>
 				{/if}
 			</div>
 
 			<div class="pointer-events-auto flex flex-row items-start gap-1">
-				{#if showSeriesLink && book.seriesId}
+				{#if book.seriesId}
 					<Tooltip position="left" tip="Open Series">
 						<a
 							href={`${seriesLocation.path}?id=${book.providerId}/${book.seriesId}`}

@@ -107,22 +107,18 @@
 					</div>
 				{/if}
 
-				{#if 'publicationType' in series}
-					{#if series.publicationType === 'digital'}
-						<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">Digital</div>
-					{:else if series.publicationType === 'physical'}
-						<div class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm">
-							Physical
-						</div>
-					{/if}
+				{#if series.publicationType === 'digital'}
+					<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">Digital</div>
+				{:else if series.publicationType === 'physical'}
+					<div class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm">
+						Physical
+					</div>
 				{/if}
 
-				{#if 'type' in series}
-					{#if series.type === 'series'}
-						<div class="badge badge-success badge-soft badge-xs sm:badge-sm shadow-sm">Series</div>
-					{:else if series.type === 'book'}
-						<div class="badge badge-warning badge-soft badge-xs sm:badge-sm shadow-sm">Book</div>
-					{/if}
+				{#if series.type === 'series'}
+					<div class="badge badge-success badge-soft badge-xs sm:badge-sm shadow-sm">Series</div>
+				{:else if series.type === 'book'}
+					<div class="badge badge-warning badge-soft badge-xs sm:badge-sm shadow-sm">Book</div>
 				{/if}
 			</div>
 
