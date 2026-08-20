@@ -156,8 +156,9 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 
 		if (dockElement?.classList.contains('dock-active')) {
 			dockElement.addEventListener('click', (e) => {
+				if (!page.onclick) return;
 				e.preventDefault();
-				page.onclick?.();
+				page.onclick();
 			});
 
 			page.onclick?.();
