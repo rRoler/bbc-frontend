@@ -3,7 +3,7 @@
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
 		type BBCBookDetail,
-		type BBCListResponse,
+		type BBCPaginatedListResponse,
 	} from '../../lib/apis/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
@@ -22,9 +22,9 @@
 
 	const api = new BBC_API();
 	let currentPage = $state<number>(1);
-	let data = $state<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged | BBCBookDetail> | null>(
-		null
-	);
+	let data = $state<BBCPaginatedListResponse<
+		BBCSeriesDetail | BBCSeriesMerged | BBCBookDetail
+	> | null>(null);
 
 	const books = $derived(
 		(type === 'books-new' || type === 'books-released') && data
@@ -106,7 +106,7 @@
 			</div>
 
 			<div class="mt-8 flex justify-center">
-				<Pagination page={currentPage} maxPage={data.pages || 1} onchange={handlePageChange} />
+				<Pagination page={currentPage} maxPage={data.pages} onchange={handlePageChange} />
 			</div>
 		{:else}
 			<div class="py-12 text-center opacity-50">No results found.</div>

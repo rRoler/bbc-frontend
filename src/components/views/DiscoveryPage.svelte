@@ -4,7 +4,7 @@
 		type BBCBookDetail,
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
-		type BBCListResponse,
+		type BBCPaginatedListResponse,
 	} from '../../lib/apis/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
@@ -31,7 +31,7 @@
 		type: 'book' | 'series';
 		loading: boolean;
 		items: SectionItem[];
-		fetch: () => Promise<BBCListResponse<SectionItem>>;
+		fetch: () => Promise<BBCPaginatedListResponse<SectionItem>>;
 	};
 
 	const sections = $state<DiscoverySection[]>([

@@ -3,9 +3,10 @@
 	import BBC_API, {
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
-		type BBCListResponse,
+		type BBCPaginatedListResponse,
 	} from '../../lib/apis/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
+	import Pagination from '../ui/Pagination.svelte';
 	import { Search } from 'lucide-svelte';
 	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
 	import { getSvelteSearchParam, setSvelteSearchParam } from '../../lib/utils.ts';
@@ -14,9 +15,11 @@
 
 	const api = new BBC_API();
 
-	let data = $state<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged> | null>(null);
+	let data = $state<BBCPaginatedListResponse<BBCSeriesDetail | BBCSeriesMerged> | null>(null);
 	let searchQuery = $state('');
 	let searching = $state(false);
+	let currentPage = $state(1);
+	let lastSearch = $state('');
 
 	const emptyMessages = [
 		"Truck-kun couldn't find your series.",
@@ -48,9 +51,15 @@
 
 		searching = true;
 		setSvelteSearchParam('q', searchQuery);
+		lastSearch = searchQuery;
+		currentPage = 1;
 
 		try {
-			data = await api.searchMergedSeries(searchQuery, matureContentSetting.value !== 'hide');
+			data = await api.searchMergedSeries(
+				searchQuery,
+				matureContentSetting.value !== 'hide',
+				currentPage
+			);
 			if (data && data.data.length === 0) {
 				currentEmptyMessage = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
 			}
@@ -59,6 +68,26 @@
 		} finally {
 			searching = false;
 		}
+	}
+
+	function handlePageChange(newPage: number) {
+		currentPage = newPage;
+		const url = new URL(window.location.href);
+		url.searchParams.set('page', newPage.toString());
+		window.history.pushState({}, '', url);
+		searching = true;
+		api
+			.searchMergedSeries(searchQuery, matureContentSetting.value !== 'hide', newPage)
+			.then((res) => {
+				data = res;
+			})
+			.catch((e: unknown) => {
+				addAppError(e);
+			})
+			.finally(() => {
+				searching = false;
+			});
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 
 	function handleSearch() {
@@ -82,15 +111,17 @@
 		</div>
 	{:else if data && data.data.length > 0}
 		<div class="mb-4 text-sm opacity-70">
-			Found {data.count} result{data.count === 1 ? '' : 's'}
-			{data.count === 100 ? '(Limit reached)' : ''}
+			Found {data.total} result{data.total === 1 ? '' : 's'}
 		</div>
 		<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
 			{#each data.data as series (('providerId' in series ? series.providerId : 'merged') + '-' + series.id)}
 				<SeriesCard {series} />
 			{/each}
 		</div>
-	{:else if searchQuery && !searching}
+		<div class="mt-8 flex justify-center">
+			<Pagination page={currentPage} maxPage={data.pages} onchange={handlePageChange} />
+		</div>
+	{:else if searchQuery && lastSearch && !searching}
 		<div class="flex flex-col items-center justify-center py-20 text-center opacity-70">
 			<Search class="mb-4 size-16 opacity-30" />
 			<h3 class="text-2xl font-bold">No results found</h3>

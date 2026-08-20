@@ -13,20 +13,29 @@ export class BBC_API_Error extends Error {
 export interface BBCByProviderResponse<T> {
 	data: Record<string, T[]>;
 	count: number;
-	pages?: number;
 	error?: string;
 }
 
 export interface BBCListResponse<T> {
 	data: T[];
 	count: number;
-	pages?: number;
 	error?: string;
+}
+
+export interface BBCPaginatedByProviderResponse<T> extends BBCByProviderResponse<T> {
+	total: number;
+	pages: number;
+}
+
+export interface BBCPaginatedListResponse<T> extends BBCListResponse<T> {
+	total: number;
+	pages: number;
 }
 
 export interface BBCByProviderResult<T> {
 	data: Record<string, T[]>;
 	count: number;
+	total: number;
 	pages: number;
 	errors: Error[];
 }
@@ -34,6 +43,7 @@ export interface BBCByProviderResult<T> {
 export interface BBCListResult<T> {
 	data: T[];
 	count: number;
+	total: number;
 	pages: number;
 	errors: Error[];
 }
@@ -242,6 +252,7 @@ export default class BBC_API {
 		const allData: BBCByProviderResult<Result> = {
 			data: {},
 			count: 0,
+			total: 0,
 			pages: 0,
 			errors: [],
 		};
@@ -282,6 +293,9 @@ export default class BBC_API {
 
 		if (!options?.abortSignal?.aborted && options?.callback) options.callback(allData);
 
+		allData.total = allData.count;
+		allData.pages = allData.count > 0 ? 1 : 0;
+
 		return allData;
 	}
 
@@ -291,7 +305,13 @@ export default class BBC_API {
 		detail?: D
 	): Promise<BBCByProviderResult<D extends true ? BBCSeriesDetail : BBCSeries>> {
 		type Result = D extends true ? BBCSeriesDetail : BBCSeries;
-		const allData: BBCByProviderResult<Result> = { data: {}, count: 0, pages: 0, errors: [] };
+		const allData: BBCByProviderResult<Result> = {
+			data: {},
+			count: 0,
+			total: 0,
+			pages: 0,
+			errors: [],
+		};
 
 		try {
 			const url = new URL(`${this.apiUrl}/series`);
@@ -317,6 +337,9 @@ export default class BBC_API {
 				allData.data = data.data;
 				allData.count = data.count;
 			}
+
+			allData.total = allData.count;
+			allData.pages = allData.count > 0 ? 1 : 0;
 		} catch (e) {
 			allData.errors.push(new BBC_API_Error(`${e}`));
 		}
@@ -333,7 +356,13 @@ export default class BBC_API {
 		detail?: D
 	): Promise<BBCByProviderResult<D extends true ? BBCBookDetail : BBCBook>> {
 		type Result = D extends true ? BBCBookDetail : BBCBook;
-		const allData: BBCByProviderResult<Result> = { data: {}, count: 0, pages: 0, errors: [] };
+		const allData: BBCByProviderResult<Result> = {
+			data: {},
+			count: 0,
+			total: 0,
+			pages: 0,
+			errors: [],
+		};
 
 		const fetchAll = async (seriesType: BBCSeries['type'], ids: Record<string, string[]>) =>
 			await Promise.all(
@@ -355,14 +384,15 @@ export default class BBC_API {
 
 							try {
 								const res = await fetch(booksUrl);
-								const data: BBCByProviderResponse<Result> = await res.json();
+								const data: BBCPaginatedByProviderResponse<Result> = await res.json();
 
 								if (data.error) {
 									allData.errors.push(new BBC_API_Error(`${providerId}: ${data.error}`));
 								} else {
 									allData.data[providerId].push(...(data.data[providerId] || []));
 									allData.count += data.count;
-									allData.pages = Math.max(allData.pages, data.pages || 1);
+									allData.total += data.total;
+									allData.pages = Math.max(allData.pages, data.pages);
 								}
 							} catch (e) {
 								allData.errors.push(new BBC_API_Error(`${providerId}: ${e}`));
@@ -381,7 +411,13 @@ export default class BBC_API {
 	async getBookPages(
 		booksIds: Record<string, string[]>
 	): Promise<BBCByProviderResult<BBCBookPage>> {
-		const allData: BBCByProviderResult<BBCBookPage> = { data: {}, count: 0, pages: 0, errors: [] };
+		const allData: BBCByProviderResult<BBCBookPage> = {
+			data: {},
+			count: 0,
+			total: 0,
+			pages: 0,
+			errors: [],
+		};
 
 		await Promise.all(
 			Object.entries(booksIds).map(async ([providerId, bIds]) => {
@@ -412,6 +448,9 @@ export default class BBC_API {
 				);
 			})
 		);
+
+		allData.total = allData.count;
+		allData.pages = allData.count > 0 ? 1 : 0;
 
 		return allData;
 	}
@@ -492,6 +531,7 @@ export default class BBC_API {
 		const allData: BBCByProviderResult<BBCBookDetail> = {
 			data: {},
 			count: 0,
+			total: 0,
 			pages: 0,
 			errors: [],
 		};
@@ -531,7 +571,13 @@ export default class BBC_API {
 		providerId: string,
 		seriesId: string
 	): Promise<BBCListResult<BBCSeriesDetail>> {
-		const allData: BBCListResult<BBCSeriesDetail> = { data: [], count: 0, pages: 0, errors: [] };
+		const allData: BBCListResult<BBCSeriesDetail> = {
+			data: [],
+			count: 0,
+			total: 0,
+			pages: 0,
+			errors: [],
+		};
 
 		try {
 			const res = await fetch(
@@ -544,8 +590,10 @@ export default class BBC_API {
 			} else {
 				allData.data = data.data;
 				allData.count = data.count;
-				allData.pages = data.pages ?? 1;
 			}
+
+			allData.total = allData.count;
+			allData.pages = allData.count > 0 ? 1 : 0;
 		} catch (e) {
 			allData.errors.push(new BBC_API_Error(`${e}`));
 		}
@@ -557,6 +605,7 @@ export default class BBC_API {
 		const allData: BBCByProviderResult<BBCSeriesDetail> = {
 			data: {},
 			count: 0,
+			total: 0,
 			pages: 0,
 			errors: [],
 		};
@@ -570,8 +619,10 @@ export default class BBC_API {
 			} else {
 				allData.data = data.data;
 				allData.count = data.count;
-				allData.pages = data.pages ?? 1;
 			}
+
+			allData.total = allData.count;
+			allData.pages = allData.count > 0 ? 1 : 0;
 		} catch (e) {
 			allData.errors.push(new BBC_API_Error(`${e}`));
 		}
@@ -586,6 +637,7 @@ export default class BBC_API {
 		const allData: BBCByProviderResult<BBCSeriesDetail> = {
 			data: {},
 			count: 0,
+			total: 0,
 			pages: 0,
 			errors: [],
 		};
@@ -654,16 +706,17 @@ export default class BBC_API {
 
 	async searchMergedSeries(
 		query: string,
-		mature: boolean
-	): Promise<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
+		mature: boolean,
+		page: number = 1
+	): Promise<BBCPaginatedListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
 		const res = await fetch(
-			`${this.apiUrl}/discovery/search?q=${encodeURIComponent(query)}&mature=${mature}`
+			`${this.apiUrl}/discovery/search?q=${encodeURIComponent(query)}&mature=${mature}&page=${page}`
 		);
 		if (!res.ok) throw new BBC_API_Error(`Failed to search discovery: HTTP ${res.status}`);
 		return res.json();
 	}
 
-	private async fetchPaginated<T>(url: string, page: number): Promise<BBCListResponse<T>> {
+	private async fetchPaginated<T>(url: string, page: number): Promise<BBCPaginatedListResponse<T>> {
 		const res = await fetch(`${url}?page=${page}`);
 		if (!res.ok) throw new BBC_API_Error(`Failed to fetch paginated data: HTTP ${res.status}`);
 		return res.json();
@@ -671,21 +724,23 @@ export default class BBC_API {
 
 	async getDiscoverySeriesMerged(
 		page: number = 1
-	): Promise<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
+	): Promise<BBCPaginatedListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
 		return this.fetchPaginated(`${this.apiUrl}/discovery/series/merged`, page);
 	}
 
 	async getDiscoverySeriesNew(
 		page: number = 1
-	): Promise<BBCListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
+	): Promise<BBCPaginatedListResponse<BBCSeriesDetail | BBCSeriesMerged>> {
 		return this.fetchPaginated(`${this.apiUrl}/discovery/series/new`, page);
 	}
 
-	async getDiscoveryBooksNew(page: number = 1): Promise<BBCListResponse<BBCBookDetail>> {
+	async getDiscoveryBooksNew(page: number = 1): Promise<BBCPaginatedListResponse<BBCBookDetail>> {
 		return this.fetchPaginated(`${this.apiUrl}/discovery/books/new`, page);
 	}
 
-	async getDiscoveryBooksReleased(page: number = 1): Promise<BBCListResponse<BBCBookDetail>> {
+	async getDiscoveryBooksReleased(
+		page: number = 1
+	): Promise<BBCPaginatedListResponse<BBCBookDetail>> {
 		return this.fetchPaginated(`${this.apiUrl}/discovery/books/released`, page);
 	}
 }
