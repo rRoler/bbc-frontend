@@ -84,7 +84,7 @@
 	<div class="hero bg-base-200 px-4 py-12">
 		<div class="hero-content text-center">
 			<h1
-				class="bg-linear-to-r text-2xl font-bold md:text-5xl {gradient} bg-clip-text pb-2 text-transparent"
+				class="bg-linear-to-r text-4xl font-bold md:text-5xl {gradient} bg-clip-text pb-2 text-transparent"
 			>
 				{title}
 			</h1>

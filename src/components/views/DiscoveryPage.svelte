@@ -103,7 +103,7 @@
 			>
 				Discover New Content
 			</h1>
-			<p class="mb-4 py-4 text-lg opacity-80">
+			<p class="mb-4 py-4 text-sm opacity-80 sm:text-lg">
 				Explore recently added books, series, and curated collections across all supported
 				providers.
 			</p>

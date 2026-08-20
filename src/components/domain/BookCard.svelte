@@ -26,7 +26,7 @@
 </script>
 
 <div
-	class="card group content-visibility-auto relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
+	class="card group content-visibility-auto @container relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
 	class:bg-base-200={!selected}
 	class:hover:ring-primary={!selected}
 	class:hover:ring-2={!selected}
@@ -56,26 +56,28 @@
 		>
 			<div class="flex flex-col items-start gap-1">
 				{#if book.isMature}
-					<div class="badge badge-error badge-xs sm:badge-sm font-bold shadow-sm">18+</div>
+					<div class="badge badge-error badge-xs @card:badge-sm font-bold shadow-sm">18+</div>
 				{/if}
 				{#if book.bookType === 'manga'}
-					<div class="badge badge-primary badge-xs sm:badge-sm shadow-sm">Manga</div>
+					<div class="badge badge-primary badge-xs @card:badge-sm shadow-sm">Manga</div>
 				{:else if book.bookType === 'novel'}
-					<div class="badge badge-secondary badge-xs sm:badge-sm shadow-sm">Novel</div>
+					<div class="badge badge-secondary badge-xs @card:badge-sm shadow-sm">Novel</div>
 				{:else if book.bookType === 'webtoon'}
-					<div class="badge badge-accent badge-xs sm:badge-sm shadow-sm">Webtoon</div>
+					<div class="badge badge-accent badge-xs @card:badge-sm shadow-sm">Webtoon</div>
 				{:else if book.bookType === 'audiobook'}
-					<div class="badge badge-neutral badge-xs sm:badge-sm shadow-sm">Audiobook</div>
+					<div class="badge badge-neutral badge-xs @card:badge-sm shadow-sm">Audiobook</div>
 				{:else if book.bookType}
-					<div class="badge badge-secondary badge-xs sm:badge-sm capitalize shadow-sm">
+					<div class="badge badge-secondary badge-xs @card:badge-sm capitalize shadow-sm">
 						{book.bookType}
 					</div>
 				{/if}
 
 				{#if book.publicationType === 'digital'}
-					<div class="badge badge-soft badge-primary badge-xs sm:badge-sm shadow-sm">Digital</div>
+					<div class="badge badge-soft badge-primary badge-xs @card:badge-sm shadow-sm">
+						Digital
+					</div>
 				{:else if book.publicationType === 'physical'}
-					<div class="badge badge-soft badge-secondary badge-xs sm:badge-sm shadow-sm">
+					<div class="badge badge-soft badge-secondary badge-xs @card:badge-sm shadow-sm">
 						Physical
 					</div>
 				{/if}
@@ -86,9 +88,9 @@
 					<Tooltip position="left" tip="Open Series">
 						<a
 							href={`${seriesLocation.path}?id=${book.providerId}/${book.seriesId}`}
-							class="btn btn-circle btn-neutral btn-xs sm:btn-sm shadow-sm"
+							class="btn btn-circle btn-neutral btn-xs @card:btn-sm shadow-sm"
 						>
-							<Library class="size-3 sm:size-4" />
+							<Library class="@card:size-4 size-3" />
 						</a>
 					</Tooltip>
 				{/if}
@@ -98,9 +100,9 @@
 							href={book.url}
 							target="_blank"
 							rel="noreferrer"
-							class="btn btn-circle btn-neutral btn-xs sm:btn-sm shadow-sm"
+							class="btn btn-circle btn-neutral btn-xs @card:btn-sm shadow-sm"
 						>
-							<ExternalLink class="size-3 sm:size-4" />
+							<ExternalLink class="@card:size-4 size-3" />
 						</a>
 					</Tooltip>
 				{/if}
@@ -112,7 +114,7 @@
 		>
 			<div class="flex flex-col items-start gap-1">
 				{#if book.volume?.number}
-					<div class="badge badge-accent badge-xs sm:badge-sm font-bold shadow-sm">
+					<div class="badge badge-accent badge-xs @card:badge-sm font-bold shadow-sm">
 						{book.volume.type === 'chapter' ? 'Ch.' : 'Vol.'}
 						{book.volume.number}
 					</div>
@@ -123,13 +125,13 @@
 				{#if book.price !== null && book.currency}
 					{#if book.price === 0}
 						<div
-							class="badge badge-success badge-xs text-success-content sm:badge-sm border-none font-bold shadow-sm"
+							class="badge badge-success badge-xs text-success-content @card:badge-sm border-none font-bold shadow-sm"
 						>
 							Free
 						</div>
 					{:else}
 						<div
-							class="badge badge-neutral badge-xs sm:badge-sm border-none font-bold opacity-90 shadow-sm"
+							class="badge badge-neutral badge-xs @card:badge-sm border-none font-bold opacity-90 shadow-sm"
 						>
 							{getDisplayPrice(book.currency, book.price)}
 						</div>

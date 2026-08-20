@@ -9,6 +9,7 @@
 
 @theme {
 	--default-font-family: 'Nunito Variable', 'Zen Maru Gothic';
+	--container-card: 11rem;
 }
 
 @plugin 'daisyui/theme' {
