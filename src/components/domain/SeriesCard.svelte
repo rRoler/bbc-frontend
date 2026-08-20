@@ -55,7 +55,7 @@
 </script>
 
 <div
-	class="card group relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
+	class="card group content-visibility-auto relative h-full w-full overflow-hidden shadow-md transition-all hover:-translate-y-1 hover:shadow-xl"
 	class:bg-base-200={!selected}
 	class:hover:ring-primary={!selected}
 	class:hover:ring-2={!selected}
