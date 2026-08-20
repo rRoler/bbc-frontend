@@ -154,7 +154,7 @@
 			{#if showProvider && displayProvider}
 				<ProviderLabel
 					provider={displayProvider}
-					iconClass="size-4"
+					iconClass="size-4 @card:size-5"
 					textClass="text-xs sm:text-sm"
 				/>
 			{/if}

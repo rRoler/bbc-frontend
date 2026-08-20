@@ -157,7 +157,7 @@
 						{#if mp}
 							<ProviderLabel
 								provider={mp}
-								iconClass={isSingleMerged ? 'size-4' : 'size-5'}
+								iconClass="size-4 @card:size-5"
 								textClass={isSingleMerged ? 'text-xs sm:text-sm' : undefined}
 								showText={isSingleMerged}
 							/>
@@ -167,7 +167,11 @@
 			{:else if showProvider && 'providerId' in series && series.providerId}
 				{@const p = allProviders.providers.find((p) => p.id === series.providerId)}
 				{#if p}
-					<ProviderLabel provider={p} iconClass="size-4" textClass="text-xs sm:text-sm" />
+					<ProviderLabel
+						provider={p}
+						iconClass="size-4 @card:size-5"
+						textClass="text-xs sm:text-sm"
+					/>
 				{/if}
 			{/if}
 		</div>
