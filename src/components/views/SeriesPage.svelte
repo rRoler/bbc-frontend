@@ -854,21 +854,23 @@
 				<div class="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
 					<h2 class="text-2xl font-bold">Books & Volumes</h2>
 
-					{#if isMerged && Object.keys(mergedSeriesData).length > 1}
-						<ProviderSelector
-							onchange={handleProviderChange}
-							providers={allProviders.providers.filter((p) =>
-								Object.keys(mergedSeriesData).includes(p.id)
-							)}
-							bind:selected={activeProviders}
-						/>
-					{/if}
-					{#if allAvailableLanguages.length > 1 || selectedLanguages.size > 0}
-						<ProviderLangSelector
-							languages={allAvailableLanguages}
-							bind:selected={selectedLanguages}
-						/>
-					{/if}
+					<div class="flex flex-col items-start gap-2 sm:flex-row sm:items-center md:justify-end">
+						{#if isMerged && Object.keys(mergedSeriesData).length > 1}
+							<ProviderSelector
+								onchange={handleProviderChange}
+								providers={allProviders.providers.filter((p) =>
+									Object.keys(mergedSeriesData).includes(p.id)
+								)}
+								bind:selected={activeProviders}
+							/>
+						{/if}
+						{#if allAvailableLanguages.length > 1 || selectedLanguages.size > 0}
+							<ProviderLangSelector
+								languages={allAvailableLanguages}
+								bind:selected={selectedLanguages}
+							/>
+						{/if}
+					</div>
 				</div>
 
 				<!-- Books List -->
