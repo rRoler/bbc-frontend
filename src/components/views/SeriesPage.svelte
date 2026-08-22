@@ -594,11 +594,11 @@
 				<Hover3D class="z-10 mx-auto w-48 shrink-0 md:mx-0 md:w-64 lg:w-72">
 					<div class="rounded-box bg-base-300 overflow-hidden shadow-2xl">
 						{#if heroSeries.thumbnail}
-						<Image
-							src={imageApi.getUrl(heroSeries.thumbnail, { width: 640, output: 'webp' }).href}
-							alt="{mainTitle} cover"
-							class="aspect-[2.1/3] h-auto w-full object-cover"
-						/>
+							<Image
+								src={imageApi.getUrl(heroSeries.thumbnail, { width: 640, output: 'webp' }).href}
+								alt="{mainTitle} cover"
+								class="aspect-[2.1/3] h-auto w-full object-cover"
+							/>
 						{:else}
 							<div
 								class="flex aspect-[2.1/3] w-full items-center justify-center font-bold opacity-30"
@@ -725,7 +725,7 @@
 									{#each mergedDescriptions as desc, i (desc.providerId + '-' + i)}
 										{#if i === activeDescIdx}
 											<div
-												class="prose prose-sm max-h-48 max-w-none overflow-y-auto"
+												class="prose prose-sm max-h-48 max-w-none touch-pan-y overflow-y-auto select-none"
 												in:fade={{ duration: 200 }}
 											>
 												<!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -783,12 +783,12 @@
 									href={tracker.url}
 									target="_blank"
 									rel="noopener noreferrer"
-									class="btn btn-soft btn-xs sm:btn-sm"
+									class="btn btn-soft btn-sm"
 								>
 									<img
 										src={`https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${tracker.iconUrl}&size=64`}
 										alt={tracker.name}
-										class="size-3 sm:size-4"
+										class="size-4 rounded-sm"
 									/>
 									{tracker.name}
 								</a>
@@ -818,11 +818,11 @@
 						{#each allSubSeries as subSeries (subSeries.providerId + '-' + subSeries.id)}
 							{#if !seriesToUnmap.has(subSeries.providerId + '::' + subSeries.id)}
 								<div class="relative">
-								<SeriesCard
-									series={subSeries}
-									href={`${downloadLocation.path}?${subSeries.type}(${subSeries.providerId})=${subSeries.id}`}
-									blurMature={false}
-								/>
+									<SeriesCard
+										series={subSeries}
+										href={`${downloadLocation.path}?${subSeries.type}(${subSeries.providerId})=${subSeries.id}`}
+										blurMature={false}
+									/>
 									{#if isEditing && isMerged}
 										<button
 											class="btn btn-sm btn-circle btn-error absolute -top-2 -right-2 z-50 shadow-lg"
