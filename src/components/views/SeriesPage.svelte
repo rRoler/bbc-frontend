@@ -807,7 +807,7 @@
 										series={subSeries}
 										href={`${downloadLocation.path}?${subSeries.type}(${subSeries.providerId})=${subSeries.id}`}
 									/>
-									{#if isEditing}
+									{#if isEditing && isMerged}
 										<button
 											class="btn btn-sm btn-circle btn-error absolute -top-2 -right-2 z-50 shadow-lg"
 											onclick={() => seriesToUnmap.add(subSeries.providerId + '::' + subSeries.id)}
@@ -919,7 +919,7 @@
 					Apply
 				</button>
 			{:else}
-				{#if canEdit && isMerged}
+				{#if canEdit}
 					<div class="dropdown dropdown-top pointer-events-auto">
 						<div tabindex="0" role="button" class="btn btn-lg btn-circle btn-soft shadow-lg">
 							<EllipsisVertical class="size-6" />
@@ -929,7 +929,9 @@
 							class="dropdown-content menu rounded-box bg-base-100 z-50 mb-2 w-36 min-w-fit p-2 shadow-sm"
 						>
 							<li>
-								<button onclick={() => (isEditing = true)}>Edit Mapping</button>
+								<button onclick={() => (isEditing = true)}>
+									{isMerged ? 'Edit Mapping' : 'Map Series'}
+								</button>
 							</li>
 						</ul>
 					</div>
