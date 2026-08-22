@@ -35,6 +35,22 @@
 		return series.providerId + '::' + series.id;
 	}
 
+	let expandedClusters = $state<Record<string, BBCSeriesSearchResult[]>>({});
+	const loadingMapped = new SvelteSet<string>();
+
+	async function loadMappedCluster(mappedId: string) {
+		if (expandedClusters[mappedId] || loadingMapped.has(mappedId)) return;
+		loadingMapped.add(mappedId);
+		try {
+			const res = await api.getSeriesByMappedId(mappedId);
+			expandedClusters[mappedId] = Object.values(res.data).flat();
+		} catch (e) {
+			addAppError(e);
+		} finally {
+			loadingMapped.delete(mappedId);
+		}
+	}
+
 	const api = new BBC_API();
 	const MAX_SEARCH_TIME = 10000;
 
@@ -42,6 +58,8 @@
 		searchQuery = initialQuery;
 		searchResults = {};
 		selectedSeries.clear();
+		expandedClusters = {};
+		loadingMapped.clear();
 		if (selectedProviders.length === 0) {
 			selectedProviders = allProviders.enabled;
 		}
@@ -63,11 +81,36 @@
 			selectedSeries.delete(key);
 		} else {
 			selectedSeries.add(key);
+			if (series.mappedId) loadMappedCluster(series.mappedId);
 		}
 	}
 
-	let selectedResults = $derived.by(() =>
-		flattenedResults.filter((s) => selectedSeries.has(seriesKey(s)))
+	let selectedResults = $derived.by(() => {
+		const expanded: BBCSeriesSearchResult[] = [];
+		for (const s of flattenedResults) {
+			if (!selectedSeries.has(seriesKey(s))) continue;
+			const cluster = s.mappedId ? expandedClusters[s.mappedId] : undefined;
+			if (cluster && cluster.length > 0) {
+				expanded.push(...cluster);
+			} else {
+				expanded.push(s);
+			}
+		}
+
+		const seen = new SvelteSet<string>();
+		return expanded.filter((s) => {
+			if (excludeIds.has(s.providerId + '::' + s.id)) return false;
+			const key = seriesKey(s);
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+	});
+
+	let expandingSelection = $derived.by(() =>
+		flattenedResults.some(
+			(s) => selectedSeries.has(seriesKey(s)) && s.mappedId != null && loadingMapped.has(s.mappedId)
+		)
 	);
 
 	function handleAdd() {
@@ -92,6 +135,7 @@
 			}, MAX_SEARCH_TIME);
 
 			await api.search(searchQuery, selectedProviders, {
+				detail: true,
 				include_mature: matureContentSetting.value !== 'hide',
 				abortSignal: currentAbortController.signal,
 				callback: (response) => {
@@ -199,12 +243,26 @@
 					<span class="loading loading-spinner loading-sm"></span>
 					<span class="text-sm">Searching remaining providers...</span>
 				</div>
+			{:else if expandingSelection}
+				<div
+					class="flex min-h-6 w-full items-center justify-center gap-2 opacity-70 sm:w-auto sm:justify-start"
+				>
+					<span class="loading loading-spinner loading-sm"></span>
+					<span class="text-sm">Loading mapped series...</span>
+				</div>
 			{/if}
 
 			<div class="flex w-full items-center justify-end gap-2 sm:ml-auto sm:w-auto">
 				<button class="btn btn-ghost" onclick={close}>Cancel</button>
-				<button class="btn btn-primary" disabled={selectedSeries.size === 0} onclick={handleAdd}>
-					Add {selectedSeries.size > 0 ? selectedSeries.size : ''} Series
+				<button
+					class="btn btn-primary"
+					disabled={selectedResults.length === 0 || expandingSelection}
+					onclick={handleAdd}
+				>
+					{#if expandingSelection}
+						<span class="loading loading-spinner loading-sm"></span>
+					{/if}
+					Add {selectedResults.length > 0 ? selectedResults.length : ''} Series
 				</button>
 			</div>
 		</div>

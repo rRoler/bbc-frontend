@@ -8,7 +8,7 @@
 		langToFlag,
 	} from '../../lib/utils.ts';
 	import { fade } from 'svelte/transition';
-	import { downloadLocation } from '../../lib/locations.ts';
+	import { downloadLocation, discoveryLocation } from '../../lib/locations.ts';
 	import {
 		Download,
 		EllipsisVertical,
@@ -252,9 +252,12 @@
 					throw new Error('Series not found');
 				}
 
-				appState.loading = false; // Hero is ready
-
-				loadSubSeriesAndBooks(providerId, seriesId, undefined);
+				if (matureContentSetting.value === 'hide') {
+					await loadSubSeriesAndBooks(providerId, seriesId, undefined);
+				} else {
+					appState.loading = false; // Hero is ready
+					loadSubSeriesAndBooks(providerId, seriesId, undefined);
+				}
 			} else {
 				// Format: mappedId
 				const heroRes = await api.getDiscoverySeriesMapped(id);
@@ -265,9 +268,24 @@
 					throw new Error('Mapped series not found');
 				}
 
-				appState.loading = false; // Hero is ready
+				if (matureContentSetting.value === 'hide') {
+					await loadSubSeriesAndBooks(undefined, undefined, id);
+				} else {
+					appState.loading = false; // Hero is ready
+					loadSubSeriesAndBooks(undefined, undefined, id);
+				}
+			}
 
-				loadSubSeriesAndBooks(undefined, undefined, id);
+			if (matureContentSetting.value === 'hide') {
+				const pageIsMature =
+					(heroSeries?.isMature ?? false) ||
+					allSubSeries.some((s) => s.isMature) ||
+					flattenedBooks.some((b) => b.isMature);
+				if (pageIsMature && !confirm('Mature content is disabled. Continue?')) {
+					window.location.href = discoveryLocation.path;
+					return;
+				}
+				appState.loading = false;
 			}
 		} catch (e: unknown) {
 			addAppError(e);
@@ -576,14 +594,11 @@
 				<Hover3D class="z-10 mx-auto w-48 shrink-0 md:mx-0 md:w-64 lg:w-72">
 					<div class="rounded-box bg-base-300 overflow-hidden shadow-2xl">
 						{#if heroSeries.thumbnail}
-							<Image
-								src={imageApi.getUrl(heroSeries.thumbnail, { width: 640, output: 'webp' }).href}
-								alt="{mainTitle} cover"
-								class="aspect-[2.1/3] h-auto w-full object-cover {heroSeries.isMature &&
-								matureContentSetting.value === 'blur'
-									? 'blur-lg'
-									: ''}"
-							/>
+						<Image
+							src={imageApi.getUrl(heroSeries.thumbnail, { width: 640, output: 'webp' }).href}
+							alt="{mainTitle} cover"
+							class="aspect-[2.1/3] h-auto w-full object-cover"
+						/>
 						{:else}
 							<div
 								class="flex aspect-[2.1/3] w-full items-center justify-center font-bold opacity-30"
@@ -803,10 +818,11 @@
 						{#each allSubSeries as subSeries (subSeries.providerId + '-' + subSeries.id)}
 							{#if !seriesToUnmap.has(subSeries.providerId + '::' + subSeries.id)}
 								<div class="relative">
-									<SeriesCard
-										series={subSeries}
-										href={`${downloadLocation.path}?${subSeries.type}(${subSeries.providerId})=${subSeries.id}`}
-									/>
+								<SeriesCard
+									series={subSeries}
+									href={`${downloadLocation.path}?${subSeries.type}(${subSeries.providerId})=${subSeries.id}`}
+									blurMature={false}
+								/>
 									{#if isEditing && isMerged}
 										<button
 											class="btn btn-sm btn-circle btn-error absolute -top-2 -right-2 z-50 shadow-lg"
@@ -885,7 +901,7 @@
 							class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
 						>
 							{#each flattenedBooks as book (book.providerId + '-' + book.id)}
-								<BookCard {book} />
+								<BookCard {book} blurMature={false} />
 							{/each}
 						</div>
 					{:else}

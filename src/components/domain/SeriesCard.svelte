@@ -20,12 +20,14 @@
 		showProvider = true,
 		disableLink = false,
 		selected = false,
+		blurMature = true,
 	}: {
 		series: BBCSeries | BBCSeriesDetail | BBCSeriesMerged | BBCSeriesSearchResult;
 		href?: string;
 		showProvider?: boolean;
 		disableLink?: boolean;
 		selected?: boolean;
+		blurMature?: boolean;
 	} = $props();
 
 	const imageApi = new WsrvApi();
@@ -76,7 +78,8 @@
 				src={imageApi.getUrl(series.thumbnail, { width: 320, output: 'webp' }).href}
 				alt="{cardTitle} cover"
 				class="size-full object-cover transition-transform duration-300 group-hover:scale-105 {series.isMature &&
-				matureContentSetting.value === 'blur'
+				matureContentSetting.value === 'blur' &&
+				blurMature
 					? 'blur-lg'
 					: ''}"
 			/>
