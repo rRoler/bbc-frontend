@@ -274,9 +274,7 @@
 
 			if (matureContentSetting.value === 'hide') {
 				const pageIsMature =
-					(heroSeries?.isMature ?? false) ||
-					allSubSeries.some((s) => s.isMature) ||
-					flattenedBooks.some((b) => b.isMature);
+					(heroSeries?.isMature ?? false) || allSubSeries.some((s) => s.isMature);
 				if (pageIsMature && !confirm('Mature content is disabled. Continue?')) {
 					window.location.href = discoveryLocation.path;
 					return;
@@ -335,7 +333,7 @@
 			subSeriesLoading = false;
 		}
 
-		await loadBooks();
+		loadBooks();
 	}
 
 	async function loadBooks() {
@@ -359,6 +357,12 @@
 				booksData = res.data;
 			} else {
 				booksData = {};
+			}
+
+			if (matureContentSetting.value === 'hide' && flattenedBooks.some((b) => b.isMature)) {
+				if (!confirm('Mature content is disabled. Continue?')) {
+					window.location.href = discoveryLocation.path;
+				}
 			}
 		} catch (e: unknown) {
 			addAppError(e);
@@ -795,7 +799,7 @@
 			<!-- Sub-Series Cards for Merged Cluster -->
 			{#if subSeriesLoading}
 				<section>
-					<h2 class="mb-4 text-2xl font-bold">Sub-Series</h2>
+					<h2 class="mb-4 text-center text-2xl font-bold sm:text-left">Sub-Series</h2>
 					<div class="flex w-full flex-col items-center justify-center gap-4 py-16">
 						<span class="loading loading-spinner loading-xl text-primary size-16"></span>
 						<p class="text-base-content/70 text-lg font-semibold">Loading sub-series...</p>
@@ -803,7 +807,7 @@
 				</section>
 			{:else if isEditing || (isMerged && allSubSeries.length > 0)}
 				<section>
-					<h2 class="mb-4 text-2xl font-bold">
+					<h2 class="mb-4 text-center text-2xl font-bold sm:text-left">
 						Sub-Series {isMerged ? `(${allSubSeries.length})` : ''}
 					</h2>
 					<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -859,10 +863,12 @@
 
 			<!-- Books Section -->
 			<section>
-				<div class="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
+				<div
+					class="mb-6 flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left"
+				>
 					<h2 class="text-2xl font-bold">Books & Volumes</h2>
 
-					<div class="flex flex-col items-start gap-2 sm:flex-row sm:items-center md:justify-end">
+					<div class="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:justify-end">
 						{#if isMerged && Object.keys(mergedSeriesData).length > 1}
 							<ProviderSelector
 								providers={allProviders.providers.filter((p) =>
@@ -871,6 +877,7 @@
 								bind:selected={activeProviders}
 								bind:selectedLocales
 								languages={availableLanguages}
+								dropdownPosition="sm:dropdown-end dropdown-center"
 							/>
 						{/if}
 					</div>

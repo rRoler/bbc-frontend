@@ -31,6 +31,7 @@
 		onchange,
 		paramsEnabled = true,
 		delayMs = 500,
+		dropdownPosition = 'sm:dropdown-start dropdown-center',
 	}: {
 		class?: string;
 		providers?: Provider[];
@@ -40,6 +41,7 @@
 		onchange?: (providers: Provider[]) => void | Promise<void>;
 		paramsEnabled?: boolean;
 		delayMs?: number;
+		dropdownPosition?: string;
 	} = $props();
 
 	let pendingSelection = $derived<Provider[]>([...selected]);
@@ -256,7 +258,7 @@
 	}
 </script>
 
-<div bind:this={dropdownEl} class="dropdown sm:dropdown-start dropdown-center {className}">
+<div bind:this={dropdownEl} class="dropdown {dropdownPosition} {className}">
 	<div
 		tabindex="0"
 		role="button"
