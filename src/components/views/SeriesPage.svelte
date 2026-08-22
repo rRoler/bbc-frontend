@@ -35,10 +35,10 @@
 	import BookCard from '../domain/BookCard.svelte';
 	import Image from '../ui/Image.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
-	import ProviderLangSelector from '../domain/ProviderLangSelector.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
 	import { appState, addAppError } from '../../lib/svelte/app.svelte.ts';
 	import type { Provider } from '../../lib/svelte/providers.svelte.ts';
+	import { deriveAvailableLanguages, toBaseLangSet } from '../../lib/svelte/providers.svelte.ts';
 	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
 
 	let id = $state<string>('');
@@ -99,20 +99,16 @@
 	let activeProviders = $state<Provider[]>([]);
 
 	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
-	let selectedLanguages = $state<SvelteSet<string>>(new SvelteSet<string>());
+	let selectedLocales = $state<SvelteSet<string>>(new SvelteSet<string>());
 
-	let allAvailableLanguages = $derived.by(() => {
-		const langs = new SvelteSet<string>();
-		for (const provider of activeProviders) {
-			if (provider.locale === 'multi') {
-				const books = booksData[provider.id] || [];
-				for (const b of books) {
-					if (b.language) langs.add(b.language);
-				}
-			}
-		}
-		return Array.from(langs);
-	});
+	let langBaseSet = $derived(toBaseLangSet(selectedLocales));
+
+	let availableLanguages = $derived(
+		deriveAvailableLanguages(
+			activeProviders,
+			(p) => (booksData[p.id] ?? []).map((b) => b.language).filter(Boolean) as string[]
+		)
+	);
 
 	// Books data
 	let booksData = $state<Record<string, BBCBook[]>>({});
@@ -371,18 +367,14 @@
 		}
 	}
 
-	function handleProviderChange() {
-		loadBooks();
-	}
-
 	let flattenedBooks = $derived.by(() => {
 		const result = Object.values(booksData)
 			.flat()
 			.filter((b) => b && activeProviders.map((p) => p.id).includes(b.providerId))
 			.filter((b) => {
 				const p = activeProviders.find((prov) => prov.id === b.providerId);
-				if (p?.locale === 'multi' && selectedLanguages.size > 0 && !selectedLanguages.has('none')) {
-					return b.language && selectedLanguages.has(b.language);
+				if (langBaseSet.size > 0 && p) {
+					return b.language && langBaseSet.has(b.language);
 				}
 				return true;
 			});
@@ -873,17 +865,12 @@
 					<div class="flex flex-col items-start gap-2 sm:flex-row sm:items-center md:justify-end">
 						{#if isMerged && Object.keys(mergedSeriesData).length > 1}
 							<ProviderSelector
-								onchange={handleProviderChange}
 								providers={allProviders.providers.filter((p) =>
 									Object.keys(mergedSeriesData).includes(p.id)
 								)}
 								bind:selected={activeProviders}
-							/>
-						{/if}
-						{#if allAvailableLanguages.length > 1 || selectedLanguages.size > 0}
-							<ProviderLangSelector
-								languages={allAvailableLanguages}
-								bind:selected={selectedLanguages}
+								bind:selectedLocales
+								languages={availableLanguages}
 							/>
 						{/if}
 					</div>

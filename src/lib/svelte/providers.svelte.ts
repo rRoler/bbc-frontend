@@ -40,6 +40,36 @@ export function sortProviders(providers: Provider[]) {
 	return providers.sort((a, b) => a.priority - b.priority);
 }
 
+export function toBaseLangSet(locales: SvelteSet<string>): SvelteSet<string> {
+	const result = new SvelteSet<string>();
+	for (const locale of locales) {
+		if (locale === 'none') continue;
+		result.add(locale.split('-')[0].toLowerCase());
+	}
+	return result;
+}
+
+export function deriveAvailableLanguages(
+	providers: Provider[],
+	getMultiLanguages: (provider: Provider) => string[]
+): string[] {
+	const langs = new SvelteSet<string>();
+	const claimedBase = new SvelteSet<string>();
+	for (const provider of providers) {
+		if (provider.locale === 'multi') continue;
+		const base = provider.locale.split('-')[0].toLowerCase();
+		claimedBase.add(base);
+		langs.add(provider.locale);
+	}
+	for (const provider of providers) {
+		if (provider.locale !== 'multi') continue;
+		for (const lang of getMultiLanguages(provider)) {
+			if (lang && !claimedBase.has(lang)) langs.add(lang);
+		}
+	}
+	return Array.from(langs);
+}
+
 export function getEnabledProviders(providers: Provider[]) {
 	return providers.filter((p) => p.enabled);
 }

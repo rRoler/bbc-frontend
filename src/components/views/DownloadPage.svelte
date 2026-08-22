@@ -30,7 +30,8 @@
 	import Image from '../ui/Image.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
-	import ProviderLangSelector from '../domain/ProviderLangSelector.svelte';
+	import { deriveAvailableLanguages, toBaseLangSet } from '../../lib/svelte/providers.svelte.ts';
+	import { SvelteSet } from 'svelte/reactivity';
 	import {
 		automaticQualityPickerSetting,
 		bookSortOrderSetting,
@@ -51,6 +52,18 @@
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();
+
+	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
+	let selectedLocales = $state<SvelteSet<string>>(new SvelteSet<string>());
+
+	$effect(() => {
+		downloader.selectedLanguages = toBaseLangSet(selectedLocales);
+	});
+
+	let availableLanguages = $derived(
+		deriveAvailableLanguages(downloader.providers, () => downloader.allAvailableLanguages)
+	);
+
 	const imageApi = new WsrvApi();
 
 	function updateLocationStorage() {
@@ -195,17 +208,8 @@
 				<ProviderSelector
 					providers={downloader.providers}
 					bind:selected={downloader.selectedProviders}
-					onchange={async () => {
-						await downloader.resetAll();
-						updateLocationStorage();
-					}}
-				/>
-			{/if}
-
-			{#if downloader.allAvailableLanguages.length > 1 || downloader.selectedLanguages.size > 0}
-				<ProviderLangSelector
-					languages={downloader.allAvailableLanguages}
-					bind:selected={downloader.selectedLanguages}
+					bind:selectedLocales
+					languages={availableLanguages}
 					onchange={async () => {
 						await downloader.resetAll();
 						updateLocationStorage();

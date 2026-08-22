@@ -4,7 +4,11 @@
 </script>
 
 <script lang="ts">
-	import allProviders, { sortProviders, type Provider } from '../../lib/svelte/providers.svelte.ts';
+	import allProviders, {
+		sortProviders,
+		toBaseLangSet,
+		type Provider,
+	} from '../../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import {
 		getAllSvelteSearchParams,
@@ -22,7 +26,8 @@
 		class: className = '',
 		providers = allProviders.sorted,
 		selected = $bindable([]),
-		selectedLocales = $bindable(new SvelteSet()),
+		selectedLocales = $bindable(new SvelteSet<string>()),
+		languages = Array.from(allProviders.locales),
 		onchange,
 		paramsEnabled = true,
 		delayMs = 500,
@@ -30,7 +35,8 @@
 		class?: string;
 		providers?: Provider[];
 		selected?: Provider[];
-		selectedLocales?: SvelteSet<Provider['locale']>;
+		selectedLocales?: SvelteSet<string>;
+		languages?: string[];
 		onchange?: (providers: Provider[]) => void | Promise<void>;
 		paramsEnabled?: boolean;
 		delayMs?: number;
@@ -55,7 +61,13 @@
 		}
 
 		if (selectedLocales.size > 0) {
-			filtered = filtered.filter((p) => selectedLocales.has(p.locale));
+			const baseSet = toBaseLangSet(selectedLocales);
+			filtered = filtered.filter(
+				(p) =>
+					selectedLocales.has(p.locale) ||
+					baseSet.has(p.locale.split('-')[0].toLowerCase()) ||
+					p.locale === 'multi'
+			);
 		}
 
 		return filtered;
@@ -95,9 +107,8 @@
 			removeSvelteSearchParam(PROVIDER_LOCALE_PARAM_KEY, 'zh');
 		}
 
-		selectedLocales = new SvelteSet(localeIds as Provider['locale'][]);
+		selectedLocales = new SvelteSet(localeIds);
 		if (selected.length === 0) {
-			selectedBeforeLocale = [...allProviders.enabled];
 			selected = allProviders.sorted.filter((p) => selectedLocales.has(p.locale));
 		} else {
 			selectedBeforeLocale = [...selected];
@@ -228,7 +239,7 @@
 		items[nextIndex]?.focus();
 	}
 
-	function toggleLocale(locale: Provider['locale']) {
+	function toggleLocale(locale: string) {
 		if (selectedLocales.has(locale)) {
 			selectedLocales.delete(locale);
 			if (selectedLocales.size === 0) updateSelection(selectedBeforeLocale);
@@ -280,25 +291,27 @@
 			</label>
 		</div>
 
-		<div
-			class="flex w-full max-w-80 flex-row flex-nowrap gap-2 overflow-x-auto p-2"
-			bind:this={flagContainer}
-		>
-			{#each allProviders.locales as locale (locale)}
-				{@const Flag = langToFlag(locale)}
-				{@const isSelected = selectedLocales.has(locale)}
+		{#if languages.length > 1}
+			<div
+				class="flex w-full max-w-80 flex-row flex-nowrap gap-2 overflow-x-auto p-2"
+				bind:this={flagContainer}
+			>
+				{#each languages as locale (locale)}
+					{@const Flag = langToFlag(locale)}
+					{@const isSelected = selectedLocales.has(locale)}
 
-				<Tooltip position="top" tip={getLocaleName(locale)}>
-					<button
-						class="btn btn-outline btn-accent btn-sm"
-						onclick={() => toggleLocale(locale)}
-						class:btn-active={isSelected}
-					>
-						<Flag class="size-4" />
-					</button>
-				</Tooltip>
-			{/each}
-		</div>
+					<Tooltip position="top" tip={getLocaleName(locale)}>
+						<button
+							class="btn btn-outline btn-accent btn-sm"
+							onclick={() => toggleLocale(locale)}
+							class:btn-active={isSelected}
+						>
+							<Flag class="size-4" />
+						</button>
+					</Tooltip>
+				{/each}
+			</div>
+		{/if}
 
 		<ul tabindex="-1" class="menu h-fit max-h-96 w-full flex-nowrap overflow-y-auto">
 			<li>

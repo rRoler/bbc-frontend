@@ -31,7 +31,11 @@ import {
 } from './settings.svelte.ts';
 import { ALLOWED_EDIT_ROLES } from '../constants.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
-import { PROVIDER_LANG_PARAM_KEY } from '../../components/domain/ProviderLangSelector.svelte';
+import {
+	PROVIDER_LOCALE_PARAM_KEY,
+	PROVIDER_PARAM_KEY,
+} from '../../components/domain/ProviderSelector.svelte';
+import { toBaseLangSet } from './providers.svelte.ts';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
@@ -134,7 +138,7 @@ class Downloader {
 		if (!langs.length) return {};
 		const result: Record<string, string[]> = {};
 		for (const provider of this.selectedProviders) {
-			if (provider.locale === 'multi') result[provider.id] = langs;
+			result[provider.id] = langs;
 		}
 		return result;
 	}
@@ -534,9 +538,17 @@ class Downloader {
 			for (const currentPage of pagesToFetch) {
 				this.fetchedPages.push(currentPage);
 
+				const selectedIds = new SvelteSet(this.selectedProviders.map((p) => p.id));
+				const seriesIds = Object.fromEntries(
+					Object.entries(this.allSeriesIds).filter(([id]) => selectedIds.has(id))
+				);
+				const bookIds = Object.fromEntries(
+					Object.entries(this.allBookIds).filter(([id]) => selectedIds.has(id))
+				);
+
 				const response = await this.api.getBooks(
-					this.allSeriesIds,
-					this.allBookIds,
+					seriesIds,
+					bookIds,
 					this.sortOrder,
 					currentPage,
 					this.computeLangParams()
@@ -654,12 +666,6 @@ class Downloader {
 
 					this.allBooks.push(...newBooks);
 
-					for (const b of newBooks) {
-						if (b.language && !this.allAvailableLanguages.includes(b.language)) {
-							this.allAvailableLanguages.push(b.language);
-						}
-					}
-
 					if (this.autoSelectedLangForMulti) {
 						const multiLangProviders = this.selectedProviders.filter((p) => p.locale === 'multi');
 						if (multiLangProviders.length > 0) {
@@ -683,6 +689,39 @@ class Downloader {
 		}
 
 		this.isFetching = false;
+	}
+
+	async fetchAvailableLanguages(): Promise<void> {
+		if (!Object.keys(this.allSeriesIds).length && !Object.keys(this.allBookIds).length) return;
+
+		const multiProviders = this.providers.filter((p) => p.locale === 'multi');
+		if (multiProviders.length === 0) {
+			this.allAvailableLanguages = [];
+			return;
+		}
+
+		const ids = new SvelteSet(multiProviders.map((p) => p.id));
+		const seriesIds = Object.fromEntries(
+			Object.entries(this.allSeriesIds).filter(([id]) => ids.has(id))
+		);
+		const bookIds = Object.fromEntries(
+			Object.entries(this.allBookIds).filter(([id]) => ids.has(id))
+		);
+
+		try {
+			const response = await this.api.getBooks(seriesIds, bookIds, this.sortOrder, 1, {});
+
+			const langs = new SvelteSet<string>();
+			for (const provider of multiProviders) {
+				for (const book of response.data[provider.id] ?? []) {
+					if (book.language) langs.add(book.language);
+				}
+			}
+
+			this.allAvailableLanguages = Array.from(langs);
+		} catch (e) {
+			addAppError(new Error('Failed to fetch available languages', e as Error));
+		}
 	}
 
 	async resetAll(): Promise<void> {
@@ -1155,8 +1194,13 @@ class Downloader {
 	async initialize(): Promise<void> {
 		this.providers = [];
 		this.selectedProviders = [];
+		this.allAvailableLanguages = [];
 		this.allSeriesIds = {};
 		this.allBookIds = {};
+
+		const providerIds = getAllSvelteSearchParams(PROVIDER_PARAM_KEY);
+		const hasProviderParam = providerIds.length > 0;
+		const providerIdSet = new SvelteSet(providerIds);
 
 		for (const provider of allProviders.updated) {
 			const series = getAllSvelteSearchParams(`series(${provider.id})`);
@@ -1165,7 +1209,9 @@ class Downloader {
 			if (!series.length && !books.length) continue;
 
 			this.providers.push(provider);
-			this.selectedProviders.push(provider);
+			if (!hasProviderParam || providerIdSet.has(provider.id)) {
+				this.selectedProviders.push(provider);
+			}
 
 			sortProviders(this.providers);
 			sortProviders(this.selectedProviders);
@@ -1174,34 +1220,9 @@ class Downloader {
 			if (books.length) this.allBookIds[provider.id] = books;
 		}
 
-		const langIds = getAllSvelteSearchParams(PROVIDER_LANG_PARAM_KEY);
-		if (langIds.length > 0) {
-			this.selectedLanguages = new SvelteSet(langIds);
-		} else {
-			const multiLangProviders = this.selectedProviders.filter((p) => p.locale === 'multi');
-			const nonMultiLangProviders = this.selectedProviders.filter((p) => p.locale !== 'multi');
-
-			if (multiLangProviders.length > 0 && nonMultiLangProviders.length > 0) {
-				const localeCounts = new SvelteMap<string, number>();
-				let maxCount = 0;
-				let mostFrequentLocale = '';
-
-				for (const p of nonMultiLangProviders) {
-					const baseLocale = p.locale.split('-')[0].toLowerCase();
-					const currentCount = (localeCounts.get(baseLocale) || 0) + 1;
-					localeCounts.set(baseLocale, currentCount);
-
-					if (currentCount > maxCount) {
-						maxCount = currentCount;
-						mostFrequentLocale = baseLocale;
-					}
-				}
-
-				if (mostFrequentLocale) {
-					this.selectedLanguages = new SvelteSet([mostFrequentLocale]);
-					this.autoSelectedLangForMulti = true;
-				}
-			}
+		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY);
+		if (localeIds.length > 0) {
+			this.selectedLanguages = toBaseLangSet(new SvelteSet(localeIds));
 		}
 
 		const countIds = (store: Record<string, string[]>) =>
@@ -1220,6 +1241,7 @@ class Downloader {
 
 		if (this.providers.length > 0) {
 			await this.fetchSeries();
+			await this.fetchAvailableLanguages();
 			await this.fetchBooks();
 		}
 	}
