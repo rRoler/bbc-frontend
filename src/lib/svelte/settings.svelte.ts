@@ -372,18 +372,21 @@ export type AutoMatchLevel =
 	| 'mapped+title+type+booktype'
 	| 'mapped+title+type+pub'
 	| 'mapped+title+booktype+pub'
-	| 'mapped+full';
+	| 'mapped+full'
+	| 'legacy'
+	| 'mapped+legacy';
 
 export function matchFlagsFromLevel(level: AutoMatchLevel) {
+	const isLegacy = level === 'legacy' || level === 'mapped+legacy';
 	return {
-		useMapped: level !== 'off' && level.startsWith('mapped'),
+		useMapped: level !== 'off' && (level.startsWith('mapped') || level === 'mapped+legacy'),
 		matchTitle: level !== 'off' && level !== 'mapped',
 		matchType:
 			level.includes('+type') && !level.includes('booktype')
 				? true
-				: level.includes('+type+') || level === 'full' || level === 'mapped+full',
-		matchBookType: level.includes('booktype'),
-		matchPub: level.includes('pub') || level === 'full' || level === 'mapped+full',
+				: level.includes('+type+') || level === 'full' || level === 'mapped+full' || isLegacy,
+		matchBookType: level.includes('booktype') || isLegacy,
+		matchPub: level.includes('pub') || level === 'full' || level === 'mapped+full' || isLegacy,
 	};
 }
 
@@ -392,6 +395,8 @@ export const autoMatchResultsSetting = new Setting<SelectSetting<SelectOption<Au
 	type: 'select',
 	options: [
 		{ label: 'Off', value: 'off' },
+		{ label: 'Legacy', value: 'legacy' },
+		{ label: 'Mapped or Legacy', value: 'mapped+legacy' },
 		{ label: 'Mapped Only', value: 'mapped' },
 		{ label: 'Mapped or Title', value: 'mapped+title' },
 		{ label: 'Mapped or Title + Type', value: 'mapped+title+type' },

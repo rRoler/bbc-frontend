@@ -147,10 +147,12 @@
 
 		if (flags.matchTitle) {
 			const titleLower = series.title.toLowerCase().trim();
+			const isLegacy = level === 'legacy' || level === 'mapped+legacy';
 			const hasNullCriterion =
-				(flags.matchType && series.type == null) ||
-				(flags.matchBookType && series.bookType == null) ||
-				(flags.matchPub && series.publicationType == null);
+				!isLegacy &&
+				((flags.matchType && series.type == null) ||
+					(flags.matchBookType && series.bookType == null) ||
+					(flags.matchPub && series.publicationType == null));
 
 			if (!hasNullCriterion) {
 				Object.entries(searchResults).forEach(([pId, seriesList]) => {
@@ -159,12 +161,27 @@
 						const sLanguage = s.language || sProvider?.locale;
 						const isLanguageMatch =
 							sLanguage === targetLanguage || sLanguage === 'multi' || targetLanguage === 'multi';
+						const typeMatch = flags.matchType ? s.type === series.type : true;
+						const bookTypeMatch = flags.matchBookType
+							? isLegacy
+								? s.bookType && series.bookType
+									? s.bookType === series.bookType
+									: true
+								: s.bookType === series.bookType
+							: true;
+						const pubMatch = flags.matchPub
+							? isLegacy
+								? s.publicationType && series.publicationType
+									? s.publicationType === series.publicationType
+									: true
+								: s.publicationType === series.publicationType
+							: true;
 						return (
 							s.title.toLowerCase().trim() === titleLower &&
 							isLanguageMatch &&
-							(flags.matchType ? s.type === series.type : true) &&
-							(flags.matchBookType ? s.bookType === series.bookType : true) &&
-							(flags.matchPub ? s.publicationType === series.publicationType : true)
+							typeMatch &&
+							bookTypeMatch &&
+							pubMatch
 						);
 					});
 					if (matchingSeries.length > 0) didMatch = true;
