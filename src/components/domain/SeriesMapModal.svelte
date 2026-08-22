@@ -113,6 +113,18 @@
 		)
 	);
 
+	let effectiveSelected = $derived.by(() => {
+		const set = new SvelteSet(selectedSeries);
+		for (const s of flattenedResults) {
+			if (selectedSeries.has(seriesKey(s)) && s.mappedId && expandedClusters[s.mappedId]) {
+				for (const m of expandedClusters[s.mappedId]) {
+					set.add(seriesKey(m));
+				}
+			}
+		}
+		return set;
+	});
+
 	function handleAdd() {
 		onAdd(selectedResults);
 		close();
@@ -221,7 +233,7 @@
 										{series}
 										disableLink={true}
 										showProvider={true}
-										selected={selectedSeries.has(seriesKey(series))}
+										selected={effectiveSelected.has(seriesKey(series))}
 									/>
 								</button>
 							{/each}
