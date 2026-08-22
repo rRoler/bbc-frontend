@@ -10,6 +10,8 @@
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import Image from '../ui/Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
+	import ProviderIcons from './ProviderIcons.svelte';
+	import type { Provider } from '../../lib/svelte/providers.svelte.ts';
 	import Tooltip from '../ui/Tooltip.svelte';
 	import { ExternalLink } from 'lucide-svelte';
 	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
@@ -32,7 +34,6 @@
 
 	const imageApi = new WsrvApi();
 	const mergedProviderIds = $derived('providers' in series ? series.providers || [] : []);
-	const isSingleMerged = $derived(mergedProviderIds.length === 1);
 
 	const linkHref = $derived(
 		href
@@ -153,20 +154,20 @@
 		</h3>
 
 		<div class="mt-auto flex flex-col items-center gap-2 pt-2">
-			{#if mergedProviderIds.length > 0}
-				<div class="flex flex-wrap items-center justify-center gap-4">
-					{#each mergedProviderIds as pId (pId)}
-						{@const mp = allProviders.providers.find((p) => p.id === pId)}
-						{#if mp}
-							<ProviderLabel
-								provider={mp}
-								iconClass="size-4 @card:size-5"
-								textClass={isSingleMerged ? 'text-xs sm:text-sm' : undefined}
-								showText={isSingleMerged}
-							/>
-						{/if}
-					{/each}
-				</div>
+			{#if mergedProviderIds.length > 1}
+				{@const mergedProviders = mergedProviderIds
+					.map((id) => allProviders.providers.find((p) => p.id === id))
+					.filter((p): p is Provider => Boolean(p))}
+				<ProviderIcons providers={mergedProviders} size="size-4 @card:size-5" />
+			{:else if mergedProviderIds.length === 1}
+				{@const mp = allProviders.providers.find((p) => p.id === mergedProviderIds[0])}
+				{#if mp}
+					<ProviderLabel
+						provider={mp}
+						iconClass="size-4 @card:size-5"
+						textClass="text-xs sm:text-sm"
+					/>
+				{/if}
 			{:else if showProvider && 'providerId' in series && series.providerId}
 				{@const p = allProviders.providers.find((p) => p.id === series.providerId)}
 				{#if p}

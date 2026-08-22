@@ -10,6 +10,7 @@
 		type Provider,
 	} from '../../lib/svelte/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
+	import ProviderIcons from './ProviderIcons.svelte';
 	import {
 		getAllSvelteSearchParams,
 		getLocaleName,
@@ -266,9 +267,7 @@
 	>
 		{#if selected.length > 0}
 			<span>Providers:</span>
-			{#each selected as provider (provider.id)}
-				<img src={provider.icon} class="size-4" alt="{provider.name} Logo" />
-			{/each}
+			<ProviderIcons providers={selected} size="size-4" class="max-w-48" />
 		{:else}
 			Select Providers
 		{/if}
