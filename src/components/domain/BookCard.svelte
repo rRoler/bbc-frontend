@@ -55,9 +55,9 @@
 				: ''}"
 		/>
 		<div
-			class="pointer-events-none absolute inset-x-0 top-2 z-20 flex items-start justify-between px-2"
+			class="@card:p-1 pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between p-0.5"
 		>
-			<div class="flex flex-col items-start gap-1">
+			<div class="@card:gap-1 flex flex-col items-start gap-0.5">
 				{#if book.isMature}
 					<div class="badge badge-error badge-xs @card:badge-sm font-bold shadow-sm">18+</div>
 				{/if}
@@ -86,7 +86,7 @@
 				{/if}
 			</div>
 
-			<div class="pointer-events-auto flex flex-row items-start gap-1">
+			<div class="@card:gap-1 pointer-events-auto flex flex-row items-start gap-0.5">
 				{#if book.seriesId}
 					<Tooltip position="left" tip="Open Series">
 						<a
@@ -113,9 +113,9 @@
 		</div>
 
 		<div
-			class="pointer-events-none absolute inset-x-0 bottom-2 z-20 flex items-end justify-between px-2"
+			class="@card:p-1 pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-end justify-between p-0.5"
 		>
-			<div class="flex flex-col items-start gap-1">
+			<div class="@card:gap-1 flex flex-col items-start gap-0.5">
 				{#if book.volume?.number}
 					<div class="badge badge-accent badge-xs @card:badge-sm font-bold shadow-sm">
 						{book.volume.type === 'chapter' ? 'Ch.' : 'Vol.'}
@@ -124,7 +124,7 @@
 				{/if}
 			</div>
 
-			<div class="flex flex-col items-end gap-1">
+			<div class="@card:gap-1 flex flex-col items-end gap-0.5">
 				{#if book.price !== null && book.currency}
 					{#if book.price === 0}
 						<div
