@@ -49,6 +49,7 @@
 	import { downloadLocation } from '../../lib/locations.ts';
 	import Tooltip from '../ui/Tooltip.svelte';
 	import WsrvApi from '../../lib/apis/wsrv';
+	import { getPrimaryTitle } from '../../lib/apis/bbc.ts';
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();
@@ -268,7 +269,7 @@
 						<button
 							onclick={(e) => downloader.shiftSelect(e, book)}
 							class="absolute top-0 left-0 z-10 size-full cursor-pointer"
-							aria-label="Select {book.title} book"
+							aria-label="Select {getPrimaryTitle(book.titles)} book"
 						></button>
 
 						<div class="z-20 flex flex-row justify-between px-2 py-1">
@@ -360,7 +361,7 @@
 							<figure class="z-0 size-full">
 								<Image
 									src={imageApi.getUrl(book.thumbnail, { width: 320, output: 'webp' }).href}
-									alt="{book.title} book cover"
+									alt="{getPrimaryTitle(book.titles)} book cover"
 									class="w-full {bookSeries?.isMature &&
 									matureContentSetting.value === 'blur' &&
 									!isSelected
@@ -374,7 +375,7 @@
 						<div class="card-body items-center justify-between gap-1 p-1 text-center">
 							<div class="card-title z-20 line-clamp-2 grow text-sm">
 								{#if downloader.isEditMode}
-									<Tooltip position="top" tip={book.title}>
+									<Tooltip position="top" tip={getPrimaryTitle(book.titles)}>
 										<input
 											type="text"
 											placeholder="Volume Number"

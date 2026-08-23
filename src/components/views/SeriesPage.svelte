@@ -27,6 +27,9 @@
 		type BBCSeriesMerged,
 		type BBCBook,
 		type BBCSeriesSearchResult,
+		getPeopleNames,
+		getTagLabels,
+		getPrimaryTitle,
 	} from '../../lib/apis/bbc.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import allProviders from '../../lib/svelte/providers.svelte.ts';
@@ -54,31 +57,12 @@
 	let mergedHeroSeries = $state<BBCSeriesMerged | null>(null);
 	let heroSeries = $derived(isMerged ? mergedHeroSeries : singleSeriesData);
 
-	let mainTitle = $derived.by(() => {
-		if (!heroSeries) return '';
-		const cjkRegex = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\uFAFF]/;
-
-		if ('titles' in heroSeries) {
-			if (!heroSeries.titles || heroSeries.titles.length === 0) return '';
-			const cjkTitle = heroSeries.titles.find((t) => cjkRegex.test(t.title));
-			if (cjkTitle) return cjkTitle.title;
-			return heroSeries.titles[0].title;
-		}
-
-		if (heroSeries.title && cjkRegex.test(heroSeries.title)) return heroSeries.title;
-		if (heroSeries.altTitles) {
-			const cjkAlt = heroSeries.altTitles.find((t) => cjkRegex.test(t));
-			if (cjkAlt) return cjkAlt;
-		}
-		return heroSeries.title ?? '';
-	});
+	let mainTitle = $derived(getPrimaryTitle(heroSeries?.titles));
 
 	let mainDescription = $derived.by(() => {
 		if (!heroSeries) return '';
-		if ('descriptions' in heroSeries) {
-			return heroSeries.descriptions?.[0]?.description ?? '';
-		}
-		return heroSeries.description ?? '';
+		const descriptions = heroSeries.descriptions ?? [];
+		return descriptions.find((d) => d.isPrimary)?.description ?? descriptions[0]?.description ?? '';
 	});
 
 	let allSubSeries = $derived.by(() => {
@@ -188,28 +172,20 @@
 		const cjkRegex = /[\u4e00-\u9faf\u3040-\u309f\u30a0-\u30ff\uac00-\ud7a3]/;
 
 		for (const series of allSubSeries) {
-			if (series.title && cjkRegex.test(series.title)) return series.title;
-			if (series.altTitles) {
-				const cjkAlt = series.altTitles.find((t) => typeof t === 'string' && cjkRegex.test(t));
-				if (cjkAlt) return cjkAlt as string;
+			const primaryTitle = getPrimaryTitle(series.titles);
+			if (primaryTitle && cjkRegex.test(primaryTitle)) return primaryTitle;
+			if (series.titles) {
+				const cjkAlt = series.titles.find((t) => cjkRegex.test(t.title));
+				if (cjkAlt) return cjkAlt.title;
 			}
 		}
 
 		if (heroSeries) {
-			if ('titles' in heroSeries) {
-				const cjkTitle = heroSeries.titles?.find((t) => cjkRegex.test(t.title));
-				if (cjkTitle) return cjkTitle.title;
-				return heroSeries.titles?.[0]?.title ?? '';
-			} else {
-				if (heroSeries.title && cjkRegex.test(heroSeries.title)) return heroSeries.title;
-				if (heroSeries.altTitles) {
-					const cjkAlt = heroSeries.altTitles.find(
-						(t) => typeof t === 'string' && cjkRegex.test(t)
-					);
-					if (cjkAlt) return cjkAlt as string;
-				}
-				return heroSeries.title ?? '';
-			}
+			const flatTitle = getPrimaryTitle(heroSeries.titles);
+			if (flatTitle && cjkRegex.test(flatTitle)) return flatTitle;
+			const cjkTitle = heroSeries.titles?.find((t) => cjkRegex.test(t.title));
+			if (cjkTitle) return cjkTitle.title;
+			return flatTitle;
 		}
 
 		return '';
@@ -498,19 +474,8 @@
 		if (mergedHeroSeries.titles) {
 			mergedHeroSeries.titles.forEach((mt) => {
 				if (mt.title !== mainTitle) {
-					titles.push({ language: mt.language, title: mt.title, isAlt: false });
+					titles.push({ language: mt.language, title: mt.title, isAlt: !mt.isPrimary });
 				}
-			});
-		}
-		if (mergedHeroSeries.altTitles) {
-			mergedHeroSeries.altTitles.forEach((mat) => {
-				mat.altTitles.forEach((altTitle) => {
-					titles.push({
-						language: mat.language,
-						title: altTitle,
-						isAlt: true,
-					});
-				});
 			});
 		}
 
@@ -522,6 +487,10 @@
 			return true;
 		});
 	});
+
+	let heroAuthors = $derived(getPeopleNames(heroSeries?.people, 'author'));
+	let heroArtists = $derived(getPeopleNames(heroSeries?.people, 'artist'));
+	let heroTags = $derived(getTagLabels(heroSeries?.tags));
 
 	let activeDescIdx = $state(0);
 	let showAllTitles = $state(false);
@@ -623,17 +592,17 @@
 					<div
 						class="mb-4 ml-2 flex flex-wrap justify-center gap-2 text-sm font-semibold opacity-80 md:justify-start"
 					>
-						{#if heroSeries.authors?.length}
+						{#if heroAuthors.length}
 							<span
 								><span class="font-normal opacity-70">Author:</span>
-								{heroSeries.authors.join(', ')}</span
+								{heroAuthors.join(', ')}</span
 							>
 						{/if}
-						{#if heroSeries.artists?.length}
+						{#if heroArtists.length}
 							<span class="mx-2 opacity-30">•</span>
 							<span
 								><span class="font-normal opacity-70">Artist:</span>
-								{heroSeries.artists.join(', ')}</span
+								{heroArtists.join(', ')}</span
 							>
 						{/if}
 					</div>
@@ -753,19 +722,19 @@
 						</div>
 					{/if}
 
-					{#if heroSeries.tags?.length}
+					{#if heroTags.length}
 						<div
 							class="mt-4 mb-2 flex flex-wrap items-center justify-center gap-1 md:justify-start"
 						>
-							{#each heroSeries.tags.slice(0, showAllTags ? heroSeries.tags.length : 10) as tag (tag)}
+							{#each heroTags.slice(0, showAllTags ? heroTags.length : 10) as tag (tag)}
 								<span class="badge badge-sm badge-neutral">{capitalizeFirstLetter(tag)}</span>
 							{/each}
-							{#if heroSeries.tags.length > 10}
+							{#if heroTags.length > 10}
 								<button
 									class="btn btn-ghost btn-xs text-xs font-normal opacity-70 hover:opacity-100"
 									onclick={() => (showAllTags = !showAllTags)}
 								>
-									{showAllTags ? 'Show Less' : `+${heroSeries.tags.length - 10} More`}
+									{showAllTags ? 'Show Less' : `+${heroTags.length - 10} More`}
 								</button>
 							{/if}
 						</div>

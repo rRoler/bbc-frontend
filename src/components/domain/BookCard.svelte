@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getPrimaryTitle } from '../../lib/apis/bbc.ts';
 	import type { BBCBook, BBCBookDetail } from '../../lib/apis/bbc.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import allProviders from '../../lib/svelte/providers.svelte.ts';
@@ -41,13 +42,13 @@
 		href={`${downloadLocation.path}?book(${displayProvider?.id || book.providerId})=${book.id}`}
 		class="absolute inset-0 z-10"
 	>
-		<span class="sr-only">Download {book.title}</span>
+		<span class="sr-only">Download {getPrimaryTitle(book.titles)}</span>
 	</a>
 
 	<figure class="relative aspect-[2.1/3] w-full overflow-hidden">
 		<Image
 			src={imageApi.getUrl(book.cover, { width: 320, output: 'webp' }).href}
-			alt="{book.title} cover"
+			alt="{getPrimaryTitle(book.titles)} cover"
 			class="size-full object-cover transition-transform duration-300 group-hover:scale-105 {book.isMature &&
 			matureContentSetting.value === 'blur' &&
 			blurMature
@@ -146,7 +147,7 @@
 
 	<div class="card-body items-center p-4">
 		<h3 class="line-clamp-2 text-center text-sm leading-tight font-bold sm:text-base">
-			{book.title}
+			{getPrimaryTitle(book.titles)}
 		</h3>
 
 		{#if book.releaseDate}

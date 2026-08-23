@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { LayoutGrid, X, ExternalLink, EllipsisVertical, Link2 } from 'lucide-svelte';
-	import BBC_API, { type BBCSeries, type BBCSeriesSearchResult } from '../../lib/apis/bbc.ts';
+	import BBC_API, {
+		type BBCSeries,
+		type BBCSeriesSearchResult,
+		getPeopleNames,
+		getPublisherNames,
+		getTagLabels,
+		getPrimaryTitle,
+	} from '../../lib/apis/bbc.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../../lib/svelte/app.svelte.ts';
 	import allProviders, { type Provider } from '../../lib/svelte/providers.svelte.ts';
@@ -146,7 +153,7 @@
 		}
 
 		if (flags.matchTitle) {
-			const titleLower = series.title.toLowerCase().trim();
+			const titleLower = getPrimaryTitle(series.titles).toLowerCase().trim();
 			const isLegacy = level === 'legacy' || level === 'mapped+legacy';
 			const hasNullCriterion =
 				!isLegacy &&
@@ -177,7 +184,7 @@
 								: s.publicationType === series.publicationType
 							: true;
 						return (
-							s.title.toLowerCase().trim() === titleLower &&
+							getPrimaryTitle(s.titles).toLowerCase().trim() === titleLower &&
 							isLanguageMatch &&
 							typeMatch &&
 							bookTypeMatch &&
@@ -247,31 +254,45 @@
 		vars.push([textVariables.time, time]);
 		vars.push([textVariables.datetime, datetime]);
 
-		vars.push([textVariables.seriesTitle, series.title ?? '']);
+		vars.push([textVariables.seriesTitle, getPrimaryTitle(series.titles)]);
 		vars.push([textVariables.seriesThumbnailUrl, series.thumbnail ?? '']);
 		vars.push([textVariables.seriesPublicationType, series.publicationType || 'digital']);
 		vars.push([textVariables.seriesBookType, series.bookType || '']);
 		vars.push([textVariables.seriesType, series.type ?? '']);
 		vars.push([textVariables.seriesUrl, series.url ?? '']);
 		vars.push([textVariables.seriesId, series.id ?? '']);
-		vars.push([textVariables.seriesDescription, series.description ?? '']);
-		vars.push([textVariables.seriesAuthors, series.authors?.join(', ') ?? '']);
-		vars.push([textVariables.seriesArtists, series.artists?.join(', ') ?? '']);
-		vars.push([textVariables.seriesPublisher, series.publisher ?? '']);
-		vars.push([textVariables.seriesTags, series.tags?.join(', ') ?? '']);
+		vars.push([
+			textVariables.seriesDescription,
+			series.descriptions?.find((d) => d.isPrimary)?.description ??
+				series.descriptions?.[0]?.description ??
+				'',
+		]);
+		vars.push([textVariables.seriesAuthors, getPeopleNames(series.people, 'author').join(', ')]);
+		vars.push([textVariables.seriesArtists, getPeopleNames(series.people, 'artist').join(', ')]);
+		vars.push([textVariables.seriesPublisher, getPublisherNames(series.publishers).join(', ')]);
+		vars.push([textVariables.seriesTags, getTagLabels(series.tags).join(', ')]);
 		vars.push([textVariables.seriesStatus, series.status ?? '']);
 		vars.push([textVariables.seriesRating, series.rating?.toString() ?? '']);
 		vars.push([textVariables.seriesRatingCount, series.ratingCount?.toString() ?? '']);
 		vars.push([textVariables.seriesLanguageCode, series.language ?? '']);
 		vars.push([textVariables.seriesLanguageName, getLocaleName(series.language ?? '')]);
-		vars.push([textVariables.seriesTranslator, series.translator?.join(', ') ?? '']);
+		vars.push([
+			textVariables.seriesTranslator,
+			getPeopleNames(series.people, 'translator').join(', '),
+		]);
 		vars.push([textVariables.seriesFormat, series.format ?? '']);
 		vars.push([textVariables.seriesReadingDirection, series.readingDirection ?? '']);
 		vars.push([textVariables.seriesBookCount, series.bookCount?.toString() ?? '']);
 		vars.push([textVariables.seriesChapterCount, series.chapterCount?.toString() ?? '']);
 		vars.push([textVariables.seriesMagazine, series.magazine ?? '']);
 		vars.push([textVariables.seriesGenre, series.genre ?? '']);
-		vars.push([textVariables.seriesAltTitles, series.altTitles?.join(', ') ?? '']);
+		vars.push([
+			textVariables.seriesAltTitles,
+			series.titles
+				?.filter((t) => !t.isPrimary)
+				.map((t) => t.title)
+				.join(', ') ?? '',
+		]);
 		vars.push([textVariables.seriesAlId, series.alId ?? '']);
 		vars.push([textVariables.seriesApId, series.apId ?? '']);
 		vars.push([textVariables.seriesMuId, series.muId ?? '']);
@@ -442,7 +463,7 @@
 									<button
 										class="absolute top-0 left-0 z-10 size-full cursor-pointer"
 										onclick={() => handleSeriesClick(provider, series, isSelected)}
-										aria-label="Select {series.title} series"
+										aria-label="Select {getPrimaryTitle(series.titles)} series"
 									></button>
 
 									<div class="relative h-36 overflow-hidden sm:h-58">
@@ -502,7 +523,7 @@
 												src={series.thumbnail
 													? imageApi.getUrl(series.thumbnail, { width: 168, output: 'webp' }).href
 													: ''}
-												alt="{series.title} series thumbnail"
+												alt="{getPrimaryTitle(series.titles)} series thumbnail"
 												class="w-full {series.isMature &&
 												matureContentSetting.value === 'blur' &&
 												!isSelected
@@ -515,8 +536,8 @@
 
 									<div class="card-body items-center p-1 text-center">
 										<div class="card-title z-20 line-clamp-2 text-sm">
-											<Tooltip position="bottom" tip={series.title}>
-												<h3>{series.title}</h3>
+											<Tooltip position="bottom" tip={getPrimaryTitle(series.titles)}>
+												<h3>{getPrimaryTitle(series.titles)}</h3>
 											</Tooltip>
 										</div>
 									</div>

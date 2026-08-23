@@ -1,6 +1,7 @@
 import { appState, addAppError } from './app.svelte.ts';
 import BBC_API from '../apis/bbc.ts';
 import type { BBCBook, BBCBookPage, BBCSeries, BBCSort } from '../apis/bbc.ts';
+import { getPeopleNames, getPublisherNames, getTagLabels, getPrimaryTitle } from '../apis/bbc.ts';
 import allProviders, { sortProviders, type Provider } from './providers.svelte.ts';
 import { wsrvApi, getImageInfo } from '../utils';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
@@ -201,7 +202,7 @@ class Downloader {
 				compareResult = this.volumeNatSort(a.volumeName, b.volumeName);
 				break;
 			case 'title':
-				compareResult = natsort(a.title, b.title);
+				compareResult = natsort(getPrimaryTitle(a.titles), getPrimaryTitle(b.titles));
 				break;
 			case 'provider':
 				compareResult = natsort(a.provider.name, b.provider.name);
@@ -295,7 +296,7 @@ class Downloader {
 			vars.push([textVariables.coverUrl, book.cover]);
 			vars.push([textVariables.volumeName, book.volumeName]);
 			vars.push([textVariables.volumeNumber, book.volume.number || '0']);
-			vars.push([textVariables.bookTitle, book.title]);
+			vars.push([textVariables.bookTitle, getPrimaryTitle(book.titles)]);
 			vars.push([textVariables.bookUrl, book.url]);
 			vars.push([textVariables.bookId, book.id]);
 			vars.push([textVariables.providerName, book.provider.name]);
@@ -310,45 +311,76 @@ class Downloader {
 			vars.push([textVariables.bookIsbn, book.isbn ?? '']);
 			vars.push([textVariables.bookReleaseDate, book.releaseDate ?? '']);
 			vars.push([textVariables.bookPageCount, book.pageCount?.toString() ?? '']);
-			vars.push([textVariables.bookDescription, book.description ?? '']);
-			vars.push([textVariables.bookAuthors, book.authors?.join(', ') ?? '']);
-			vars.push([textVariables.bookArtists, book.artists?.join(', ') ?? '']);
-			vars.push([textVariables.bookPublisher, book.publisher ?? '']);
-			vars.push([textVariables.bookTags, book.tags?.join(', ') ?? '']);
+			vars.push([
+				textVariables.bookDescription,
+				book.descriptions?.find((d) => d.isPrimary)?.description ??
+					book.descriptions?.[0]?.description ??
+					'',
+			]);
+			vars.push([textVariables.bookAuthors, getPeopleNames(book.people, 'author').join(', ')]);
+			vars.push([textVariables.bookArtists, getPeopleNames(book.people, 'artist').join(', ')]);
+			vars.push([textVariables.bookPublisher, getPublisherNames(book.publishers).join(', ')]);
+			vars.push([textVariables.bookTags, getTagLabels(book.tags).join(', ')]);
 			vars.push([textVariables.bookRating, book.rating?.toString() ?? '']);
 			vars.push([textVariables.bookRatingCount, book.ratingCount?.toString() ?? '']);
 			vars.push([textVariables.bookLanguageCode, book.language ?? '']);
 			vars.push([textVariables.bookLanguageName, getLocaleName(book.language ?? '')]);
-			vars.push([textVariables.bookTranslator, book.translator?.join(', ') ?? '']);
+			vars.push([
+				textVariables.bookTranslator,
+				getPeopleNames(book.people, 'translator').join(', '),
+			]);
 			vars.push([textVariables.bookFormat, book.format ?? '']);
 			vars.push([textVariables.bookOriginalPrice, book.originalPrice?.toString() ?? '']);
 			vars.push([textVariables.bookFileSize, bytesToHumanReadable(book.fileSize)]);
 			const bookSeries = this.getBookSeries(book);
 			if (bookSeries) {
-				vars.push([textVariables.seriesTitle, bookSeries.title]);
+				vars.push([textVariables.seriesTitle, getPrimaryTitle(bookSeries.titles)]);
 				vars.push([textVariables.seriesThumbnailUrl, bookSeries.thumbnail ?? '']);
 				vars.push([textVariables.seriesPublicationType, bookSeries.publicationType || 'digital']);
 				vars.push([textVariables.seriesBookType, bookSeries.bookType || '']);
 				vars.push([textVariables.seriesType, bookSeries.type]);
 				vars.push([textVariables.seriesId, bookSeries.id]);
-				vars.push([textVariables.seriesDescription, bookSeries.description ?? '']);
-				vars.push([textVariables.seriesAuthors, bookSeries.authors?.join(', ') ?? '']);
-				vars.push([textVariables.seriesArtists, bookSeries.artists?.join(', ') ?? '']);
-				vars.push([textVariables.seriesPublisher, bookSeries.publisher ?? '']);
-				vars.push([textVariables.seriesTags, bookSeries.tags?.join(', ') ?? '']);
+				vars.push([
+					textVariables.seriesDescription,
+					bookSeries.descriptions?.find((d) => d.isPrimary)?.description ??
+						bookSeries.descriptions?.[0]?.description ??
+						'',
+				]);
+				vars.push([
+					textVariables.seriesAuthors,
+					getPeopleNames(bookSeries.people, 'author').join(', '),
+				]);
+				vars.push([
+					textVariables.seriesArtists,
+					getPeopleNames(bookSeries.people, 'artist').join(', '),
+				]);
+				vars.push([
+					textVariables.seriesPublisher,
+					getPublisherNames(bookSeries.publishers).join(', '),
+				]);
+				vars.push([textVariables.seriesTags, getTagLabels(bookSeries.tags).join(', ')]);
 				vars.push([textVariables.seriesStatus, bookSeries.status ?? '']);
 				vars.push([textVariables.seriesRating, bookSeries.rating?.toString() ?? '']);
 				vars.push([textVariables.seriesRatingCount, bookSeries.ratingCount?.toString() ?? '']);
 				vars.push([textVariables.seriesLanguageCode, bookSeries.language ?? '']);
 				vars.push([textVariables.seriesLanguageName, getLocaleName(bookSeries.language ?? '')]);
-				vars.push([textVariables.seriesTranslator, bookSeries.translator?.join(', ') ?? '']);
+				vars.push([
+					textVariables.seriesTranslator,
+					getPeopleNames(bookSeries.people, 'translator').join(', '),
+				]);
 				vars.push([textVariables.seriesFormat, bookSeries.format ?? '']);
 				vars.push([textVariables.seriesReadingDirection, bookSeries.readingDirection ?? '']);
 				vars.push([textVariables.seriesBookCount, bookSeries.bookCount?.toString() ?? '']);
 				vars.push([textVariables.seriesChapterCount, bookSeries.chapterCount?.toString() ?? '']);
 				vars.push([textVariables.seriesMagazine, bookSeries.magazine ?? '']);
 				vars.push([textVariables.seriesGenre, bookSeries.genre ?? '']);
-				vars.push([textVariables.seriesAltTitles, bookSeries.altTitles?.join(', ') ?? '']);
+				vars.push([
+					textVariables.seriesAltTitles,
+					bookSeries.titles
+						?.filter((t) => !t.isPrimary)
+						.map((t) => t.title)
+						.join(', ') ?? '',
+				]);
 				vars.push([textVariables.seriesAlId, bookSeries.alId ?? '']);
 				vars.push([textVariables.seriesApId, bookSeries.apId ?? '']);
 				vars.push([textVariables.seriesMuId, bookSeries.muId ?? '']);
@@ -440,7 +472,7 @@ class Downloader {
 		const volumeNumber = book.volume.number;
 		if (volumeNumber) return `${volumePrefix} ${volumeNumber}`;
 
-		return book.title;
+		return getPrimaryTitle(book.titles);
 	}
 
 	private async copyLinksToClipboard(books: Book[], copyId: string): Promise<void> {
@@ -647,7 +679,7 @@ class Downloader {
 								if (!book.provider.ignoreErrors) {
 									addAppError(
 										new Error(
-											`Failed to get cover details for ${book.provider.name} - ${book.title}`,
+											`Failed to get cover details for ${book.provider.name} - ${getPrimaryTitle(book.titles)}`,
 											e as Error
 										)
 									);
@@ -896,7 +928,9 @@ class Downloader {
 				if (!url) {
 					if (!book.provider.ignoreErrors) {
 						addAppError(
-							new Error(`Failed to open cover for ${book.provider.name} - ${book.title}`)
+							new Error(
+								`Failed to open cover for ${book.provider.name} - ${getPrimaryTitle(book.titles)}`
+							)
 						);
 					}
 					continue;
@@ -911,7 +945,7 @@ class Downloader {
 					url,
 					percentage: widthPercentage,
 					provider: book.provider,
-					name: book.title,
+					name: getPrimaryTitle(book.titles),
 					scaleFactor,
 				});
 			}
@@ -947,7 +981,9 @@ class Downloader {
 				if (!imageBuffer) {
 					if (!book.provider.ignoreErrors) {
 						addAppError(
-							new Error(`Failed to download cover for ${book.provider.name} - ${book.title}`)
+							new Error(
+								`Failed to download cover for ${book.provider.name} - ${getPrimaryTitle(book.titles)}`
+							)
 						);
 					}
 					continue;
@@ -959,7 +995,7 @@ class Downloader {
 					if (!book.provider.ignoreErrors) {
 						addAppError(
 							new Error(
-								`Cover for ${book.provider.name} - ${book.title} is not an image: ${imageFileType?.mime || 'unknown'}`
+								`Cover for ${book.provider.name} - ${getPrimaryTitle(book.titles)} is not an image: ${imageFileType?.mime || 'unknown'}`
 							)
 						);
 					}

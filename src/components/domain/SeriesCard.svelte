@@ -50,9 +50,6 @@
 			if (cjkTitle) return cjkTitle.title;
 			return series.titles[0].title;
 		}
-		if ('title' in series) {
-			return series.title;
-		}
 		return 'Unknown Title';
 	});
 </script>
