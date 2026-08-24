@@ -403,7 +403,7 @@
 		if (!heroSeries?.trackers) return [];
 
 		return heroSeries.trackers.map((t) => ({
-			name: t.name,
+			trackerName: t.trackerName,
 			url: t.externalUrl,
 			iconUrl: new URL(t.externalUrl).origin,
 		}));
@@ -694,7 +694,7 @@
 					<!-- Tracking Sites -->
 					{#if trackers.length > 0}
 						<div class="mt-3 mb-2 flex flex-wrap justify-center gap-2 md:justify-start">
-							{#each trackers as tracker (tracker.name)}
+							{#each trackers as tracker (tracker.trackerName)}
 								<a
 									href={tracker.url}
 									target="_blank"
@@ -703,10 +703,10 @@
 								>
 									<img
 										src={`https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${tracker.iconUrl}&size=64`}
-										alt={tracker.name}
+										alt={tracker.trackerName}
 										class="size-4 rounded-sm"
 									/>
-									{tracker.name}
+									{tracker.trackerName}
 								</a>
 							{/each}
 						</div>

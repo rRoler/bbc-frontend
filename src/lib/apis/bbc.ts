@@ -112,7 +112,7 @@ export interface BBCTracker {
 	trackerId: string;
 	externalId: string;
 	externalUrl: string;
-	name: string;
+	trackerName: string;
 }
 
 export function trackerById(trackers: BBCTracker[] | null | undefined): Record<string, string> {
