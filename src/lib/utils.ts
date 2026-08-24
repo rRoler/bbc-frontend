@@ -237,6 +237,16 @@ export function bytesToHumanReadable(bytes: number | null): string {
 
 export function getLocaleName(locale: string): string {
 	if (locale === 'multi') return 'Multilingual';
+	const lowered = locale.toLowerCase();
+	if (lowered.endsWith('-ro')) {
+		const base = lowered.slice(0, -3);
+		try {
+			const baseName = new Intl.DisplayNames(['en'], { type: 'language' }).of(base) || base;
+			return `${baseName} (Romanized)`;
+		} catch {
+			return `${base} (Romanized)`;
+		}
+	}
 	try {
 		const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });
 		return langDisplayNames.of(locale) || locale;
@@ -247,7 +257,8 @@ export function getLocaleName(locale: string): string {
 }
 
 export function langToFlag(lang: string): Component | undefined {
-	const lowered = lang.toLowerCase();
+	let lowered = lang.toLowerCase();
+	if (lowered.endsWith('-ro')) lowered = lowered.slice(0, -3);
 	switch (lowered) {
 		case 'en':
 		case 'en-us':

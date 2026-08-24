@@ -49,7 +49,7 @@ export interface BBCListResult<T> {
 }
 
 export interface BBCLink {
-	type: 'self' | 'official' | 'store' | 'social' | 'external' | null;
+	type: 'self' | 'webplatform' | 'publisher' | 'info' | 'retailer' | 'social' | null;
 	url: string;
 	language: string | null;
 	isPrimary: boolean;
