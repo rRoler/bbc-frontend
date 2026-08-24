@@ -238,8 +238,9 @@ export function bytesToHumanReadable(bytes: number | null): string {
 export function getLocaleName(locale: string): string {
 	if (locale === 'multi') return 'Multilingual';
 	const lowered = locale.toLowerCase();
-	if (lowered.endsWith('-ro')) {
-		const base = lowered.slice(0, -3);
+	// Romanized (Latin script) variants, e.g. "ja-Latn"
+	if (/(?:^|-)latn$/.test(lowered)) {
+		const base = lowered.split(/[-_ ]/)[0];
 		try {
 			const baseName = new Intl.DisplayNames(['en'], { type: 'language' }).of(base) || base;
 			return `${baseName} (Romanized)`;
@@ -248,8 +249,7 @@ export function getLocaleName(locale: string): string {
 		}
 	}
 	try {
-		const langDisplayNames = new Intl.DisplayNames(['en'], { type: 'language' });
-		return langDisplayNames.of(locale) || locale;
+		return new Intl.DisplayNames(['en'], { type: 'language' }).of(locale) || locale;
 	} catch (e) {
 		console.warn(e);
 		return locale;
@@ -258,7 +258,10 @@ export function getLocaleName(locale: string): string {
 
 export function langToFlag(lang: string): Component | undefined {
 	let lowered = lang.toLowerCase();
-	if (lowered.endsWith('-ro')) lowered = lowered.slice(0, -3);
+	// Script variants (e.g. "ja-Latn", "zh-Hant") resolve to their base language flag
+	if (/(?:^|-)(latn|hans|hant)$/.test(lowered)) {
+		lowered = lowered.split(/[-_ ]/)[0];
+	}
 	switch (lowered) {
 		case 'en':
 		case 'en-us':
