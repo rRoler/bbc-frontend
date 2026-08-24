@@ -299,6 +299,7 @@ export interface BBCProvider {
 	defaultPriority: number;
 	volumePrefix: string | null;
 	ignoreErrors: boolean;
+	groupId: string | null;
 }
 
 export type BBCPeople = BBCSeries['people'];
@@ -649,6 +650,7 @@ export default class BBC_API {
 			...p,
 			priority: p.defaultPriority,
 			enabled: p.enabledByDefault,
+			groupId: p.groupId,
 		})) as unknown as Provider[];
 	}
 

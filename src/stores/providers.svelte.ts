@@ -28,6 +28,7 @@ export interface Provider {
 	ignoreErrors: boolean;
 	supportedEndpoints: ProviderEndpoint[];
 	volumePrefix: string | null;
+	groupId?: string | null;
 }
 
 export interface ProviderStorageEntry {
