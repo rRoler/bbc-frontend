@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState } from '../../lib/svelte/app.svelte.ts';
+	import { appState } from '../../stores/app.svelte.ts';
 	import {
 		Check,
 		ChevronDown,
@@ -25,12 +25,12 @@
 		removeSvelteSearchParam,
 		setSvelteSearchParam,
 		unfocusAndExecute,
-	} from '../../lib/utils.ts';
+	} from '../../utils';
 	import { ImageViewer } from 'svelte-image-viewer';
 	import Image from '../ui/Image.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
-	import { deriveAvailableLanguages, toBaseLangSet } from '../../lib/svelte/providers.svelte.ts';
+	import { deriveAvailableLanguages, toBaseLangSet } from '../../stores/providers.svelte.ts';
 	import { SvelteSet } from 'svelte/reactivity';
 	import {
 		automaticQualityPickerSetting,
@@ -38,18 +38,18 @@
 		fileSystemFolderSetting,
 		matureContentSetting,
 		autoMapSetting,
-	} from '../../lib/svelte/settings.svelte.ts';
-	import { ALLOWED_EDIT_ROLES } from '../../lib/constants.ts';
-	import userState from '../../lib/svelte/user.svelte.ts';
+	} from '../../stores/settings.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../../config/constants.ts';
+	import userState from '../../stores/user.svelte.ts';
 	import DynamicIcon from '../ui/DynamicIcon.svelte';
 	import Pagination from '../ui/Pagination.svelte';
 	import { onMount } from 'svelte';
-	import Downloader from '../../lib/svelte/downloader.svelte.ts';
-	import { FileSystem } from '../../lib/svelte/filesystem.svelte.ts';
-	import { downloadLocation } from '../../lib/locations.ts';
+	import Downloader from '../../stores/downloader.svelte.ts';
+	import { FileSystem } from '../../stores/filesystem.svelte.ts';
+	import { downloadLocation } from '../../config/locations.ts';
 	import Tooltip from '../ui/Tooltip.svelte';
-	import WsrvApi from '../../lib/apis/wsrv';
-	import { getPrimaryTitle, primaryLinkUrl } from '../../lib/apis/bbc.ts';
+	import WsrvApi from '../../api/wsrv';
+	import { getPrimaryTitle, primaryLinkUrl } from '../../api/bbc.ts';
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();

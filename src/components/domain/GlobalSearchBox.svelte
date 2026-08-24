@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { searchLocation } from '../../lib/locations.ts';
-	import { addKeyboardShortcut } from '../../lib/utils.ts';
+	import { searchLocation } from '../../config/locations.ts';
+	import { addKeyboardShortcut } from '../../utils';
 
 	let {
 		value = $bindable(''),

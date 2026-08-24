@@ -5,19 +5,19 @@
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
 		type BBCPaginatedListResponse,
-	} from '../../lib/apis/bbc.ts';
+	} from '../../api/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import GlobalSearchBox from '../domain/GlobalSearchBox.svelte';
 	import { ChevronRight } from 'lucide-svelte';
-	import { addAppError } from '../../lib/svelte/app.svelte.ts';
+	import { addAppError } from '../../stores/app.svelte.ts';
 	import {
 		discoveryBooksNewLocation,
 		discoveryBooksReleasedLocation,
 		discoverySearchLocation,
 		discoverySeriesMergedLocation,
 		discoverySeriesNewLocation,
-	} from '../../lib/locations.ts';
+	} from '../../config/locations.ts';
 
 	const api = new BBC_API();
 

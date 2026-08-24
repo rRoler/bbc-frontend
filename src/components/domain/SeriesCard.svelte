@@ -4,18 +4,18 @@
 		BBCSeriesDetail,
 		BBCSeriesMerged,
 		BBCSeriesSearchResult,
-	} from '../../lib/apis/bbc.ts';
-	import { coverUrl, primaryLinkUrl } from '../../lib/apis/bbc.ts';
-	import { seriesLocation } from '../../lib/locations.ts';
-	import allProviders from '../../lib/svelte/providers.svelte.ts';
-	import WsrvApi from '../../lib/apis/wsrv.ts';
+	} from '../../api/bbc.ts';
+	import { coverUrl, primaryLinkUrl } from '../../api/bbc.ts';
+	import { seriesLocation } from '../../config/locations.ts';
+	import allProviders from '../../stores/providers.svelte.ts';
+	import WsrvApi from '../../api/wsrv.ts';
 	import Image from '../ui/Image.svelte';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderIcons from './ProviderIcons.svelte';
-	import type { Provider } from '../../lib/svelte/providers.svelte.ts';
+	import type { Provider } from '../../stores/providers.svelte.ts';
 	import Tooltip from '../ui/Tooltip.svelte';
 	import { ExternalLink } from 'lucide-svelte';
-	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
+	import { matureContentSetting } from '../../stores/settings.svelte.ts';
 
 	let {
 		series,

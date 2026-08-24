@@ -3,10 +3,10 @@
 	import MainSearchBox from './MainSearchBox.svelte';
 	import SeriesCard from './SeriesCard.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
-	import BBC_API, { type BBCSeriesSearchResult } from '../../lib/apis/bbc.ts';
-	import allProviders, { type Provider } from '../../lib/svelte/providers.svelte.ts';
-	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
-	import { addAppError } from '../../lib/svelte/app.svelte.ts';
+	import BBC_API, { type BBCSeriesSearchResult } from '../../api/bbc.ts';
+	import allProviders, { type Provider } from '../../stores/providers.svelte.ts';
+	import { matureContentSetting } from '../../stores/settings.svelte.ts';
+	import { addAppError } from '../../stores/app.svelte.ts';
 	import { SvelteSet } from 'svelte/reactivity';
 
 	let {

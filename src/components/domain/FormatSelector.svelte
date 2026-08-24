@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Braces, X } from 'lucide-svelte';
-	import { textVariables } from '../../lib/svelte/settings.svelte.ts';
-	import { getTextVariableName } from '../../lib/utils.ts';
+	import { textVariables } from '../../stores/settings.svelte.ts';
+	import { getTextVariableName } from '../../utils';
 
 	let {
 		value = $bindable(''),

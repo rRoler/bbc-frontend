@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { PROVIDER_PARAM_KEY, PROVIDER_LOCALE_PARAM_KEY } from '../../lib/constants.ts';
+	import { PROVIDER_PARAM_KEY, PROVIDER_LOCALE_PARAM_KEY } from '../../config/constants.ts';
 	import allProviders, {
 		sortProviders,
 		toBaseLangSet,
 		type Provider,
-	} from '../../lib/svelte/providers.svelte.ts';
+	} from '../../stores/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderIcons from './ProviderIcons.svelte';
 	import {
@@ -13,7 +13,7 @@
 		langToFlag,
 		removeSvelteSearchParam,
 		setSvelteSearchParamsArray,
-	} from '../../lib/utils.ts';
+	} from '../../utils';
 	import { onMount } from 'svelte';
 	import { Search } from 'lucide-svelte';
 	import Tooltip from '../ui/Tooltip.svelte';

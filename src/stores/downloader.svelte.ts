@@ -1,6 +1,6 @@
 import { appState, addAppError } from './app.svelte.ts';
-import BBC_API from '../apis/bbc.ts';
-import type { BBCBook, BBCBookPage, BBCSeries, BBCSort } from '../apis/bbc.ts';
+import BBC_API from '../api/bbc.ts';
+import type { BBCBook, BBCBookPage, BBCSeries, BBCSort } from '../api/bbc.ts';
 import {
 	getPeopleNames,
 	getPublisherNames,
@@ -12,7 +12,7 @@ import {
 	thumbnailUrl,
 	primaryLinkUrl,
 	trackerById,
-} from '../apis/bbc.ts';
+} from '../api/bbc.ts';
 import allProviders, { sortProviders, type Provider } from './providers.svelte.ts';
 import { wsrvApi, getImageInfo } from '../utils';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
@@ -24,7 +24,7 @@ import {
 	replaceTextVariables,
 	sleep,
 	bytesToHumanReadable,
-} from '../utils.ts';
+} from '../utils';
 import {
 	textVariables,
 	bookSortBySetting,
@@ -41,15 +41,15 @@ import {
 	editAutoSyncSetting,
 	autoMapSetting,
 } from './settings.svelte.ts';
-import { ALLOWED_EDIT_ROLES } from '../constants.ts';
+import { ALLOWED_EDIT_ROLES } from '../config/constants.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
-import { PROVIDER_LOCALE_PARAM_KEY, PROVIDER_PARAM_KEY } from '../constants.ts';
+import { PROVIDER_LOCALE_PARAM_KEY, PROVIDER_PARAM_KEY } from '../config/constants.ts';
 import { toBaseLangSet } from './providers.svelte.ts';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
 import userState from './user.svelte.ts';
-import { MAX_SELECTED_SEARCH_RESULTS } from '../constants.ts';
+import { MAX_SELECTED_SEARCH_RESULTS } from '../config/constants.ts';
 
 export interface Series extends BBCSeries {
 	provider: Provider;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { appState } from '../../lib/svelte/app.svelte.ts';
+	import { appState } from '../../stores/app.svelte.ts';
 
 	let { children, id, isMobile = false } = $props();
 

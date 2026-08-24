@@ -1,7 +1,7 @@
 import { unzipSync } from 'fflate';
-import allProviders, { type Provider } from '../svelte/providers.svelte.ts';
-import userState from '../svelte/user.svelte.ts';
-import { BBC_API_URL } from '../constants.ts';
+import allProviders, { type Provider } from '../stores/providers.svelte.ts';
+import userState from '../stores/user.svelte.ts';
+import { BBC_API_URL } from '../config/constants.ts';
 
 export class BBC_API_Error extends Error {
 	constructor(message: string) {

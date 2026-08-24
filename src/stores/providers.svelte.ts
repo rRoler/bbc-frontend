@@ -1,4 +1,4 @@
-import { type ProviderEndpoint } from '../apis/bbc';
+import { type ProviderEndpoint } from '../api/bbc';
 import { configuredProvidersSetting } from './settings.svelte.ts';
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 

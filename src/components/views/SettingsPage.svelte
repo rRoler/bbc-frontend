@@ -3,14 +3,14 @@
 	import allSettingsFields, {
 		themeSetting,
 		fileSystemFolderSetting,
-	} from '../../lib/svelte/settings.svelte.ts';
+	} from '../../stores/settings.svelte.ts';
 	import ProviderEditor from '../domain/ProviderEditor.svelte';
 	import FormatSelector from '../domain/FormatSelector.svelte';
-	import { addAppError, appState } from '../../lib/svelte/app.svelte.ts';
-	import { FileSystem } from '../../lib/svelte/filesystem.svelte.ts';
+	import { addAppError, appState } from '../../stores/app.svelte.ts';
+	import { FileSystem } from '../../stores/filesystem.svelte.ts';
 	import { onMount } from 'svelte';
 	import Tooltip from '../ui/Tooltip.svelte';
-	import userState from '../../lib/svelte/user.svelte.ts';
+	import userState from '../../stores/user.svelte.ts';
 
 	const fs = new FileSystem();
 

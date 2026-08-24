@@ -6,9 +6,9 @@
 		getAllSvelteSearchParams,
 		getLocaleName,
 		langToFlag,
-	} from '../../lib/utils.ts';
+	} from '../../utils';
 	import { fade } from 'svelte/transition';
-	import { downloadLocation, discoveryLocation } from '../../lib/locations.ts';
+	import { downloadLocation, discoveryLocation } from '../../config/locations.ts';
 	import {
 		Download,
 		EllipsisVertical,
@@ -20,8 +20,8 @@
 	} from 'lucide-svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import Hover3D from '../ui/Hover3D.svelte';
-	import userState from '../../lib/svelte/user.svelte.ts';
-	import { ALLOWED_EDIT_ROLES } from '../../lib/constants.ts';
+	import userState from '../../stores/user.svelte.ts';
+	import { ALLOWED_EDIT_ROLES } from '../../config/constants.ts';
 	import BBC_API, {
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
@@ -32,19 +32,19 @@
 		getPrimaryTitle,
 		coverUrl,
 		thumbnailUrl,
-	} from '../../lib/apis/bbc.ts';
-	import WsrvApi from '../../lib/apis/wsrv.ts';
-	import allProviders from '../../lib/svelte/providers.svelte.ts';
+	} from '../../api/bbc.ts';
+	import WsrvApi from '../../api/wsrv.ts';
+	import allProviders from '../../stores/providers.svelte.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import SeriesMapModal from '../domain/SeriesMapModal.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import Image from '../ui/Image.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
-	import { appState, addAppError } from '../../lib/svelte/app.svelte.ts';
-	import type { Provider } from '../../lib/svelte/providers.svelte.ts';
-	import { deriveAvailableLanguages, toBaseLangSet } from '../../lib/svelte/providers.svelte.ts';
-	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
+	import { appState, addAppError } from '../../stores/app.svelte.ts';
+	import type { Provider } from '../../stores/providers.svelte.ts';
+	import { deriveAvailableLanguages, toBaseLangSet } from '../../stores/providers.svelte.ts';
+	import { matureContentSetting } from '../../stores/settings.svelte.ts';
 
 	let id = $state<string>('');
 

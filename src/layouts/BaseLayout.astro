@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
-import type PageProps from '../lib/types/pageProps';
-import BBC_API from '../lib/apis/bbc';
+import type PageProps from '../types/pageProps';
+import BBC_API from '../api/bbc';
 import { pwaInfo } from 'virtual:pwa-info';
 import { pwaAssetsHead } from 'virtual:pwa-assets/head';
 import UpdatePrompt from '../components/layout/UpdatePrompt.astro';
@@ -70,8 +70,8 @@ const providersJson = JSON.stringify(initialProviders);
 </html>
 
 <script>
-	import allSettingsFields, { themeSetting } from '../lib/svelte/settings.svelte.ts';
-	import allProviders from '../lib/svelte/providers.svelte.ts';
+	import allSettingsFields, { themeSetting } from '../stores/settings.svelte.ts';
+	import allProviders from '../stores/providers.svelte.ts';
 	allProviders.load();
 	allSettingsFields.forEach((f) => f.load());
 	allSettingsFields.forEach((f) => f.save());

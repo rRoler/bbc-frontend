@@ -7,7 +7,7 @@ import allSettingsFields, {
 } from './settings.svelte.ts';
 import { addAppError } from './app.svelte.ts';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
-import { BBC_API_URL } from '../constants.ts';
+import { BBC_API_URL } from '../config/constants.ts';
 
 export interface UserSession {
 	role: string;

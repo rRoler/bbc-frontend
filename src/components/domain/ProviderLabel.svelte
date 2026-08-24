@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Provider } from '../../lib/svelte/providers.svelte.ts';
-	import { getLocaleName, langToFlag } from '../../lib/utils.ts';
+	import type { Provider } from '../../stores/providers.svelte.ts';
+	import { getLocaleName, langToFlag } from '../../utils';
 
 	let {
 		provider,

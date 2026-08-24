@@ -3,8 +3,8 @@
 		getEnabledProviders,
 		type Provider,
 		type ProviderStorageEntry,
-	} from '../../lib/svelte/providers.svelte.ts';
-	import { mapToStoreEntries } from '../../lib/svelte/providers.svelte.ts';
+	} from '../../stores/providers.svelte.ts';
+	import { mapToStoreEntries } from '../../stores/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import { GripVertical, Settings2, X } from 'lucide-svelte';
 	import { onMount } from 'svelte';

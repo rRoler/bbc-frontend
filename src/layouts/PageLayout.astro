@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import type PageProps from '../lib/types/pageProps';
+import type PageProps from '../types/pageProps';
 import { ArrowLeft } from 'lucide-svelte';
 import ErrorAlert from '../components/ui/ErrorAlert.svelte';
 import AppContent from '../components/layout/AppContent.svelte';
@@ -15,7 +15,7 @@ import {
 	statusLocation,
 	discoveryLocation,
 	homeLocation,
-} from '../lib/locations.ts';
+} from '../config/locations.ts';
 import Tooltip from '../components/ui/Tooltip.svelte';
 
 const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: boolean };
@@ -132,7 +132,7 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 </BaseLayout>
 
 <script>
-	import { dockLocations } from '../lib/locations.ts';
+	import { dockLocations } from '../config/locations.ts';
 
 	const navBack = document.querySelector<HTMLAnchorElement>('#nav-back');
 
@@ -167,6 +167,6 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 </script>
 
 <script>
-	import userState from '../lib/svelte/user.svelte.ts';
+	import userState from '../stores/user.svelte.ts';
 	userState.init();
 </script>

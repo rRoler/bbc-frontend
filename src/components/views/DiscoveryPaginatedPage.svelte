@@ -4,11 +4,11 @@
 		type BBCSeriesMerged,
 		type BBCBookDetail,
 		type BBCPaginatedListResponse,
-	} from '../../lib/apis/bbc.ts';
+	} from '../../api/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import BookCard from '../domain/BookCard.svelte';
 	import Pagination from '../ui/Pagination.svelte';
-	import { addAppError, appState } from '../../lib/svelte/app.svelte.ts';
+	import { addAppError, appState } from '../../stores/app.svelte.ts';
 
 	let {
 		type,

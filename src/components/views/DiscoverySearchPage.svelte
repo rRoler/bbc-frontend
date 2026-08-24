@@ -4,13 +4,13 @@
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
 		type BBCPaginatedListResponse,
-	} from '../../lib/apis/bbc.ts';
+	} from '../../api/bbc.ts';
 	import SeriesCard from '../domain/SeriesCard.svelte';
 	import Pagination from '../ui/Pagination.svelte';
 	import { Search } from 'lucide-svelte';
-	import { matureContentSetting } from '../../lib/svelte/settings.svelte.ts';
-	import { getSvelteSearchParam, setSvelteSearchParam } from '../../lib/utils.ts';
-	import { addAppError } from '../../lib/svelte/app.svelte.ts';
+	import { matureContentSetting } from '../../stores/settings.svelte.ts';
+	import { getSvelteSearchParam, setSvelteSearchParam } from '../../utils';
+	import { addAppError } from '../../stores/app.svelte.ts';
 	import MainSearchBox from '../domain/MainSearchBox.svelte';
 
 	const api = new BBC_API();

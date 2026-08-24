@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import type PageProps from '../lib/types/pageProps';
-import { homeLocation } from '../lib/locations.ts';
+import type PageProps from '../types/pageProps';
+import { homeLocation } from '../config/locations.ts';
 import { House } from 'lucide-svelte';
 
 const props = Astro.props as PageProps & { code?: number; message?: string };
