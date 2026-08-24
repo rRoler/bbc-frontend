@@ -7,6 +7,8 @@
 		getPublisherNames,
 		getTagLabels,
 		getPrimaryTitle,
+		coverUrl,
+		primaryLinkUrl,
 	} from '../../lib/apis/bbc.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../../lib/svelte/app.svelte.ts';
@@ -255,11 +257,11 @@
 		vars.push([textVariables.datetime, datetime]);
 
 		vars.push([textVariables.seriesTitle, getPrimaryTitle(series.titles)]);
-		vars.push([textVariables.seriesThumbnailUrl, series.thumbnail ?? '']);
+		vars.push([textVariables.seriesThumbnailUrl, coverUrl(series.covers) ?? '']);
 		vars.push([textVariables.seriesPublicationType, series.publicationType || 'digital']);
 		vars.push([textVariables.seriesBookType, series.bookType || '']);
 		vars.push([textVariables.seriesType, series.type ?? '']);
-		vars.push([textVariables.seriesUrl, series.url ?? '']);
+		vars.push([textVariables.seriesUrl, primaryLinkUrl(series.links) ?? '']);
 		vars.push([textVariables.seriesId, series.id ?? '']);
 		vars.push([
 			textVariables.seriesDescription,
@@ -293,14 +295,14 @@
 				.map((t) => t.title)
 				.join(', ') ?? '',
 		]);
-		vars.push([textVariables.seriesAlId, series.alId ?? '']);
-		vars.push([textVariables.seriesApId, series.apId ?? '']);
-		vars.push([textVariables.seriesMuId, series.muId ?? '']);
-		vars.push([textVariables.seriesNuId, series.nuId ?? '']);
-		vars.push([textVariables.seriesKtId, series.ktId ?? '']);
-		vars.push([textVariables.seriesMalId, series.malId ?? '']);
-		vars.push([textVariables.seriesMbId, series.mbId ?? '']);
-		vars.push([textVariables.seriesShikiId, series.shikiId ?? '']);
+		vars.push([textVariables.seriesAlId, series.trackers?.alId ?? '']);
+		vars.push([textVariables.seriesApId, series.trackers?.apId ?? '']);
+		vars.push([textVariables.seriesMuId, series.trackers?.muId ?? '']);
+		vars.push([textVariables.seriesNuId, series.trackers?.nuId ?? '']);
+		vars.push([textVariables.seriesKtId, series.trackers?.ktId ?? '']);
+		vars.push([textVariables.seriesMalId, series.trackers?.malId ?? '']);
+		vars.push([textVariables.seriesMbId, series.trackers?.mbId ?? '']);
+		vars.push([textVariables.seriesShikiId, series.trackers?.shikiId ?? '']);
 		vars.push([textVariables.seriesLastUpdated, series.lastUpdated ?? '']);
 
 		if (provider) {
@@ -509,7 +511,7 @@
 											<Tooltip class="z-20" position="top" tip="Open Series Page">
 												<a
 													tabindex="-1"
-													href={series.url}
+													href={primaryLinkUrl(series.links) ?? '#'}
 													class="btn btn-circle btn-neutral btn-xs sm:btn-sm shadow-sm"
 													target="_blank"
 												>
@@ -520,8 +522,11 @@
 
 										<figure class="z-0 size-full">
 											<Image
-												src={series.thumbnail
-													? imageApi.getUrl(series.thumbnail, { width: 168, output: 'webp' }).href
+												src={coverUrl(series.covers)
+													? imageApi.getUrl(coverUrl(series.covers)!, {
+															width: 168,
+															output: 'webp',
+														}).href
 													: ''}
 												alt="{getPrimaryTitle(series.titles)} series thumbnail"
 												class="w-full {series.isMature &&

@@ -48,12 +48,37 @@ export interface BBCListResult<T> {
 	errors: Error[];
 }
 
+export interface BBCLink {
+	type: 'self' | 'official' | 'store' | 'social' | 'external' | null;
+	url: string;
+	language: string | null;
+	isPrimary: boolean;
+}
+
+export interface BBCCover {
+	url: string;
+	isThumbnail: boolean;
+	isPrimary: boolean;
+	language: string | null;
+}
+
+export interface BBCTrackers {
+	alId: string | null;
+	apId: string | null;
+	muId: string | null;
+	nuId: string | null;
+	ktId: string | null;
+	malId: string | null;
+	mbId: string | null;
+	shikiId: string | null;
+}
+
 export interface BBCSeries {
 	id: string;
 	providerId: string;
-	url: string;
 	type: 'series' | 'book';
-	thumbnail: string | null;
+	links: BBCLink[];
+	covers: BBCCover[];
 	bookType: 'manga' | 'novel' | 'webtoon' | 'audiobook' | null;
 	publicationType: 'physical' | 'digital' | null;
 	isMature: boolean;
@@ -84,14 +109,7 @@ export interface BBCSeries {
 	chapterCount: number | null;
 	magazine: string | null;
 	genre: string | null;
-	alId: string | null;
-	apId: string | null;
-	muId: string | null;
-	nuId: string | null;
-	ktId: string | null;
-	malId: string | null;
-	mbId: string | null;
-	shikiId: string | null;
+	trackers: BBCTrackers | null;
 }
 
 export interface BBCSeriesDetail extends BBCSeries {
@@ -129,9 +147,8 @@ export interface BBCSeriesMerged extends Omit<BBCSeriesDetail, 'title' | 'provid
 export interface BBCBook {
 	id: string;
 	providerId: string;
-	url: string;
-	cover: string;
-	coverFallbacks: string[] | null;
+	links: BBCLink[];
+	covers: BBCCover[];
 	volume: { type: 'volume' | 'chapter'; number: string | null };
 	seriesId: string | null;
 	titles: { title: string; language: string | null; isPrimary: boolean }[];
@@ -177,10 +194,10 @@ export interface BBCBookDetail extends BBCBook {
 export interface BBCSeriesSearchResult {
 	id: BBCSeries['id'];
 	providerId: BBCSeries['providerId'];
-	url: BBCSeries['url'];
+	links: BBCLink[];
 	type: BBCSeries['type'];
 	titles: { title: string; language: string | null; isPrimary: boolean }[];
-	thumbnail: BBCSeries['thumbnail'];
+	covers: BBCCover[];
 	mappedId?: string | null;
 	mergedProviders?: string[];
 	bookType: BBCSeries['bookType'];
@@ -196,6 +213,41 @@ export interface BBCBookPage {
 	height: number | null;
 	width: number | null;
 	bookId: string;
+}
+
+export function primaryCover(covers?: BBCCover[] | null): BBCCover | null {
+	if (!covers || covers.length === 0) {
+		return null;
+	}
+	return (
+		covers.find((c) => c.isPrimary && !c.isThumbnail) ??
+		covers.find((c) => !c.isThumbnail) ??
+		covers[0] ??
+		null
+	);
+}
+
+export function thumbnailCover(covers?: BBCCover[] | null): BBCCover | null {
+	if (!covers || covers.length === 0) {
+		return null;
+	}
+	return covers.find((c) => c.isThumbnail) ?? covers.find((c) => c.isPrimary) ?? covers[0] ?? null;
+}
+
+export function coverUrl(covers?: BBCCover[] | null): string | null {
+	return primaryCover(covers)?.url ?? null;
+}
+
+export function thumbnailUrl(covers?: BBCCover[] | null): string | null {
+	return thumbnailCover(covers)?.url ?? null;
+}
+
+export function primaryLinkUrl(links?: BBCLink[] | null): string | null {
+	if (!links || links.length === 0) {
+		return null;
+	}
+	const link = links.find((l) => l.type === 'self' || l.isPrimary) ?? links[0];
+	return link?.url ?? null;
 }
 
 export interface StatusEndpointResult {

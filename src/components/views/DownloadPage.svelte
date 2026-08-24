@@ -49,7 +49,7 @@
 	import { downloadLocation } from '../../lib/locations.ts';
 	import Tooltip from '../ui/Tooltip.svelte';
 	import WsrvApi from '../../lib/apis/wsrv';
-	import { getPrimaryTitle } from '../../lib/apis/bbc.ts';
+	import { getPrimaryTitle, primaryLinkUrl } from '../../lib/apis/bbc.ts';
 
 	const downloader = new Downloader();
 	const fs = new FileSystem();
@@ -336,7 +336,7 @@
 								<Tooltip position="top" tip="Open Product Page">
 									<a
 										tabindex="-1"
-										href={book.url}
+										href={primaryLinkUrl(book.links) ?? '#'}
 										class="btn btn-circle btn-neutral btn-sm shadow-sm"
 										target="_blank"
 									>

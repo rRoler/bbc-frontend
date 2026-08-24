@@ -1,9 +1,5 @@
-<script module lang="ts">
-	export const PROVIDER_PARAM_KEY = 'provider';
-	export const PROVIDER_LOCALE_PARAM_KEY = 'providerLocale';
-</script>
-
 <script lang="ts">
+	import { PROVIDER_PARAM_KEY, PROVIDER_LOCALE_PARAM_KEY } from '../../lib/constants.ts';
 	import allProviders, {
 		sortProviders,
 		toBaseLangSet,

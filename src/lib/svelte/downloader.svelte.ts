@@ -1,7 +1,15 @@
 import { appState, addAppError } from './app.svelte.ts';
 import BBC_API from '../apis/bbc.ts';
 import type { BBCBook, BBCBookPage, BBCSeries, BBCSort } from '../apis/bbc.ts';
-import { getPeopleNames, getPublisherNames, getTagLabels, getPrimaryTitle } from '../apis/bbc.ts';
+import {
+	getPeopleNames,
+	getPublisherNames,
+	getTagLabels,
+	getPrimaryTitle,
+	coverUrl,
+	thumbnailUrl,
+	primaryLinkUrl,
+} from '../apis/bbc.ts';
 import allProviders, { sortProviders, type Provider } from './providers.svelte.ts';
 import { wsrvApi, getImageInfo } from '../utils';
 import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
@@ -32,10 +40,7 @@ import {
 } from './settings.svelte.ts';
 import { ALLOWED_EDIT_ROLES } from '../constants.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
-import {
-	PROVIDER_LOCALE_PARAM_KEY,
-	PROVIDER_PARAM_KEY,
-} from '../../components/domain/ProviderSelector.svelte';
+import { PROVIDER_LOCALE_PARAM_KEY, PROVIDER_PARAM_KEY } from '../constants.ts';
 import { toBaseLangSet } from './providers.svelte.ts';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
@@ -48,7 +53,9 @@ export interface Series extends BBCSeries {
 }
 
 export interface Book extends BBCBook {
+	cover: string;
 	thumbnail: string;
+	coverFallbacks?: string[];
 	provider: Provider;
 	volumeName: string;
 	displayText: string;
@@ -297,7 +304,7 @@ class Downloader {
 			vars.push([textVariables.volumeName, book.volumeName]);
 			vars.push([textVariables.volumeNumber, book.volume.number || '0']);
 			vars.push([textVariables.bookTitle, getPrimaryTitle(book.titles)]);
-			vars.push([textVariables.bookUrl, book.url]);
+			vars.push([textVariables.bookUrl, primaryLinkUrl(book.links) ?? '']);
 			vars.push([textVariables.bookId, book.id]);
 			vars.push([textVariables.providerName, book.provider.name]);
 			vars.push([textVariables.providerId, book.provider.id]);
@@ -335,7 +342,7 @@ class Downloader {
 			const bookSeries = this.getBookSeries(book);
 			if (bookSeries) {
 				vars.push([textVariables.seriesTitle, getPrimaryTitle(bookSeries.titles)]);
-				vars.push([textVariables.seriesThumbnailUrl, bookSeries.thumbnail ?? '']);
+				vars.push([textVariables.seriesThumbnailUrl, thumbnailUrl(bookSeries.covers) || '']);
 				vars.push([textVariables.seriesPublicationType, bookSeries.publicationType || 'digital']);
 				vars.push([textVariables.seriesBookType, bookSeries.bookType || '']);
 				vars.push([textVariables.seriesType, bookSeries.type]);
@@ -381,14 +388,14 @@ class Downloader {
 						.map((t) => t.title)
 						.join(', ') ?? '',
 				]);
-				vars.push([textVariables.seriesAlId, bookSeries.alId ?? '']);
-				vars.push([textVariables.seriesApId, bookSeries.apId ?? '']);
-				vars.push([textVariables.seriesMuId, bookSeries.muId ?? '']);
-				vars.push([textVariables.seriesNuId, bookSeries.nuId ?? '']);
-				vars.push([textVariables.seriesKtId, bookSeries.ktId ?? '']);
-				vars.push([textVariables.seriesMalId, bookSeries.malId ?? '']);
-				vars.push([textVariables.seriesMbId, bookSeries.mbId ?? '']);
-				vars.push([textVariables.seriesShikiId, bookSeries.shikiId ?? '']);
+				vars.push([textVariables.seriesAlId, bookSeries.trackers?.alId ?? '']);
+				vars.push([textVariables.seriesApId, bookSeries.trackers?.apId ?? '']);
+				vars.push([textVariables.seriesMuId, bookSeries.trackers?.muId ?? '']);
+				vars.push([textVariables.seriesNuId, bookSeries.trackers?.nuId ?? '']);
+				vars.push([textVariables.seriesKtId, bookSeries.trackers?.ktId ?? '']);
+				vars.push([textVariables.seriesMalId, bookSeries.trackers?.malId ?? '']);
+				vars.push([textVariables.seriesMbId, bookSeries.trackers?.mbId ?? '']);
+				vars.push([textVariables.seriesShikiId, bookSeries.trackers?.shikiId ?? '']);
 				vars.push([textVariables.seriesLastUpdated, bookSeries.lastUpdated ?? '']);
 			} else {
 				vars.push([textVariables.seriesId, book.seriesId || '0']);
@@ -600,13 +607,18 @@ class Downloader {
 									const data: Book = {
 										...book,
 										provider,
+										cover: coverUrl(book.covers) ?? '',
+										coverFallbacks: (book.covers ?? [])
+											.filter((c) => !c.isThumbnail && c.url !== coverUrl(book.covers))
+											.map((c) => c.url),
 										volumeName: this.parseVolumeName(book, {
 											forcePrefix: provider.volumePrefix,
 										}),
 										displayText: this.parseVolumeName(book, {
 											forcePrefix: provider.volumePrefix,
 										}),
-										thumbnail: wsrvApi.getUrl(book.cover, this.THUMBNAIL_DATA).href,
+										thumbnail: wsrvApi.getUrl(coverUrl(book.covers) ?? '', this.THUMBNAIL_DATA)
+											.href,
 									};
 
 									data.displayText = this.parseTextVariables(bookDisplayTextSetting.value, {

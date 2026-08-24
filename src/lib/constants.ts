@@ -3,3 +3,7 @@ export const BBC_API_URL = new URL(import.meta.env.PUBLIC_BBC_API_URL ?? 'https:
 export const MAX_SELECTED_SEARCH_RESULTS = 20;
 
 export const ALLOWED_EDIT_ROLES = ['developer', 'contributor', 'moderator', 'admin'];
+
+export const PROVIDER_PARAM_KEY = 'provider';
+
+export const PROVIDER_LOCALE_PARAM_KEY = 'providerLocale';

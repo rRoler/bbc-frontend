@@ -30,6 +30,8 @@
 		getPeopleNames,
 		getTagLabels,
 		getPrimaryTitle,
+		coverUrl,
+		thumbnailUrl,
 	} from '../../lib/apis/bbc.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import allProviders from '../../lib/svelte/providers.svelte.ts';
@@ -389,8 +391,8 @@
 			);
 		}
 
-		if (heroSeries?.mbId) {
-			params.append('mb_id', heroSeries.mbId);
+		if (heroSeries?.trackers?.mbId) {
+			params.append('mb_id', heroSeries.trackers.mbId);
 		}
 
 		return `${basePath}?${params.toString()}`;
@@ -407,52 +409,52 @@
 
 		const list: { name: string; url: string; iconUrl: string }[] = [];
 
-		if (heroSeries.alId)
+		if (heroSeries.trackers?.alId)
 			list.push({
 				name: 'AniList',
-				url: `https://anilist.co/manga/${heroSeries.alId}`,
+				url: `https://anilist.co/manga/${heroSeries.trackers.alId}`,
 				iconUrl: 'https://anilist.co',
 			});
-		if (heroSeries.malId)
+		if (heroSeries.trackers?.malId)
 			list.push({
 				name: 'MyAnimeList',
-				url: `https://myanimelist.net/manga/${heroSeries.malId}`,
+				url: `https://myanimelist.net/manga/${heroSeries.trackers.malId}`,
 				iconUrl: 'https://myanimelist.net',
 			});
-		if (heroSeries.muId)
+		if (heroSeries.trackers?.muId)
 			list.push({
 				name: 'MangaUpdates',
-				url: getMuLink(heroSeries.muId),
+				url: getMuLink(heroSeries.trackers.muId),
 				iconUrl: 'https://www.mangaupdates.com',
 			});
-		if (heroSeries.nuId)
+		if (heroSeries.trackers?.nuId)
 			list.push({
 				name: 'NovelUpdates',
-				url: `https://www.novelupdates.com/series/${heroSeries.nuId}`,
+				url: `https://www.novelupdates.com/series/${heroSeries.trackers.nuId}`,
 				iconUrl: 'https://www.novelupdates.com',
 			});
-		if (heroSeries.apId)
+		if (heroSeries.trackers?.apId)
 			list.push({
 				name: 'Anime-Planet',
-				url: `https://www.anime-planet.com/manga/${heroSeries.apId}`,
+				url: `https://www.anime-planet.com/manga/${heroSeries.trackers.apId}`,
 				iconUrl: 'https://www.anime-planet.com',
 			});
-		if (heroSeries.ktId)
+		if (heroSeries.trackers?.ktId)
 			list.push({
 				name: 'Kitsu',
-				url: `https://kitsu.app/manga/${heroSeries.ktId}`,
+				url: `https://kitsu.app/manga/${heroSeries.trackers.ktId}`,
 				iconUrl: 'https://kitsu.app',
 			});
-		if (heroSeries.shikiId)
+		if (heroSeries.trackers?.shikiId)
 			list.push({
 				name: 'Shikimori',
-				url: `https://shikimori.one/mangas/${heroSeries.shikiId}`,
+				url: `https://shikimori.one/mangas/${heroSeries.trackers.shikiId}`,
 				iconUrl: 'https://shikimori.one',
 			});
-		if (heroSeries.mbId)
+		if (heroSeries.trackers?.mbId)
 			list.push({
 				name: 'MangaBaka',
-				url: `https://mangabaka.org/${heroSeries.mbId}`,
+				url: `https://mangabaka.org/${heroSeries.trackers.mbId}`,
 				iconUrl: 'https://mangabaka.org',
 			});
 
@@ -543,12 +545,12 @@
 		<!-- Hero Section -->
 		<div
 			class="hero bg-base-200 relative overflow-hidden"
-			style={heroSeries.thumbnail
-				? `background-image: url(${imageApi.getUrl(heroSeries.thumbnail, { width: 1200, output: 'webp' }).href}); background-size: cover; background-position: center;`
+			style={thumbnailUrl(heroSeries.covers)
+				? `background-image: url(${imageApi.getUrl(thumbnailUrl(heroSeries.covers)!, { width: 1200, output: 'webp' }).href}); background-size: cover; background-position: center;`
 				: ''}
 		>
 			<!-- Background Blur -->
-			{#if heroSeries.thumbnail}
+			{#if thumbnailUrl(heroSeries.covers)}
 				<div class="hero-overlay bg-base-200/80 z-0 backdrop-blur-2xl"></div>
 			{/if}
 
@@ -558,9 +560,10 @@
 				<!-- Cover -->
 				<Hover3D class="z-10 mx-auto w-48 shrink-0 md:mx-0 md:w-64 lg:w-72">
 					<div class="rounded-box bg-base-300 overflow-hidden shadow-2xl">
-						{#if heroSeries.thumbnail}
+						{#if coverUrl(heroSeries.covers)}
 							<Image
-								src={imageApi.getUrl(heroSeries.thumbnail, { width: 640, output: 'webp' }).href}
+								src={imageApi.getUrl(coverUrl(heroSeries.covers)!, { width: 640, output: 'webp' })
+									.href}
 								alt="{mainTitle} cover"
 								class="aspect-[2.1/3] h-auto w-full object-cover"
 							/>
