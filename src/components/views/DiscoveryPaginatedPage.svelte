@@ -106,7 +106,11 @@
 			</div>
 
 			<div class="mt-8 flex justify-center">
-				<Pagination page={currentPage} maxPage={data.pages} onchange={handlePageChange} />
+				<Pagination
+					page={currentPage}
+					maxPage={data.pagination.totalPages}
+					onchange={handlePageChange}
+				/>
 			</div>
 		{:else}
 			<div class="py-12 text-center opacity-50">No results found.</div>

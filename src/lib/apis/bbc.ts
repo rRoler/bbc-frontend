@@ -10,26 +10,43 @@ export class BBC_API_Error extends Error {
 	}
 }
 
+export interface BBCError {
+	code: string;
+	message: string;
+	details?: unknown;
+}
+
 export interface BBCByProviderResponse<T> {
 	data: Record<string, T[]>;
 	count: number;
-	error?: string;
+	error?: BBCError;
 }
 
 export interface BBCListResponse<T> {
 	data: T[];
 	count: number;
-	error?: string;
+	error?: BBCError;
 }
 
-export interface BBCPaginatedByProviderResponse<T> extends BBCByProviderResponse<T> {
+export interface BBCPagination {
+	page: number;
+	pageSize: number;
 	total: number;
-	pages: number;
+	totalPages: number;
+	hasNextPage: boolean;
+	hasPrevPage: boolean;
 }
 
-export interface BBCPaginatedListResponse<T> extends BBCListResponse<T> {
-	total: number;
-	pages: number;
+export interface BBCPaginatedByProviderResponse<T> {
+	data: Record<string, T[]>;
+	error?: BBCError;
+	pagination: BBCPagination;
+}
+
+export interface BBCPaginatedListResponse<T> {
+	data: T[];
+	error?: BBCError;
+	pagination: BBCPagination;
 }
 
 export interface BBCByProviderResult<T> {
@@ -269,7 +286,6 @@ export interface StatusEndpointResult {
 	ok: boolean;
 	latencyMs: number;
 	empty?: boolean;
-	error?: string;
 }
 
 export interface BBCProvider {
@@ -419,7 +435,7 @@ export default class BBC_API {
 					if (!allData.data[provider.id]) allData.data[provider.id] = [];
 
 					if (data.error) {
-						allData.errors.push(new BBC_API_Error(`${provider.name}: ${data.error}`));
+						allData.errors.push(new BBC_API_Error(`${provider.name}: ${data.error.message}`));
 					} else {
 						allData.data[provider.id].push(...(data.data[provider.id] || []));
 						allData.count += data.count;
@@ -474,7 +490,7 @@ export default class BBC_API {
 			const data: BBCByProviderResponse<Result> = await res.json();
 
 			if (data.error) {
-				allData.errors.push(new BBC_API_Error(`${data.error}`));
+				allData.errors.push(new BBC_API_Error(`${data.error.message}`));
 			} else {
 				allData.data = data.data;
 				allData.count = data.count;
@@ -529,12 +545,12 @@ export default class BBC_API {
 								const data: BBCPaginatedByProviderResponse<Result> = await res.json();
 
 								if (data.error) {
-									allData.errors.push(new BBC_API_Error(`${providerId}: ${data.error}`));
+									allData.errors.push(new BBC_API_Error(`${providerId}: ${data.error.message}`));
 								} else {
 									allData.data[providerId].push(...(data.data[providerId] || []));
-									allData.count += data.count;
-									allData.total += data.total;
-									allData.pages = Math.max(allData.pages, data.pages);
+									allData.count += (data.data[providerId] || []).length;
+									allData.total += data.pagination.total;
+									allData.pages = Math.max(allData.pages, data.pagination.totalPages);
 								}
 							} catch (e) {
 								allData.errors.push(new BBC_API_Error(`${providerId}: ${e}`));
@@ -578,7 +594,7 @@ export default class BBC_API {
 							const data: BBCByProviderResponse<BBCBookPage> = await res.json();
 
 							if (data.error) {
-								allData.errors.push(new BBC_API_Error(`${providerId}: ${data.error}`));
+								allData.errors.push(new BBC_API_Error(`${providerId}: ${data.error.message}`));
 							} else {
 								allData.data[providerId].push(...(data.data[providerId] || []));
 								allData.count += data.count;
@@ -606,11 +622,18 @@ export default class BBC_API {
 				`Status check failed for "${providerId}/${endpoint}": ${res.statusText}`
 			);
 		}
-		const data: StatusEndpointResult = await res.json();
+		const body = await res.json();
+		if (!res.ok || body.error) {
+			throw new BBC_API_Error(
+				body.error?.message ||
+					`Status check failed for "${providerId}/${endpoint}": ${res.statusText}`
+			);
+		}
+		const data: StatusEndpointResult = body.data;
 		return {
 			providerEndpoint: endpointLabels[endpoint] ?? `GET ${data.endpoint}`,
 			status: data.ok,
-			statusText: data.error || (data.empty ? 'No results' : 'Online'),
+			statusText: data.empty ? 'No results' : 'Online',
 			latencyMs: data.latencyMs,
 		};
 	}
@@ -698,7 +721,7 @@ export default class BBC_API {
 					const { data } = await res.json();
 
 					for (const f of data.failed) {
-						allData.errors.push(new BBC_API_Error(`${f.providerId}/${f.id}: ${f.message}`));
+						allData.errors.push(new BBC_API_Error(`${f.providerId}/${f.id}: ${f.error.message}`));
 					}
 				} catch (e) {
 					allData.errors.push(new BBC_API_Error(`${e}`));
@@ -728,7 +751,7 @@ export default class BBC_API {
 			const data: BBCListResponse<BBCSeriesDetail> = await res.json();
 
 			if (data.error) {
-				allData.errors.push(new BBC_API_Error(data.error));
+				allData.errors.push(new BBC_API_Error(data.error.message));
 			} else {
 				allData.data = data.data;
 				allData.count = data.count;
@@ -757,7 +780,7 @@ export default class BBC_API {
 			const data: BBCByProviderResponse<BBCSeriesDetail> = await res.json();
 
 			if (data.error) {
-				allData.errors.push(new BBC_API_Error(data.error));
+				allData.errors.push(new BBC_API_Error(data.error.message));
 			} else {
 				allData.data = data.data;
 				allData.count = data.count;
@@ -801,7 +824,7 @@ export default class BBC_API {
 					const { data } = await res.json();
 
 					for (const f of data.failed) {
-						allData.errors.push(new BBC_API_Error(`${f.providerId}/${f.id}: ${f.message}`));
+						allData.errors.push(new BBC_API_Error(`${f.providerId}/${f.id}: ${f.error.message}`));
 					}
 				} catch (e) {
 					allData.errors.push(new BBC_API_Error(`${e}`));
@@ -822,7 +845,9 @@ export default class BBC_API {
 		);
 		if (!res.ok) {
 			const errorData = await res.json().catch(() => null);
-			throw new BBC_API_Error(errorData?.error || `Failed to unmap series: HTTP ${res.status}`);
+			throw new BBC_API_Error(
+				errorData?.error?.message || `Failed to unmap series: HTTP ${res.status}`
+			);
 		}
 	}
 

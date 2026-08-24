@@ -111,7 +111,7 @@
 		</div>
 	{:else if data && data.data.length > 0}
 		<div class="mb-4 text-sm opacity-70">
-			Found {data.total} result{data.total === 1 ? '' : 's'}
+			Found {data.pagination.total} result{data.pagination.total === 1 ? '' : 's'}
 		</div>
 		<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
 			{#each data.data as series (('providerId' in series ? series.providerId : 'merged') + '-' + series.id)}
@@ -119,7 +119,11 @@
 			{/each}
 		</div>
 		<div class="mt-8 flex justify-center">
-			<Pagination page={currentPage} maxPage={data.pages} onchange={handlePageChange} />
+			<Pagination
+				page={currentPage}
+				maxPage={data.pagination.totalPages}
+				onchange={handlePageChange}
+			/>
 		</div>
 	{:else if searchQuery && lastSearch && !searching}
 		<div class="flex flex-col items-center justify-center py-20 text-center opacity-70">
