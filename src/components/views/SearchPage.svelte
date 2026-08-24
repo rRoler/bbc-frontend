@@ -6,6 +6,8 @@
 		getPeopleNames,
 		getPublisherNames,
 		getTagLabels,
+		getTagLabelsByType,
+		getMagazineNames,
 		getPrimaryTitle,
 		coverUrl,
 		primaryLinkUrl,
@@ -286,8 +288,8 @@
 		vars.push([textVariables.seriesReadingDirection, series.readingDirection ?? '']);
 		vars.push([textVariables.seriesBookCount, series.bookCount?.toString() ?? '']);
 		vars.push([textVariables.seriesChapterCount, series.chapterCount?.toString() ?? '']);
-		vars.push([textVariables.seriesMagazine, series.magazine ?? '']);
-		vars.push([textVariables.seriesGenre, series.genre ?? '']);
+		vars.push([textVariables.seriesMagazine, getMagazineNames(series.magazines).join(', ')]);
+		vars.push([textVariables.seriesGenre, getTagLabelsByType(series.tags, 'genre').join(', ')]);
 		vars.push([
 			textVariables.seriesAltTitles,
 			series.titles

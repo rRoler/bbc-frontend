@@ -62,6 +62,52 @@ export interface BBCCover {
 	language: string | null;
 }
 
+export interface BBCTitle {
+	title: string;
+	language: string | null;
+	isPrimary: boolean;
+}
+
+export interface BBCDescription {
+	description: string;
+	language: string | null;
+	isPrimary: boolean;
+}
+
+export interface BBCName {
+	name: string;
+	language: string | null;
+	isPrimary: boolean;
+}
+
+export interface BBCTagLabel {
+	label: string;
+	language: string | null;
+	isPrimary: boolean;
+}
+
+export interface BBCTag {
+	id?: string;
+	type: 'genre' | 'theme' | 'demographic' | 'content-warning' | 'other';
+	labels: BBCTagLabel[];
+}
+
+export interface BBCNamedEntity {
+	id?: string;
+	names: BBCName[];
+}
+
+export interface BBCPerson {
+	role: 'author' | 'artist' | 'translator';
+	names: BBCName[];
+}
+
+export interface BBCMergedPerson {
+	providerId: string;
+	role: 'author' | 'artist' | 'translator';
+	names: BBCName[];
+}
+
 export interface BBCTrackers {
 	alId: string | null;
 	apId: string | null;
@@ -82,33 +128,21 @@ export interface BBCSeries {
 	bookType: 'manga' | 'novel' | 'webtoon' | 'audiobook' | null;
 	publicationType: 'physical' | 'digital' | null;
 	isMature: boolean;
-	titles: { title: string; language: string | null; isPrimary: boolean }[];
-	descriptions: {
-		description: string;
-		language: string | null;
-		isPrimary: boolean;
-	}[];
-	people: {
-		role: 'author' | 'artist' | 'translator';
-		names: { name: string; language: string | null; isPrimary: boolean }[];
-	}[];
-	publishers:
-		| { id?: string; names: { name: string; language: string | null; isPrimary: boolean }[] }[]
-		| null;
+	titles: BBCTitle[];
+	descriptions: BBCDescription[];
+	people: BBCPerson[];
+	publishers: BBCNamedEntity[] | null;
 	status: 'ongoing' | 'completed' | 'hiatus' | 'cancelled' | null;
-	tags:
-		| { id?: string; labels: { label: string; language: string | null; isPrimary: boolean }[] }[]
-		| null;
+	tags: BBCTag[] | null;
 	lastUpdated: string | null;
 	rating: number | null;
 	ratingCount: number | null;
 	language: string | null;
-	format: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook' | null;
+	format: 'epub' | 'fixed-layout' | 'pdf' | null;
 	readingDirection: 'rtl' | 'ltr' | null;
 	bookCount: number | null;
 	chapterCount: number | null;
-	magazine: string | null;
-	genre: string | null;
+	magazines: BBCNamedEntity[] | null;
 	trackers: BBCTrackers | null;
 }
 
@@ -125,23 +159,9 @@ export interface BBCSeriesDetail extends BBCSeries {
 
 export interface BBCSeriesMerged extends Omit<BBCSeriesDetail, 'title' | 'providerId'> {
 	providers?: string[] | null;
-	titles: {
-		providerId: string;
-		title: string;
-		language: string | null;
-		isPrimary: boolean;
-	}[];
-	descriptions: {
-		providerId: string;
-		description: string;
-		language: string | null;
-		isPrimary: boolean;
-	}[];
-	people: {
-		providerId: string;
-		role: 'author' | 'artist' | 'translator';
-		names: { name: string; language: string | null; isPrimary: boolean }[];
-	}[];
+	titles: (BBCTitle & { providerId: string })[];
+	descriptions: (BBCDescription & { providerId: string })[];
+	people: BBCMergedPerson[];
 }
 
 export interface BBCBook {
@@ -151,32 +171,21 @@ export interface BBCBook {
 	covers: BBCCover[];
 	volume: { type: 'volume' | 'chapter'; number: string | null };
 	seriesId: string | null;
-	titles: { title: string; language: string | null; isPrimary: boolean }[];
-	descriptions: {
-		description: string;
-		language: string | null;
-		isPrimary: boolean;
-	}[];
-	people: {
-		role: 'author' | 'artist' | 'translator';
-		names: { name: string; language: string | null; isPrimary: boolean }[];
-	}[];
-	publishers:
-		| { id?: string; names: { name: string; language: string | null; isPrimary: boolean }[] }[]
-		| null;
+	titles: BBCTitle[];
+	descriptions: BBCDescription[];
+	people: BBCPerson[];
+	publishers: BBCNamedEntity[] | null;
 	releaseDate: string | null;
 	isbn: string | null;
 	price: number | null;
 	currency: string | null;
 	isMature: boolean;
 	pageCount: number | null;
-	tags:
-		| { id?: string; labels: { label: string; language: string | null; isPrimary: boolean }[] }[]
-		| null;
+	tags: BBCTag[] | null;
 	rating: number | null;
 	ratingCount: number | null;
 	language: string | null;
-	format: 'epub' | 'fixed-layout' | 'webtoon' | 'pdf' | 'audiobook' | null;
+	format: 'epub' | 'fixed-layout' | 'pdf' | null;
 	originalPrice: number | null;
 	fileSize: number | null;
 	bookType: BBCSeries['bookType'];
@@ -196,7 +205,7 @@ export interface BBCSeriesSearchResult {
 	providerId: BBCSeries['providerId'];
 	links: BBCLink[];
 	type: BBCSeries['type'];
-	titles: { title: string; language: string | null; isPrimary: boolean }[];
+	titles: BBCTitle[];
 	covers: BBCCover[];
 	mappedId?: string | null;
 	mergedProviders?: string[];
@@ -295,9 +304,25 @@ export function getTagLabels(tags: BBCTags | undefined): string[] {
 	return tags?.flatMap((t) => t.labels.map((l) => l.label)) ?? [];
 }
 
-export function getPrimaryTitle(
-	titles: { title: string; language?: string | null; isPrimary?: boolean }[] | null | undefined
-): string {
+export function getTagLabelsByType(
+	tags: BBCTags | undefined,
+	type: NonNullable<BBCTags>[number]['type']
+): string[] {
+	return tags?.filter((t) => t.type === type).flatMap((t) => t.labels.map((l) => l.label)) ?? [];
+}
+
+export function getMagazineNames(magazines: BBCSeries['magazines'] | undefined): string[] {
+	return (
+		magazines
+			?.flatMap((m) => {
+				const primary = m.names?.find((n) => n.isPrimary) ?? m.names?.[0];
+				return primary?.name ?? '';
+			})
+			.filter(Boolean) ?? []
+	);
+}
+
+export function getPrimaryTitle(titles: BBCTitle[] | null | undefined): string {
 	if (!titles || titles.length === 0) return '';
 	const primary = titles.find((t) => t.isPrimary) ?? titles[0];
 	return primary?.title ?? '';

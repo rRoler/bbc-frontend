@@ -5,6 +5,8 @@ import {
 	getPeopleNames,
 	getPublisherNames,
 	getTagLabels,
+	getTagLabelsByType,
+	getMagazineNames,
 	getPrimaryTitle,
 	coverUrl,
 	thumbnailUrl,
@@ -379,8 +381,14 @@ class Downloader {
 				vars.push([textVariables.seriesReadingDirection, bookSeries.readingDirection ?? '']);
 				vars.push([textVariables.seriesBookCount, bookSeries.bookCount?.toString() ?? '']);
 				vars.push([textVariables.seriesChapterCount, bookSeries.chapterCount?.toString() ?? '']);
-				vars.push([textVariables.seriesMagazine, bookSeries.magazine ?? '']);
-				vars.push([textVariables.seriesGenre, bookSeries.genre ?? '']);
+				vars.push([
+					textVariables.seriesMagazine,
+					getMagazineNames(bookSeries.magazines).join(', '),
+				]);
+				vars.push([
+					textVariables.seriesGenre,
+					getTagLabelsByType(bookSeries.tags, 'genre').join(', '),
+				]);
 				vars.push([
 					textVariables.seriesAltTitles,
 					bookSeries.titles
