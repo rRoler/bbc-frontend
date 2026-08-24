@@ -108,15 +108,19 @@ export interface BBCMergedPerson {
 	names: BBCName[];
 }
 
-export interface BBCTrackers {
-	alId: string | null;
-	apId: string | null;
-	muId: string | null;
-	nuId: string | null;
-	ktId: string | null;
-	malId: string | null;
-	mbId: string | null;
-	shikiId: string | null;
+export interface BBCTracker {
+	trackerId: string;
+	externalId: string;
+	externalUrl: string;
+	name: string;
+}
+
+export function trackerById(trackers: BBCTracker[] | null | undefined): Record<string, string> {
+	const map: Record<string, string> = {};
+	for (const t of trackers ?? []) {
+		map[t.trackerId] = t.externalId;
+	}
+	return map;
 }
 
 export interface BBCSeries {
@@ -143,7 +147,7 @@ export interface BBCSeries {
 	bookCount: number | null;
 	chapterCount: number | null;
 	magazines: BBCNamedEntity[] | null;
-	trackers: BBCTrackers | null;
+	trackers: BBCTracker[] | null;
 }
 
 export interface BBCSeriesDetail extends BBCSeries {
@@ -213,6 +217,7 @@ export interface BBCSeriesSearchResult {
 	publicationType: BBCSeries['publicationType'];
 	isMature: BBCSeries['isMature'];
 	language: BBCSeries['language'];
+	trackers: BBCTracker[] | null;
 }
 
 export interface BBCBookPage {

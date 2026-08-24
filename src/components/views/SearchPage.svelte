@@ -11,6 +11,7 @@
 		getPrimaryTitle,
 		coverUrl,
 		primaryLinkUrl,
+		trackerById,
 	} from '../../lib/apis/bbc.ts';
 	import WsrvApi from '../../lib/apis/wsrv.ts';
 	import { addAppError, appState } from '../../lib/svelte/app.svelte.ts';
@@ -297,14 +298,15 @@
 				.map((t) => t.title)
 				.join(', ') ?? '',
 		]);
-		vars.push([textVariables.seriesAlId, series.trackers?.alId ?? '']);
-		vars.push([textVariables.seriesApId, series.trackers?.apId ?? '']);
-		vars.push([textVariables.seriesMuId, series.trackers?.muId ?? '']);
-		vars.push([textVariables.seriesNuId, series.trackers?.nuId ?? '']);
-		vars.push([textVariables.seriesKtId, series.trackers?.ktId ?? '']);
-		vars.push([textVariables.seriesMalId, series.trackers?.malId ?? '']);
-		vars.push([textVariables.seriesMbId, series.trackers?.mbId ?? '']);
-		vars.push([textVariables.seriesShikiId, series.trackers?.shikiId ?? '']);
+		const trackerMap = trackerById(series.trackers);
+		vars.push([textVariables.seriesAlId, trackerMap['al'] ?? '']);
+		vars.push([textVariables.seriesApId, trackerMap['ap'] ?? '']);
+		vars.push([textVariables.seriesMuId, trackerMap['mu'] ?? '']);
+		vars.push([textVariables.seriesNuId, trackerMap['nu'] ?? '']);
+		vars.push([textVariables.seriesKtId, trackerMap['kt'] ?? '']);
+		vars.push([textVariables.seriesMalId, trackerMap['mal'] ?? '']);
+		vars.push([textVariables.seriesMbId, trackerMap['mb'] ?? '']);
+		vars.push([textVariables.seriesShikiId, trackerMap['shiki'] ?? '']);
 		vars.push([textVariables.seriesLastUpdated, series.lastUpdated ?? '']);
 
 		if (provider) {

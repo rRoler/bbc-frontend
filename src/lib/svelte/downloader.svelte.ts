@@ -11,6 +11,7 @@ import {
 	coverUrl,
 	thumbnailUrl,
 	primaryLinkUrl,
+	trackerById,
 } from '../apis/bbc.ts';
 import allProviders, { sortProviders, type Provider } from './providers.svelte.ts';
 import { wsrvApi, getImageInfo } from '../utils';
@@ -396,14 +397,15 @@ class Downloader {
 						.map((t) => t.title)
 						.join(', ') ?? '',
 				]);
-				vars.push([textVariables.seriesAlId, bookSeries.trackers?.alId ?? '']);
-				vars.push([textVariables.seriesApId, bookSeries.trackers?.apId ?? '']);
-				vars.push([textVariables.seriesMuId, bookSeries.trackers?.muId ?? '']);
-				vars.push([textVariables.seriesNuId, bookSeries.trackers?.nuId ?? '']);
-				vars.push([textVariables.seriesKtId, bookSeries.trackers?.ktId ?? '']);
-				vars.push([textVariables.seriesMalId, bookSeries.trackers?.malId ?? '']);
-				vars.push([textVariables.seriesMbId, bookSeries.trackers?.mbId ?? '']);
-				vars.push([textVariables.seriesShikiId, bookSeries.trackers?.shikiId ?? '']);
+				const trackerMap = trackerById(bookSeries.trackers);
+				vars.push([textVariables.seriesAlId, trackerMap['al'] ?? '']);
+				vars.push([textVariables.seriesApId, trackerMap['ap'] ?? '']);
+				vars.push([textVariables.seriesMuId, trackerMap['mu'] ?? '']);
+				vars.push([textVariables.seriesNuId, trackerMap['nu'] ?? '']);
+				vars.push([textVariables.seriesKtId, trackerMap['kt'] ?? '']);
+				vars.push([textVariables.seriesMalId, trackerMap['mal'] ?? '']);
+				vars.push([textVariables.seriesMbId, trackerMap['mb'] ?? '']);
+				vars.push([textVariables.seriesShikiId, trackerMap['shiki'] ?? '']);
 				vars.push([textVariables.seriesLastUpdated, bookSeries.lastUpdated ?? '']);
 			} else {
 				vars.push([textVariables.seriesId, book.seriesId || '0']);

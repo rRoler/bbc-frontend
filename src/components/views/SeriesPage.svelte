@@ -391,74 +391,22 @@
 			);
 		}
 
-		if (heroSeries?.trackers?.mbId) {
-			params.append('mb_id', heroSeries.trackers.mbId);
+		const mbTracker = heroSeries?.trackers?.find((t) => t.trackerId === 'mb');
+		if (mbTracker) {
+			params.append('mb_id', mbTracker.externalId);
 		}
 
 		return `${basePath}?${params.toString()}`;
 	});
 
-	const getMuLink = (id: string) => {
-		return /^\d+$/.test(id)
-			? `https://www.mangaupdates.com/series.html?id=${id}`
-			: `https://www.mangaupdates.com/series/${id}`;
-	};
-
 	const trackers = $derived.by(() => {
-		if (!heroSeries) return [];
+		if (!heroSeries?.trackers) return [];
 
-		const list: { name: string; url: string; iconUrl: string }[] = [];
-
-		if (heroSeries.trackers?.alId)
-			list.push({
-				name: 'AniList',
-				url: `https://anilist.co/manga/${heroSeries.trackers.alId}`,
-				iconUrl: 'https://anilist.co',
-			});
-		if (heroSeries.trackers?.malId)
-			list.push({
-				name: 'MyAnimeList',
-				url: `https://myanimelist.net/manga/${heroSeries.trackers.malId}`,
-				iconUrl: 'https://myanimelist.net',
-			});
-		if (heroSeries.trackers?.muId)
-			list.push({
-				name: 'MangaUpdates',
-				url: getMuLink(heroSeries.trackers.muId),
-				iconUrl: 'https://www.mangaupdates.com',
-			});
-		if (heroSeries.trackers?.nuId)
-			list.push({
-				name: 'NovelUpdates',
-				url: `https://www.novelupdates.com/series/${heroSeries.trackers.nuId}`,
-				iconUrl: 'https://www.novelupdates.com',
-			});
-		if (heroSeries.trackers?.apId)
-			list.push({
-				name: 'Anime-Planet',
-				url: `https://www.anime-planet.com/manga/${heroSeries.trackers.apId}`,
-				iconUrl: 'https://www.anime-planet.com',
-			});
-		if (heroSeries.trackers?.ktId)
-			list.push({
-				name: 'Kitsu',
-				url: `https://kitsu.app/manga/${heroSeries.trackers.ktId}`,
-				iconUrl: 'https://kitsu.app',
-			});
-		if (heroSeries.trackers?.shikiId)
-			list.push({
-				name: 'Shikimori',
-				url: `https://shikimori.one/mangas/${heroSeries.trackers.shikiId}`,
-				iconUrl: 'https://shikimori.one',
-			});
-		if (heroSeries.trackers?.mbId)
-			list.push({
-				name: 'MangaBaka',
-				url: `https://mangabaka.org/${heroSeries.trackers.mbId}`,
-				iconUrl: 'https://mangabaka.org',
-			});
-
-		return list;
+		return heroSeries.trackers.map((t) => ({
+			name: t.name,
+			url: t.externalUrl,
+			iconUrl: new URL(t.externalUrl).origin,
+		}));
 	});
 
 	function getProviderName(providerId: string): string {
