@@ -400,7 +400,7 @@ export default class BBC_API {
 		providers: Provider[] = allProviders.updated,
 		options?: {
 			detail?: D;
-			include_mature?: boolean;
+			includeMature?: boolean;
 			callback?: (
 				result: BBCByProviderResult<D extends true ? BBCSeriesDetail : BBCSeriesSearchResult>
 			) => void;
@@ -425,7 +425,7 @@ export default class BBC_API {
 				if (options?.detail) {
 					searchUrl.searchParams.set('detail', 'true');
 				}
-				searchUrl.searchParams.append('include_mature', options?.include_mature ? 'true' : 'false');
+				searchUrl.searchParams.append('includeMature', options?.includeMature ? 'true' : 'false');
 
 				try {
 					const res = await fetch(searchUrl, {

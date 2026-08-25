@@ -218,7 +218,7 @@
 				if (!currentAbortController.signal.aborted) searching = false;
 			}, MAX_SEARCH_TIME);
 			await api.search(searchQuery, selectedProviders, {
-				include_mature: matureContentSetting.value !== 'hide',
+				includeMature: matureContentSetting.value !== 'hide',
 				abortSignal: currentAbortController.signal,
 				callback: (response) => {
 					response.errors.forEach((e) => addAppError(e));

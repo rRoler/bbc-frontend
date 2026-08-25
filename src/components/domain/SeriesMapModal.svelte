@@ -148,7 +148,7 @@
 
 			await api.search(searchQuery, selectedProviders, {
 				detail: true,
-				include_mature: matureContentSetting.value !== 'hide',
+				includeMature: matureContentSetting.value !== 'hide',
 				abortSignal: currentAbortController.signal,
 				callback: (response) => {
 					response.errors.forEach((e) => addAppError(e));
