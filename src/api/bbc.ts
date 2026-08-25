@@ -748,7 +748,7 @@ export default class BBC_API {
 
 		try {
 			const res = await fetch(
-				`${this.apiUrl}/map/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`
+				`${this.apiUrl}/map/series/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`
 			);
 			const data: BBCListResponse<BBCSeriesDetail> = await res.json();
 
@@ -778,7 +778,7 @@ export default class BBC_API {
 		};
 
 		try {
-			const res = await fetch(`${this.apiUrl}/map/${encodeURIComponent(mappedId)}`);
+			const res = await fetch(`${this.apiUrl}/map/series/${encodeURIComponent(mappedId)}`);
 			const data: BBCByProviderResponse<BBCSeriesDetail> = await res.json();
 
 			if (data.error) {
@@ -817,7 +817,7 @@ export default class BBC_API {
 					if (mappedId) {
 						body.mappedId = mappedId;
 					}
-					const res = await fetch(`${this.apiUrl}/map`, {
+					const res = await fetch(`${this.apiUrl}/map/series`, {
 						method: 'PATCH',
 						headers: { 'Content-Type': 'application/json', ...userState.headers },
 						body: JSON.stringify(body),
@@ -839,7 +839,7 @@ export default class BBC_API {
 
 	async unmapSeries(providerId: string, seriesId: string): Promise<void> {
 		const res = await fetch(
-			`${this.apiUrl}/map/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`,
+			`${this.apiUrl}/map/series/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`,
 			{
 				method: 'DELETE',
 				headers: userState.headers,
