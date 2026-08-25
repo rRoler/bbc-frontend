@@ -70,6 +70,7 @@ export interface BBCLink {
 	url: string;
 	language: string | null;
 	isPrimary: boolean;
+	providerId?: string;
 }
 
 export interface BBCCover {
@@ -77,6 +78,7 @@ export interface BBCCover {
 	isThumbnail: boolean;
 	isPrimary: boolean;
 	language: string | null;
+	providerId?: string;
 }
 
 export interface BBCTitle {
@@ -107,11 +109,13 @@ export interface BBCTag {
 	id?: string;
 	type: 'genre' | 'theme' | 'demographic' | 'content-warning' | 'other';
 	labels: BBCTagLabel[];
+	providerId?: string;
 }
 
 export interface BBCNamedEntity {
 	id?: string;
 	names: BBCName[];
+	providerId?: string;
 }
 
 export interface BBCPerson {
@@ -152,7 +156,7 @@ export interface BBCSeries {
 	titles: BBCTitle[];
 	descriptions: BBCDescription[];
 	people: BBCPerson[];
-	publishers: BBCNamedEntity[] | null;
+	publishers: BBCNamedEntity[];
 	status: 'ongoing' | 'completed' | 'hiatus' | 'cancelled' | null;
 	tags: BBCTag[] | null;
 	lastUpdated: string | null;
@@ -195,7 +199,7 @@ export interface BBCBook {
 	titles: BBCTitle[];
 	descriptions: BBCDescription[];
 	people: BBCPerson[];
-	publishers: BBCNamedEntity[] | null;
+	publishers: BBCNamedEntity[];
 	releaseDate: string | null;
 	isbn: string | null;
 	price: number | null;
@@ -228,13 +232,11 @@ export interface BBCSeriesSearchResult {
 	type: BBCSeries['type'];
 	titles: BBCTitle[];
 	covers: BBCCover[];
-	mappedId?: string | null;
-	mergedProviders?: string[];
 	bookType: BBCSeries['bookType'];
 	publicationType: BBCSeries['publicationType'];
 	isMature: BBCSeries['isMature'];
 	language: BBCSeries['language'];
-	trackers: BBCTracker[] | null;
+	trackers: BBCTracker[];
 }
 
 export interface BBCBookPage {

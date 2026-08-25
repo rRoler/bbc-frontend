@@ -3,7 +3,7 @@
 	import MainSearchBox from './MainSearchBox.svelte';
 	import SeriesCard from './SeriesCard.svelte';
 	import ProviderSelector from './ProviderSelector.svelte';
-	import BBC_API, { type BBCSeriesSearchResult } from '../../api/bbc.ts';
+	import BBC_API, { type BBCSeriesDetail } from '../../api/bbc.ts';
 	import allProviders, { type Provider } from '../../stores/providers.svelte.ts';
 	import { matureContentSetting } from '../../stores/settings.svelte.ts';
 	import { addAppError } from '../../stores/app.svelte.ts';
@@ -13,7 +13,7 @@
 		onAdd,
 		excludeIds = new SvelteSet<string>(),
 	}: {
-		onAdd: (seriesList: BBCSeriesSearchResult[]) => void;
+		onAdd: (seriesList: BBCSeriesDetail[]) => void;
 		excludeIds?: SvelteSet<string>;
 	} = $props();
 
@@ -22,7 +22,7 @@
 	let searching = $state(false);
 
 	let selectedProviders = $state<Provider[]>([]);
-	let searchResults = $state<Record<string, BBCSeriesSearchResult[]>>({});
+	let searchResults = $state<Record<string, BBCSeriesDetail[]>>({});
 	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
 	let loadingProviders = $state<SvelteSet<string>>(new SvelteSet());
 	let abortController = $state<AbortController>();
@@ -31,11 +31,11 @@
 	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
 	let selectedSeries = $state<SvelteSet<string>>(new SvelteSet());
 
-	function seriesKey(series: BBCSeriesSearchResult) {
+	function seriesKey(series: BBCSeriesDetail) {
 		return series.providerId + '::' + series.id;
 	}
 
-	let expandedClusters = $state<Record<string, BBCSeriesSearchResult[]>>({});
+	let expandedClusters = $state<Record<string, BBCSeriesDetail[]>>({});
 	const loadingMapped = new SvelteSet<string>();
 
 	async function loadMappedCluster(mappedId: string) {
@@ -75,7 +75,7 @@
 		dialogEl?.close();
 	}
 
-	function toggleSelection(series: BBCSeriesSearchResult) {
+	function toggleSelection(series: BBCSeriesDetail) {
 		const key = seriesKey(series);
 		if (selectedSeries.has(key)) {
 			selectedSeries.delete(key);
@@ -86,7 +86,7 @@
 	}
 
 	let selectedResults = $derived.by(() => {
-		const expanded: BBCSeriesSearchResult[] = [];
+		const expanded: BBCSeriesDetail[] = [];
 		for (const s of flattenedResults) {
 			if (!selectedSeries.has(seriesKey(s))) continue;
 			const cluster = s.mappedId ? expandedClusters[s.mappedId] : undefined;
@@ -166,7 +166,7 @@
 	}
 
 	let flattenedResults = $derived.by(() => {
-		const results: BBCSeriesSearchResult[] = [];
+		const results: BBCSeriesDetail[] = [];
 		const providerQueues = selectedProviders
 			.map((p) => searchResults[p.id]?.filter((s) => !excludeIds.has(s.providerId + '::' + s.id)))
 			.filter((arr) => arr && arr.length > 0);
