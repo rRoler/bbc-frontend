@@ -40,6 +40,7 @@
 	import Image from '../ui/Image.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
+	import ProviderIcons from '../domain/ProviderIcons.svelte';
 	import { appState, addAppError } from '../../stores/app.svelte.ts';
 	import type { Provider } from '../../stores/providers.svelte.ts';
 	import { deriveAvailableLanguages, toBaseLangSet } from '../../stores/providers.svelte.ts';
@@ -412,6 +413,12 @@
 		return allProviders.providers.find((p) => p.id === providerId)?.name || providerId;
 	}
 
+	function toProviders(ids: string[]): Provider[] {
+		return ids
+			.map((id) => allProviders.providers.find((p) => p.id === id))
+			.filter((p): p is Provider => !!p);
+	}
+
 	let mergedDescriptions = $derived.by(() => {
 		if (!mergedHeroSeries?.descriptions) return [];
 		return mergedHeroSeries.descriptions;
@@ -439,7 +446,18 @@
 
 	let heroAuthors = $derived(getPeopleNames(heroSeries?.people, 'author'));
 	let heroArtists = $derived(getPeopleNames(heroSeries?.people, 'artist'));
-	let heroTags = $derived(getTagLabels(heroSeries?.tags));
+	let heroTagList = $derived(
+		(heroSeries?.tags ?? []).map((t) => ({
+			label: getTagLabels([t])[0] ?? '',
+			type: t.type,
+			providers:
+				'providers' in t && t.providers
+					? (t.providers as string[])
+					: 'providerId' in t && t.providerId
+						? [t.providerId]
+						: [],
+		}))
+	);
 
 	let activeDescIdx = $state(0);
 	let showAllTitles = $state(false);
@@ -450,40 +468,10 @@
 		return Math.min(mergedDescriptions.length - 1, Math.max(0, activeDescIdx));
 	});
 
-	let swipeStart = $state<{ x: number; y: number } | null>(null);
-
 	function cycleDesc(delta: number) {
 		const n = mergedDescriptions.length;
 		if (n === 0) return;
 		activeDescIdx = (activeDescIdx + delta + n) % n;
-	}
-
-	function onDescPointerDown(e: PointerEvent) {
-		if (mergedDescriptions.length <= 1) return;
-		if (
-			(e.target as HTMLElement | null)?.closest(
-				'button, a, input, select, textarea, [role="button"]'
-			)
-		) {
-			return;
-		}
-		swipeStart = { x: e.clientX, y: e.clientY };
-		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-	}
-
-	function onDescPointerUp(e: PointerEvent) {
-		if (!swipeStart) return;
-		const dx = e.clientX - swipeStart.x;
-		const dy = e.clientY - swipeStart.y;
-		swipeStart = null;
-		if ((e.target as HTMLElement | null)?.closest('button')) return;
-		if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-			cycleDesc(dx < 0 ? 1 : -1);
-		}
-	}
-
-	function onDescPointerCancel() {
-		swipeStart = null;
 	}
 </script>
 
@@ -596,23 +584,26 @@
 
 					{#if mergedDescriptions.length > 0}
 						{@const currentDesc = mergedDescriptions[visibleDescIdx]}
-						{@const prov = allProviders.providers.find((p) => p.id === currentDesc.providerId)}
+						{@const currentProviders = currentDesc.providers}
 						<div class="mt-2 w-full max-w-full">
 							<div
-								class="bg-base-100/50 border-base-300 rounded-box relative touch-pan-y overflow-hidden border p-4 shadow-sm backdrop-blur-sm"
-								role="group"
-								onpointerdown={onDescPointerDown}
-								onpointerup={onDescPointerUp}
-								onpointercancel={onDescPointerCancel}
+								class="bg-base-100/50 border-base-300 rounded-box relative overflow-hidden border p-4 shadow-sm backdrop-blur-sm"
 							>
 								<div class="mb-4 flex items-center justify-between">
 									<div class="flex flex-wrap items-center gap-2">
-										{#if prov}
-											<ProviderLabel provider={prov} />
-										{:else}
-											<span class="badge badge-primary font-semibold">
-												{getProviderName(currentDesc.providerId)}
-											</span>
+										{#if currentProviders.length > 1}
+											<ProviderIcons providers={toProviders(currentProviders)} size="size-5" />
+										{:else if currentProviders.length === 1}
+											{@const prov = allProviders.providers.find(
+												(p) => p.id === currentProviders[0]
+											)}
+											{#if prov}
+												<ProviderLabel provider={prov} />
+											{:else}
+												<span class="badge badge-primary font-semibold">
+													{getProviderName(currentProviders[0])}
+												</span>
+											{/if}
 										{/if}
 									</div>
 
@@ -637,10 +628,10 @@
 								</div>
 
 								<div class="relative w-full">
-									{#each mergedDescriptions as desc, i (desc.providerId + '-' + i)}
+									{#each mergedDescriptions as desc, i (desc.providers.join(',') + '-' + i)}
 										{#if i === activeDescIdx}
 											<div
-												class="prose prose-sm max-h-48 max-w-none touch-pan-y overflow-y-auto select-none"
+												class="prose prose-sm max-h-48 max-w-none overflow-y-auto select-text"
 												in:fade={{ duration: 200 }}
 											>
 												<!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -672,19 +663,21 @@
 						</div>
 					{/if}
 
-					{#if heroTags.length}
+					{#if heroTagList.length}
 						<div
 							class="mt-4 mb-2 flex flex-wrap items-center justify-center gap-1 md:justify-start"
 						>
-							{#each heroTags.slice(0, showAllTags ? heroTags.length : 10) as tag (tag)}
-								<span class="badge badge-sm badge-neutral">{capitalizeFirstLetter(tag)}</span>
+							{#each heroTagList.slice(0, showAllTags ? heroTagList.length : 10) as tag (tag.type + '-' + tag.label)}
+								<span class="badge badge-sm badge-neutral flex items-center gap-1">
+									{capitalizeFirstLetter(tag.label)}
+								</span>
 							{/each}
-							{#if heroTags.length > 10}
+							{#if heroTagList.length > 10}
 								<button
 									class="btn btn-ghost btn-xs text-xs font-normal opacity-70 hover:opacity-100"
 									onclick={() => (showAllTags = !showAllTags)}
 								>
-									{showAllTags ? 'Show Less' : `+${heroTags.length - 10} More`}
+									{showAllTags ? 'Show Less' : `+${heroTagList.length - 10} More`}
 								</button>
 							{/if}
 						</div>

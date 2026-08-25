@@ -124,7 +124,7 @@ export interface BBCPerson {
 }
 
 export interface BBCMergedPerson {
-	providerId: string;
+	providers: string[];
 	role: 'author' | 'artist' | 'translator';
 	names: BBCName[];
 }
@@ -183,10 +183,14 @@ export interface BBCSeriesDetail extends BBCSeries {
 }
 
 export interface BBCSeriesMerged extends Omit<BBCSeriesDetail, 'title' | 'providerId'> {
-	providers?: string[] | null;
-	titles: (BBCTitle & { providerId: string })[];
-	descriptions: (BBCDescription & { providerId: string })[];
+	providers: string[];
+	titles: (BBCTitle & { providers: string[] })[];
+	descriptions: (BBCDescription & { providers: string[] })[];
 	people: BBCMergedPerson[];
+	tags: (Omit<BBCTag, 'providerId'> & { providers: string[] })[];
+	publishers: (Omit<BBCNamedEntity, 'providerId'> & { providers: string[] })[];
+	links: (Omit<BBCLink, 'providerId'> & { providers: string[] })[];
+	covers: (Omit<BBCCover, 'providerId'> & { providers: string[] })[];
 }
 
 export interface BBCBook {
@@ -817,6 +821,20 @@ export default class BBC_API {
 			pages: 0,
 			errors: [],
 		};
+
+		// Fetch each provider series' full detail (incl. description) and store it
+		// before mapping, so the merged record isn't left with sparse search data.
+		// Best-effort: a fetch failure must not block the mapping itself.
+		const grouped: Record<string, string[]> = {};
+		for (const s of series) {
+			(grouped[s.providerId] ??= []).push(s.id);
+		}
+		try {
+			await this.getSeries(grouped, undefined, true);
+		} catch (e) {
+			console.warn('Failed to prefetch series before mapping:', e);
+		}
+
 		const chunks = this.chopArray(series, this.editMaxCount);
 
 		await Promise.all(

@@ -25,6 +25,23 @@ import {
 	Vn,
 	Pl,
 	Tr,
+	Kz,
+	Hk,
+	Np,
+	My,
+	Ua,
+	Mn,
+	By,
+	Am,
+	Il,
+	Ir,
+	Iq,
+	Et,
+	In,
+	Bd,
+	Lk,
+	Mm,
+	Hr,
 } from 'svelte-flags';
 
 export interface ImageInfo {
@@ -282,6 +299,8 @@ export function langToFlag(lang: string): Component | undefined {
 			return Kr;
 		case 'zh-tw':
 			return Tw;
+		case 'zh-hk':
+			return Hk;
 		case 'zh':
 		case 'zh-cn':
 			return Cn;
@@ -301,12 +320,46 @@ export function langToFlag(lang: string): Component | undefined {
 			return Sa;
 		case 'id':
 			return Id;
+		case 'ms':
+			return My;
+		case 'my':
+			return Mm;
 		case 'vi':
 			return Vn;
 		case 'pl':
 			return Pl;
 		case 'tr':
 			return Tr;
+		case 'kk':
+			return Kz;
+		case 'ne':
+			return Np;
+		case 'uk':
+			return Ua;
+		case 'mn':
+			return Mn;
+		case 'be':
+			return By;
+		case 'hy':
+			return Am;
+		case 'he':
+			return Il;
+		case 'fa':
+			return Ir;
+		case 'ku':
+			return Iq;
+		case 'am':
+			return Et;
+		case 'hi':
+			return In;
+		case 'bn':
+			return Bd;
+		case 'ta':
+			return Lk;
+		case 'te':
+			return In;
+		case 'hr':
+			return Hr;
 		case 'multi':
 			return Globe as unknown as Component;
 		default:
