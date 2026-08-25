@@ -81,6 +81,7 @@
 			textVariables.seriesUrl,
 			textVariables.seriesId,
 			textVariables.seriesThumbnailUrl,
+			textVariables.seriesCoverUrl,
 			textVariables.seriesPublicationType,
 			textVariables.seriesBookType,
 			textVariables.seriesType,

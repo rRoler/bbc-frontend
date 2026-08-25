@@ -269,6 +269,7 @@ export const textVariables = {
 	bookFileSize: 'BOOK_FILE_SIZE',
 	seriesTitle: 'SERIES_TITLE',
 	seriesThumbnailUrl: 'SERIES_THUMBNAIL_URL',
+	seriesCoverUrl: 'SERIES_COVER_URL',
 	seriesPublicationType: 'SERIES_PUBLICATION_TYPE',
 	seriesBookType: 'SERIES_BOOK_TYPE',
 	seriesType: 'SERIES_TYPE',

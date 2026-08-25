@@ -5,7 +5,7 @@
 		BBCSeriesMerged,
 		BBCSeriesSearchResult,
 	} from '../../api/bbc.ts';
-	import { coverUrl, primaryLinkUrl } from '../../api/bbc.ts';
+	import { thumbnailUrl, primaryLinkUrl } from '../../api/bbc.ts';
 	import { seriesLocation } from '../../config/locations.ts';
 	import allProviders from '../../stores/providers.svelte.ts';
 	import WsrvApi from '../../api/wsrv.ts';
@@ -72,9 +72,9 @@
 	{/if}
 
 	<figure class="relative aspect-[2.1/3] w-full overflow-hidden">
-		{#if coverUrl(series.covers)}
+		{#if thumbnailUrl(series.covers)}
 			<Image
-				src={imageApi.getUrl(coverUrl(series.covers)!, { width: 320, output: 'webp' }).href}
+				src={imageApi.getUrl(thumbnailUrl(series.covers)!, { width: 320, output: 'webp' }).href}
 				alt="{cardTitle} cover"
 				class="size-full object-cover transition-transform duration-300 group-hover:scale-105 {series.isMature &&
 				matureContentSetting.value === 'blur' &&

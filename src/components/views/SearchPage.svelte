@@ -9,6 +9,7 @@
 		getTagLabelsByType,
 		getMagazineNames,
 		getPrimaryTitle,
+		thumbnailUrl,
 		coverUrl,
 		primaryLinkUrl,
 		trackerById,
@@ -257,7 +258,8 @@
 		vars.push([textVariables.datetime, datetime]);
 
 		vars.push([textVariables.seriesTitle, getPrimaryTitle(series.titles)]);
-		vars.push([textVariables.seriesThumbnailUrl, coverUrl(series.covers) ?? '']);
+		vars.push([textVariables.seriesThumbnailUrl, thumbnailUrl(series.covers) ?? '']);
+		vars.push([textVariables.seriesCoverUrl, coverUrl(series.covers) ?? '']);
 		vars.push([textVariables.seriesPublicationType, series.publicationType || 'digital']);
 		vars.push([textVariables.seriesBookType, series.bookType || '']);
 		vars.push([textVariables.seriesType, series.type ?? '']);
@@ -523,8 +525,8 @@
 
 										<figure class="z-0 size-full">
 											<Image
-												src={coverUrl(series.covers)
-													? imageApi.getUrl(coverUrl(series.covers)!, {
+												src={thumbnailUrl(series.covers)
+													? imageApi.getUrl(thumbnailUrl(series.covers)!, {
 															width: 168,
 															output: 'webp',
 														}).href

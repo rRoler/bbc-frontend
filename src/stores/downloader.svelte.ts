@@ -346,6 +346,7 @@ class Downloader {
 			if (bookSeries) {
 				vars.push([textVariables.seriesTitle, getPrimaryTitle(bookSeries.titles)]);
 				vars.push([textVariables.seriesThumbnailUrl, thumbnailUrl(bookSeries.covers) || '']);
+				vars.push([textVariables.seriesCoverUrl, coverUrl(bookSeries.covers) || '']);
 				vars.push([textVariables.seriesPublicationType, bookSeries.publicationType || 'digital']);
 				vars.push([textVariables.seriesBookType, bookSeries.bookType || '']);
 				vars.push([textVariables.seriesType, bookSeries.type]);

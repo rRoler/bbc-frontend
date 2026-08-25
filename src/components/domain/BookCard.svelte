@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getPrimaryTitle, coverUrl, primaryLinkUrl } from '../../api/bbc.ts';
+	import { getPrimaryTitle, thumbnailUrl, primaryLinkUrl } from '../../api/bbc.ts';
 	import type { BBCBook, BBCBookDetail } from '../../api/bbc.ts';
 	import WsrvApi from '../../api/wsrv.ts';
 	import allProviders from '../../stores/providers.svelte.ts';
@@ -47,7 +47,7 @@
 
 	<figure class="relative aspect-[2.1/3] w-full overflow-hidden">
 		<Image
-			src={imageApi.getUrl(coverUrl(book.covers)!, { width: 320, output: 'webp' }).href}
+			src={imageApi.getUrl(thumbnailUrl(book.covers)!, { width: 320, output: 'webp' }).href}
 			alt="{getPrimaryTitle(book.titles)} cover"
 			class="size-full object-cover transition-transform duration-300 group-hover:scale-105 {book.isMature &&
 			matureContentSetting.value === 'blur' &&

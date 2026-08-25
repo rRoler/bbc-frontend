@@ -31,7 +31,6 @@
 		getTagLabels,
 		getPrimaryTitle,
 		coverUrl,
-		thumbnailUrl,
 	} from '../../api/bbc.ts';
 	import WsrvApi from '../../api/wsrv.ts';
 	import allProviders from '../../stores/providers.svelte.ts';
@@ -493,12 +492,12 @@
 		<!-- Hero Section -->
 		<div
 			class="hero bg-base-200 relative overflow-hidden"
-			style={thumbnailUrl(heroSeries.covers)
-				? `background-image: url(${imageApi.getUrl(thumbnailUrl(heroSeries.covers)!, { width: 1200, output: 'webp' }).href}); background-size: cover; background-position: center;`
+			style={coverUrl(heroSeries.covers)
+				? `background-image: url(${imageApi.getUrl(coverUrl(heroSeries.covers)!, { width: 1200, output: 'webp' }).href}); background-size: cover; background-position: center;`
 				: ''}
 		>
 			<!-- Background Blur -->
-			{#if thumbnailUrl(heroSeries.covers)}
+			{#if coverUrl(heroSeries.covers)}
 				<div class="hero-overlay bg-base-200/80 z-0 backdrop-blur-2xl"></div>
 			{/if}
 

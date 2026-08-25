@@ -158,7 +158,7 @@ export interface BBCSeries {
 	people: BBCPerson[];
 	publishers: BBCNamedEntity[];
 	status: 'ongoing' | 'completed' | 'hiatus' | 'cancelled' | null;
-	tags: BBCTag[] | null;
+	tags: BBCTag[];
 	lastUpdated: string | null;
 	rating: number | null;
 	ratingCount: number | null;
@@ -167,8 +167,8 @@ export interface BBCSeries {
 	readingDirection: 'rtl' | 'ltr' | null;
 	bookCount: number | null;
 	chapterCount: number | null;
-	magazines: BBCNamedEntity[] | null;
-	trackers: BBCTracker[] | null;
+	magazines: BBCNamedEntity[];
+	trackers: BBCTracker[];
 }
 
 export interface BBCSeriesDetail extends BBCSeries {
@@ -206,7 +206,7 @@ export interface BBCBook {
 	currency: string | null;
 	isMature: boolean;
 	pageCount: number | null;
-	tags: BBCTag[] | null;
+	tags: BBCTag[];
 	rating: number | null;
 	ratingCount: number | null;
 	language: string | null;
@@ -255,6 +255,7 @@ export function primaryCover(covers?: BBCCover[] | null): BBCCover | null {
 	return (
 		covers.find((c) => c.isPrimary && !c.isThumbnail) ??
 		covers.find((c) => !c.isThumbnail) ??
+		covers.find((c) => c.isPrimary) ??
 		covers[0] ??
 		null
 	);
@@ -264,7 +265,13 @@ export function thumbnailCover(covers?: BBCCover[] | null): BBCCover | null {
 	if (!covers || covers.length === 0) {
 		return null;
 	}
-	return covers.find((c) => c.isThumbnail) ?? covers.find((c) => c.isPrimary) ?? covers[0] ?? null;
+	return (
+		covers.find((c) => c.isPrimary && c.isThumbnail) ??
+		covers.find((c) => c.isThumbnail) ??
+		covers.find((c) => c.isPrimary) ??
+		covers[0] ??
+		null
+	);
 }
 
 export function coverUrl(covers?: BBCCover[] | null): string | null {
