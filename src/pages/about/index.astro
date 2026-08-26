@@ -20,7 +20,7 @@ const seconds = currentDate.getUTCSeconds().toString().padStart(2, '0');
 const formattedDate = `${year}.${month}.${day}-${hours}.${minutes}.${seconds}`;
 ---
 
-<PageLayout title={aboutLocation.label}>
+<PageLayout title={aboutLocation.label} description={aboutLocation.description}>
 	<div class="flex w-full grow flex-col items-center p-4">
 		<div class="flex w-2xl max-w-full flex-col items-center gap-4">
 			<div class="card bg-base-100 w-full text-center shadow-sm">

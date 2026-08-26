@@ -1,5 +1,13 @@
 ---
 import ErrorPageLayout from '../layouts/ErrorPageLayout.astro';
+import { SITE_NAME } from '../utils/meta';
+
+const notFoundDescription = `The page you were looking for could not be found on ${SITE_NAME}.`;
 ---
 
-<ErrorPageLayout code={404} message="Page not found" image="/images/404-preview.png" />
+<ErrorPageLayout
+	code={404}
+	message="Page not found"
+	image="/images/404-preview.png"
+	description={notFoundDescription}
+/>

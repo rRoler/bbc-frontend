@@ -4,6 +4,10 @@ import DiscoverySearchPage from '../../components/views/DiscoverySearchPage.svel
 import { discoverySearchLocation } from '../../config/locations.ts';
 ---
 
-<PageLayout title={discoverySearchLocation.label} disableSearch={true}>
+<PageLayout
+	title={discoverySearchLocation.label}
+	description={discoverySearchLocation.description}
+	disableSearch={true}
+>
 	<DiscoverySearchPage client:load />
 </PageLayout>

@@ -4,6 +4,10 @@ import DiscoveryPage from '../../components/views/DiscoveryPage.svelte';
 import { discoveryLocation } from '../../config/locations.ts';
 ---
 
-<PageLayout title={discoveryLocation.label} disableSearch={true}>
+<PageLayout
+	title={discoveryLocation.label}
+	description={discoveryLocation.description}
+	disableSearch={true}
+>
 	<DiscoveryPage client:load />
 </PageLayout>

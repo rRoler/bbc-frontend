@@ -4,7 +4,10 @@ import DiscoveryPaginatedPage from '../../../../components/views/DiscoveryPagina
 import { discoveryBooksNewLocation } from '../../../../config/locations.ts';
 ---
 
-<PageLayout title={discoveryBooksNewLocation.label}>
+<PageLayout
+	title={discoveryBooksNewLocation.label}
+	description={discoveryBooksNewLocation.description}
+>
 	<DiscoveryPaginatedPage
 		client:load
 		type="books-new"

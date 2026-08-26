@@ -1,4 +1,6 @@
 ---
+import { SITE_NAME } from '../../utils/meta';
+
 const { class: className } = Astro.props;
 ---
 
@@ -8,5 +10,5 @@ const { class: className } = Astro.props;
 		className,
 	]}
 >
-	<slot>Big Book Covers</slot>
+	<slot>{SITE_NAME}</slot>
 </h1>

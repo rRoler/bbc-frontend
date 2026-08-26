@@ -26,6 +26,7 @@
 		setSvelteSearchParam,
 		unfocusAndExecute,
 	} from '../../utils';
+	import { setPageMeta, SITE_NAME } from '../../utils/meta.ts';
 	import { ImageViewer } from 'svelte-image-viewer';
 	import Image from '../ui/Image.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
@@ -64,6 +65,20 @@
 	let availableLanguages = $derived(
 		deriveAvailableLanguages(downloader.providers, () => downloader.allAvailableLanguages)
 	);
+
+	let metaTitle = $derived(
+		downloader.allSeries.length > 0
+			? getPrimaryTitle(downloader.allSeries[0].titles) +
+					(downloader.allSeries.length > 1 ? ` +${downloader.allSeries.length - 1}` : '')
+			: ''
+	);
+	let metaDescription = $derived(
+		metaTitle ? `Download high-resolution covers for ${metaTitle} on ${SITE_NAME}.` : ''
+	);
+
+	$effect(() => {
+		setPageMeta({ title: metaTitle || undefined, description: metaDescription || undefined });
+	});
 
 	const imageApi = new WsrvApi();
 

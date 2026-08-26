@@ -9,9 +9,10 @@
 	import Pagination from '../ui/Pagination.svelte';
 	import { Search } from 'lucide-svelte';
 	import { matureContentSetting } from '../../stores/settings.svelte.ts';
-	import { getSvelteSearchParam, setSvelteSearchParam } from '../../utils';
+	import { getSvelteSearchParam, setSvelteSearchParam, removeSvelteSearchParam } from '../../utils';
 	import { addAppError } from '../../stores/app.svelte.ts';
 	import MainSearchBox from '../domain/MainSearchBox.svelte';
+	import { setPageMeta, SITE_NAME } from '../../utils/meta.ts';
 
 	const api = new BBC_API();
 
@@ -19,7 +20,17 @@
 	let searchQuery = $state('');
 	let searching = $state(false);
 	let currentPage = $state(1);
-	let lastSearch = $state('');
+
+	let metaTitle = $derived(searchQuery.trim() ? `Search results for "${searchQuery.trim()}"` : '');
+	let metaDescription = $derived(
+		searchQuery.trim()
+			? `Browse manga, light novel and book covers matching "${searchQuery.trim()}" on ${SITE_NAME}.`
+			: ''
+	);
+
+	$effect(() => {
+		setPageMeta({ title: metaTitle || undefined, description: metaDescription || undefined });
+	});
 
 	const emptyMessages = [
 		"Truck-kun couldn't find your series.",
@@ -39,27 +50,27 @@
 		const q = getSvelteSearchParam('q');
 		if (q !== null) {
 			searchQuery = q;
-			await performSearch();
 		}
+		await performSearch();
 	});
 
 	async function performSearch() {
-		if (!searchQuery.trim()) {
-			data = null;
-			return;
-		}
-
 		searching = true;
-		setSvelteSearchParam('q', searchQuery);
-		lastSearch = searchQuery;
+		if (searchQuery.trim()) {
+			setSvelteSearchParam('q', searchQuery);
+		} else {
+			removeSvelteSearchParam('q');
+		}
 		currentPage = 1;
 
 		try {
-			data = await api.searchMergedSeries(
-				searchQuery,
-				matureContentSetting.value !== 'hide',
-				currentPage
-			);
+			data = searchQuery.trim()
+				? await api.searchMergedSeries(
+						searchQuery.trim(),
+						matureContentSetting.value !== 'hide',
+						currentPage
+					)
+				: await api.getDiscoverySeriesNew(currentPage);
 			if (data && data.data.length === 0) {
 				currentEmptyMessage = emptyMessages[Math.floor(Math.random() * emptyMessages.length)];
 			}
@@ -76,8 +87,10 @@
 		url.searchParams.set('page', newPage.toString());
 		window.history.pushState({}, '', url);
 		searching = true;
-		api
-			.searchMergedSeries(searchQuery, matureContentSetting.value !== 'hide', newPage)
+		const result = searchQuery.trim()
+			? api.searchMergedSeries(searchQuery.trim(), matureContentSetting.value !== 'hide', newPage)
+			: api.getDiscoverySeriesNew(newPage);
+		result
 			.then((res) => {
 				data = res;
 			})
@@ -125,7 +138,7 @@
 				onchange={handlePageChange}
 			/>
 		</div>
-	{:else if searchQuery && lastSearch && !searching}
+	{:else if data && !searching}
 		<div class="flex flex-col items-center justify-center py-20 text-center opacity-70">
 			<Search class="mb-4 size-16 opacity-30" />
 			<h3 class="text-2xl font-bold">No results found</h3>

@@ -5,12 +5,13 @@ import BBC_API from '../api/bbc';
 import { pwaInfo } from 'virtual:pwa-info';
 import { pwaAssetsHead } from 'virtual:pwa-assets/head';
 import UpdatePrompt from '../components/layout/UpdatePrompt.astro';
+import { SITE_NAME, formatPageTitle } from '../utils/meta';
 
 const props = Astro.props as PageProps;
 
-const siteName = 'Big Book Covers';
-const title = `${props.title ? props.title + ' - ' : ''}${siteName}`;
+const title = formatPageTitle(props.title);
 const description =
+	props.description ??
 	'Search and download high-resolution manga, light novel and other book covers for your collections, trackers, and apps.';
 const imageUrl = new URL(props.image || '/images/preview.png', Astro.url);
 const imageType = 'image/' + (props.imageType || 'png');
@@ -34,7 +35,7 @@ const providersJson = JSON.stringify(initialProviders);
 		<meta name="description" content={description} />
 
 		<meta property="og:title" content={title} />
-		<meta property="og:site_name" content={siteName} />
+		<meta property="og:site_name" content={SITE_NAME} />
 		<meta property="og:url" content={Astro.url} />
 		<meta property="og:description" content={description} />
 		<meta property="og:type" content="object" />

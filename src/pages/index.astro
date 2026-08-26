@@ -2,9 +2,16 @@
 import PageLayout from '../layouts/PageLayout.astro';
 import GlobalSearchBox from '../components/domain/GlobalSearchBox.svelte';
 import Hover3D from '../components/ui/Hover3D.svelte';
+import { homeLocation } from '../config/locations.ts';
+import { SITE_NAME } from '../utils/meta';
 ---
 
-<PageLayout fixedNav={true} disableSearch={true}>
+<PageLayout
+	title={homeLocation.label}
+	description={homeLocation.description}
+	fixedNav={true}
+	disableSearch={true}
+>
 	<div
 		class="from-base-100 via-base-200 to-base-300 flex size-full flex-col items-center justify-baseline bg-linear-to-br p-4"
 	>
@@ -13,7 +20,7 @@ import Hover3D from '../components/ui/Hover3D.svelte';
 		<Hover3D class="max-w-full p-8">
 			<!-- content -->
 			<figure class="max-h-98 max-w-98 rounded-full p-2">
-				<img class="size-52 sm:size-96" src="/favicon.svg" alt="Big Book Covers Logo" />
+				<img class="size-52 sm:size-96" src="/favicon.svg" alt={`${SITE_NAME} Logo`} />
 			</figure>
 		</Hover3D>
 

@@ -1,8 +1,9 @@
 ---
 import PageLayout from '../../layouts/PageLayout.astro';
 import SeriesPage from '../../components/views/SeriesPage.svelte';
+import { seriesLocation } from '../../config/locations.ts';
 ---
 
-<PageLayout title="Series Details">
+<PageLayout title="Series Details" description={seriesLocation.description}>
 	<SeriesPage client:only="svelte" />
 </PageLayout>

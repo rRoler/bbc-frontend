@@ -4,7 +4,11 @@ import Search from '../../components/views/SearchPage.svelte';
 import { searchLocation } from '../../config/locations.ts';
 ---
 
-<PageLayout title={searchLocation.label} disableSearch={true}>
+<PageLayout
+	title={searchLocation.label}
+	description={searchLocation.description}
+	disableSearch={true}
+>
 	<div class="flex grow flex-col items-center p-4">
 		<noscript>Please enable JavaScript to search series</noscript>
 

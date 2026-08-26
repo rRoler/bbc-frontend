@@ -4,7 +4,10 @@ import DiscoveryPaginatedPage from '../../../../components/views/DiscoveryPagina
 import { discoveryBooksReleasedLocation } from '../../../../config/locations.ts';
 ---
 
-<PageLayout title={discoveryBooksReleasedLocation.label}>
+<PageLayout
+	title={discoveryBooksReleasedLocation.label}
+	description={discoveryBooksReleasedLocation.description}
+>
 	<DiscoveryPaginatedPage
 		client:only="svelte"
 		title={discoveryBooksReleasedLocation.label}

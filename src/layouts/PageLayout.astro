@@ -17,6 +17,7 @@ import {
 	homeLocation,
 } from '../config/locations.ts';
 import Tooltip from '../components/ui/Tooltip.svelte';
+import { SITE_NAME } from '../utils/meta';
 
 const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: boolean };
 ---
@@ -44,7 +45,7 @@ const props = Astro.props as PageProps & { disableSearch?: boolean; fixedNav?: b
 					<a
 						class={'btn-ghost btn' + (!props.disableSearch ? ' hidden sm:inline-flex' : '')}
 						href={homeLocation.path}
-						title="Big Book Covers"
+						title={SITE_NAME}
 					>
 						<AppTitle />
 					</a>

@@ -4,7 +4,10 @@ import DiscoveryPaginatedPage from '../../../../components/views/DiscoveryPagina
 import { discoverySeriesMergedLocation } from '../../../../config/locations.ts';
 ---
 
-<PageLayout title={discoverySeriesMergedLocation.label}>
+<PageLayout
+	title={discoverySeriesMergedLocation.label}
+	description={discoverySeriesMergedLocation.description}
+>
 	<DiscoveryPaginatedPage
 		client:load
 		type="series-merged"

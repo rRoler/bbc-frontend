@@ -45,6 +45,7 @@
 	import type { Provider } from '../../stores/providers.svelte.ts';
 	import { deriveAvailableLanguages, toBaseLangSet } from '../../stores/providers.svelte.ts';
 	import { matureContentSetting } from '../../stores/settings.svelte.ts';
+	import { setPageMeta } from '../../utils/meta.ts';
 
 	let id = $state<string>('');
 
@@ -65,6 +66,10 @@
 		if (!heroSeries) return '';
 		const descriptions = heroSeries.descriptions ?? [];
 		return descriptions.find((d) => d.isPrimary)?.description ?? descriptions[0]?.description ?? '';
+	});
+
+	$effect(() => {
+		setPageMeta({ title: mainTitle || undefined, description: mainDescription || undefined });
 	});
 
 	let allSubSeries = $derived.by(() => {

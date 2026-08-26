@@ -26,6 +26,7 @@
 		replaceTextVariables,
 		setSvelteSearchParam,
 	} from '../../utils';
+	import { setPageMeta, SITE_NAME } from '../../utils/meta.ts';
 	import Image from '../ui/Image.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
 	import MainSearchBox from '../domain/MainSearchBox.svelte';
@@ -79,6 +80,17 @@
 	let linksCopied = $state<boolean | null>(null);
 	let mappingStatus = $state<boolean | null>(null);
 	let abortController = $state<AbortController>();
+
+	let metaTitle = $derived(searchQuery.trim() ? `Search results for "${searchQuery.trim()}"` : '');
+	let metaDescription = $derived(
+		searchQuery.trim()
+			? `Browse manga, light novel and book covers matching "${searchQuery.trim()}" on ${SITE_NAME}.`
+			: ''
+	);
+
+	$effect(() => {
+		setPageMeta({ title: metaTitle || undefined, description: metaDescription || undefined });
+	});
 
 	function updateLocationStorage() {
 		if (searchLocation.storageKey)

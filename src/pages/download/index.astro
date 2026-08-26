@@ -4,7 +4,7 @@ import DownloadPage from '../../components/views/DownloadPage.svelte';
 import { downloadLocation } from '../../config/locations.ts';
 ---
 
-<PageLayout title={downloadLocation.label}>
+<PageLayout title={downloadLocation.label} description={downloadLocation.description}>
 	<div class="flex grow flex-col items-center p-4">
 		<noscript>Please enable JavaScript to download covers</noscript>
 
