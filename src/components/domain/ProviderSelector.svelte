@@ -43,8 +43,8 @@
 	let search = $state<string>('');
 	let searchInput = $state<HTMLInputElement>();
 	let dropdownEl = $state<HTMLElement>();
-	let selectedBeforeLocale = $state<Provider[]>([]);
 	let flagContainer = $state<HTMLDivElement>();
+	let selectedBeforeLocale = $state<Provider[]>([]);
 
 	let sortedProviders = $derived(sortProviders([...providers]));
 
@@ -235,15 +235,23 @@
 		items[nextIndex]?.focus();
 	}
 
+	function providersForSelectedLocales(): Provider[] {
+		const locales = [...selectedLocales];
+		if (locales.length === 0) return [];
+		return sortedProviders.filter(
+			(p) => locales.some((l) => langCodesMatch(l, p.locale)) || p.locale === 'multi'
+		);
+	}
+
 	function toggleLocale(locale: string) {
 		if (selectedLocales.has(locale)) {
 			selectedLocales.delete(locale);
 			if (selectedLocales.size === 0) updateSelection(selectedBeforeLocale);
-			else updateSelection(filteredProviders);
+			else updateSelection(providersForSelectedLocales());
 		} else {
 			if (selectedLocales.size === 0) selectedBeforeLocale = [...(pendingSelection || selected)];
 			selectedLocales.add(locale);
-			updateSelection(filteredProviders);
+			updateSelection(providersForSelectedLocales());
 		}
 	}
 

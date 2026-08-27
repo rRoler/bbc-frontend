@@ -61,7 +61,7 @@
 		expandedClusters = {};
 		loadingMapped.clear();
 		if (selectedProviders.length === 0) {
-			selectedProviders = allProviders.enabled;
+			selectedProviders = allProviders.sorted;
 		}
 		dialogEl?.showModal();
 
@@ -208,6 +208,7 @@
 				providers={allProviders.sorted}
 				bind:selected={selectedProviders}
 				paramsEnabled={false}
+				dropdownPosition="sm:dropdown-end dropdown-center"
 				class="mx-auto max-w-full sm:mx-0 sm:max-w-64 md:max-w-xs"
 				onchange={() => {
 					if (searchQuery) performSearch();
@@ -226,7 +227,7 @@
 						<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
 							{#each flattenedResults as series (series.providerId + '-' + series.id)}
 								<button
-									class="relative h-full w-full text-left"
+									class="relative h-full w-full cursor-pointer text-left"
 									onclick={() => toggleSelection(series)}
 								>
 									<SeriesCard

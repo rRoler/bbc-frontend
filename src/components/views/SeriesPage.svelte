@@ -20,10 +20,10 @@
 		ChevronLeft,
 		ChevronRight,
 	} from 'lucide-svelte';
-	import { SvelteSet, SvelteMap } from 'svelte/reactivity';
+	import { SvelteSet } from 'svelte/reactivity';
 	import Hover3D from '../ui/Hover3D.svelte';
 	import userState from '../../stores/user.svelte.ts';
-	import { ALLOWED_EDIT_ROLES } from '../../config/constants.ts';
+	import { ALLOWED_EDIT_ROLES, PROVIDER_PARAM_KEY } from '../../config/constants.ts';
 	import BBC_API, {
 		type BBCSeriesDetail,
 		type BBCSeriesMerged,
@@ -45,7 +45,7 @@
 	import ProviderIcons from '../domain/ProviderIcons.svelte';
 	import { appState, addAppError } from '../../stores/app.svelte.ts';
 	import type { Provider } from '../../stores/providers.svelte.ts';
-	import { deriveAvailableLanguages } from '../../stores/providers.svelte.ts';
+	import { deriveAvailableLanguages, sortProviders } from '../../stores/providers.svelte.ts';
 	import { matureContentSetting } from '../../stores/settings.svelte.ts';
 	import { setPageMeta } from '../../utils/meta.ts';
 
@@ -92,10 +92,8 @@
 	let baseProviders = $state<Provider[]>([]);
 	let selectedProviders = $state<Provider[]>([]);
 	let activeProviders = $derived.by(() => {
-		const map = new SvelteMap<string, Provider>();
-		for (const p of baseProviders) map.set(p.id, p);
-		for (const p of selectedProviders) map.set(p.id, p);
-		return [...map.values()];
+		const baseIds = new Set(baseProviders.map((p) => p.id));
+		return selectedProviders.filter((p) => baseIds.has(p.id));
 	});
 
 	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
@@ -105,7 +103,7 @@
 
 	let availableLanguages = $derived(
 		deriveAvailableLanguages(
-			activeProviders,
+			baseProviders,
 			(p) => (booksData[p.id] ?? []).map((b) => b.language).filter(Boolean) as string[]
 		)
 	);
@@ -311,6 +309,18 @@
 				);
 			} else if (singleSeriesData) {
 				baseProviders = allProviders.providers.filter((p) => p.id === singleSeriesData!.providerId);
+			}
+
+			// Default the provider selection to all available providers unless the
+			// URL already specifies an explicit provider filter (e.g. a shared link).
+			const paramProviderIds = getAllSvelteSearchParams(PROVIDER_PARAM_KEY);
+			if (paramProviderIds.length === 0) {
+				selectedProviders = baseProviders;
+			} else {
+				const paramProviders = sortProviders(
+					baseProviders.filter((p) => paramProviderIds.includes(p.id))
+				);
+				selectedProviders = paramProviders.length > 0 ? paramProviders : baseProviders;
 			}
 		} catch (e: unknown) {
 			addAppError(e);
