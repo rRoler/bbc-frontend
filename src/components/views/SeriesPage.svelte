@@ -6,6 +6,7 @@
 		getAllSvelteSearchParams,
 		getLocaleName,
 		langToFlag,
+		parseSeriesPageId,
 	} from '../../utils';
 	import { fade } from 'svelte/transition';
 	import { downloadLocation, discoveryLocation } from '../../config/locations.ts';
@@ -220,9 +221,9 @@
 
 	async function init() {
 		try {
-			if (id.includes('/')) {
-				// Format: providerId/seriesId
-				const [providerId, seriesId] = id.split('/');
+			const parsed = parseSeriesPageId(id);
+			if (parsed) {
+				const { providerId, seriesId } = parsed;
 
 				const sRes = await api.getSeries({ [providerId]: [seriesId] }, undefined, true);
 				if (sRes.data[providerId]?.[0]) {

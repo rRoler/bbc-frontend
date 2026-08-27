@@ -7,6 +7,7 @@
 	} from '../../api/bbc.ts';
 	import { thumbnailUrl, primaryLinkUrl } from '../../api/bbc.ts';
 	import { seriesLocation } from '../../config/locations.ts';
+	import { buildSeriesPageId } from '../../utils';
 	import allProviders from '../../stores/providers.svelte.ts';
 	import WsrvApi from '../../api/wsrv.ts';
 	import Image from '../ui/Image.svelte';
@@ -41,7 +42,7 @@
 			? href
 			: 'mappedId' in series && series.mappedId
 				? `${seriesLocation.path}?id=${series.mappedId}`
-				: `${seriesLocation.path}?id=${'providerId' in series ? series.providerId : 'merged'}/${series.id}`
+				: `${seriesLocation.path}?id=${buildSeriesPageId('providerId' in series ? series.providerId : 'merged', series.id)}`
 	);
 
 	const cardTitle = $derived.by(() => {

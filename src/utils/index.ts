@@ -463,3 +463,19 @@ export function formatDate(dateString: string): string {
 		return dateString;
 	}
 }
+
+export function buildSeriesPageId(providerId: string, seriesId: string): string {
+	return `${providerId}(${seriesId})`;
+}
+
+export function parseSeriesPageId(id: string): { providerId: string; seriesId: string } | null {
+	const paren = id.indexOf('(');
+	if (paren > 0 && id.endsWith(')')) {
+		return { providerId: id.slice(0, paren), seriesId: id.slice(paren + 1, -1) };
+	}
+	const slash = id.indexOf('/');
+	if (slash > 0) {
+		return { providerId: id.slice(0, slash), seriesId: id.slice(slash + 1) };
+	}
+	return null;
+}

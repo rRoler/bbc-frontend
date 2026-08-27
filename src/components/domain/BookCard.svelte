@@ -8,7 +8,7 @@
 	import Tooltip from '../ui/Tooltip.svelte';
 	import { ExternalLink, Library } from 'lucide-svelte';
 	import { downloadLocation, seriesLocation } from '../../config/locations.ts';
-	import { getDisplayPrice, formatDate } from '../../utils';
+	import { getDisplayPrice, formatDate, buildSeriesPageId } from '../../utils';
 	import { matureContentSetting } from '../../stores/settings.svelte.ts';
 
 	let {
@@ -91,7 +91,7 @@
 				{#if book.seriesId}
 					<Tooltip position="left" tip="Open Series">
 						<a
-							href={`${seriesLocation.path}?id=${book.providerId}/${book.seriesId}`}
+							href={`${seriesLocation.path}?id=${buildSeriesPageId(book.providerId, book.seriesId)}`}
 							class="btn btn-circle btn-neutral btn-xs @card:btn-sm shadow-sm"
 						>
 							<Library class="@card:size-4 size-3" />
