@@ -10,6 +10,29 @@ export class BBC_API_Error extends Error {
 	}
 }
 
+/**
+ * Turns a non-OK response into a BBC_API_Error with an accurate message.
+ * Only HTTP 404 is reported as "not found"; any other status surfaces the
+ * server's error message (or a status-aware fallback) so callers don't
+ * mislabel e.g. a 500 or 403 as "not found".
+ */
+export async function toApiError(res: Response, resource: string): Promise<BBC_API_Error> {
+	let serverMessage: string | undefined;
+	try {
+		const body = (await res.json()) as { error?: { message?: string } };
+		serverMessage = body?.error?.message;
+	} catch {
+		// Response had no parseable JSON body; fall back to status text.
+	}
+
+	if (res.status === 404) {
+		return new BBC_API_Error(serverMessage ?? `${resource} not found`);
+	}
+
+	const detail = serverMessage ? `: ${serverMessage}` : '';
+	return new BBC_API_Error(`${resource} request failed${detail} (HTTP ${res.status})`);
+}
+
 export interface BBCError {
 	code: string;
 	message: string;
@@ -519,6 +542,17 @@ export default class BBC_API {
 		return allData;
 	}
 
+	async getSeriesByProviderId(providerId: string, seriesId: string): Promise<BBCSeriesDetail> {
+		const res = await fetch(
+			`${this.apiUrl}/discovery/series/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`
+		);
+		if (!res.ok) {
+			throw await toApiError(res, 'Series');
+		}
+		const body = (await res.json()) as { data: BBCSeriesDetail };
+		return body.data;
+	}
+
 	async getBooks<D extends boolean = false>(
 		seriesIds: Record<string, string[]>,
 		bookIds: Record<string, string[]>,
@@ -631,19 +665,17 @@ export default class BBC_API {
 		const res = await fetch(
 			`${this.apiUrl}/status/${encodeURIComponent(providerId)}/${encodeURIComponent(endpoint)}`
 		);
-		if (!res.ok) {
+		const body = (await res.json().catch(() => null)) as {
+			data: StatusEndpointResult;
+			error?: { message?: string };
+		} | null;
+		if (!res.ok || body?.error) {
 			throw new BBC_API_Error(
-				`Status check failed for "${providerId}/${endpoint}": ${res.statusText}`
+				body?.error?.message ||
+					`Status check failed for "${providerId}/${endpoint}": HTTP ${res.status}`
 			);
 		}
-		const body = await res.json();
-		if (!res.ok || body.error) {
-			throw new BBC_API_Error(
-				body.error?.message ||
-					`Status check failed for "${providerId}/${endpoint}": ${res.statusText}`
-			);
-		}
-		const data: StatusEndpointResult = body.data;
+		const data: StatusEndpointResult = body!.data;
 		return {
 			providerEndpoint: endpointLabels[endpoint] ?? `GET ${data.endpoint}`,
 			status: data.ok,
@@ -656,7 +688,7 @@ export default class BBC_API {
 		const url = `${this.apiUrl}/providers${bustCache ? `?t=${Date.now()}` : ''}`;
 		const res = await fetch(url);
 		if (!res.ok) {
-			throw new BBC_API_Error(`Failed to fetch providers: HTTP ${res.status} ${res.statusText}`);
+			throw await toApiError(res, 'Providers');
 		}
 		const { data } = (await res.json()) as { data: BBCProvider[] };
 		return data.map((p) => ({
@@ -873,17 +905,14 @@ export default class BBC_API {
 			}
 		);
 		if (!res.ok) {
-			const errorData = await res.json().catch(() => null);
-			throw new BBC_API_Error(
-				errorData?.error?.message || `Failed to unmap series: HTTP ${res.status}`
-			);
+			throw await toApiError(res, 'Series');
 		}
 	}
 
 	async getDiscoverySeriesMapped(mappedId: string): Promise<{ data: BBCSeriesMerged }> {
 		const res = await fetch(`${this.apiUrl}/discovery/series/${encodeURIComponent(mappedId)}`);
 		if (!res.ok) {
-			throw new BBC_API_Error(`Failed to fetch mapped series: HTTP ${res.status}`);
+			throw await toApiError(res, 'Mapped series');
 		}
 		return await res.json();
 	}
@@ -895,7 +924,7 @@ export default class BBC_API {
 		recentlyReleasedBooks: BBCBookDetail[];
 	}> {
 		const res = await fetch(`${this.apiUrl}/discovery`);
-		if (!res.ok) throw new BBC_API_Error(`Failed to fetch discovery: HTTP ${res.status}`);
+		if (!res.ok) throw await toApiError(res, 'Discovery');
 		const json = await res.json();
 		return json.data;
 	}
@@ -908,13 +937,13 @@ export default class BBC_API {
 		const res = await fetch(
 			`${this.apiUrl}/discovery/search?q=${encodeURIComponent(query)}&mature=${mature}&page=${page}`
 		);
-		if (!res.ok) throw new BBC_API_Error(`Failed to search discovery: HTTP ${res.status}`);
+		if (!res.ok) throw await toApiError(res, 'Discovery search');
 		return res.json();
 	}
 
 	private async fetchPaginated<T>(url: string, page: number): Promise<BBCPaginatedListResponse<T>> {
 		const res = await fetch(`${url}?page=${page}`);
-		if (!res.ok) throw new BBC_API_Error(`Failed to fetch paginated data: HTTP ${res.status}`);
+		if (!res.ok) throw await toApiError(res, 'Discovery data');
 		return res.json();
 	}
 

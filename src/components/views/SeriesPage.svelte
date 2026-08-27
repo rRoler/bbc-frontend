@@ -225,12 +225,7 @@
 			if (parsed) {
 				const { providerId, seriesId } = parsed;
 
-				const sRes = await api.getSeries({ [providerId]: [seriesId] }, undefined, true);
-				if (sRes.data[providerId]?.[0]) {
-					singleSeriesData = sRes.data[providerId][0];
-				} else {
-					throw new Error('Series not found');
-				}
+				singleSeriesData = await api.getSeriesByProviderId(providerId, seriesId);
 
 				if (matureContentSetting.value === 'hide') {
 					await loadSubSeriesAndBooks(providerId, seriesId, undefined);

@@ -8,6 +8,7 @@ import allSettingsFields, {
 import { addAppError } from './app.svelte.ts';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { BBC_API_URL } from '../config/constants.ts';
+import { BBC_API_Error, toApiError } from '../api/bbc.ts';
 
 export interface UserSession {
 	role: string;
@@ -83,11 +84,9 @@ export class UserState {
 				this.token = null;
 				this.sessionId = null;
 				this.login();
-				throw new Error("You've been logged out. Please login again.");
+				throw new BBC_API_Error("You've been logged out. Please login again.");
 			}
-			if (!res.ok) {
-				throw new Error(`Failed to fetch user session: ${res.statusText}`);
-			}
+			if (!res.ok) throw await toApiError(res, 'User session');
 			const { data } = await res.json();
 			this.session = data;
 		} catch (e) {
@@ -117,7 +116,7 @@ export class UserState {
 			headers: { 'Content-Type': 'application/json', ...this.headers },
 			body: JSON.stringify({ settings }),
 		});
-		if (!res.ok) throw new Error('Failed to push settings to server');
+		if (!res.ok) throw await toApiError(res, 'Settings');
 	}
 
 	async pushSettings(): Promise<void> {
@@ -134,7 +133,7 @@ export class UserState {
 
 	async pullSettings(): Promise<void> {
 		const res = await fetch(`${this.apiUrl}/user/settings`, { headers: this.headers });
-		if (!res.ok) throw new Error('Failed to pull settings from server');
+		if (!res.ok) throw await toApiError(res, 'Settings');
 
 		const { data } = await res.json();
 		const serverData = (data.settings ?? {}) as Record<string, unknown>;
