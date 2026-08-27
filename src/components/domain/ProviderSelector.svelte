@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { PROVIDER_PARAM_KEY, PROVIDER_LOCALE_PARAM_KEY } from '../../config/constants.ts';
-	import allProviders, {
-		sortProviders,
-		toBaseLangSet,
-		type Provider,
-	} from '../../stores/providers.svelte.ts';
+	import allProviders, { sortProviders, type Provider } from '../../stores/providers.svelte.ts';
 	import ProviderLabel from './ProviderLabel.svelte';
 	import ProviderIcons from './ProviderIcons.svelte';
 	import {
 		getAllSvelteSearchParams,
 		getLocaleName,
 		langToFlag,
+		langCodesMatch,
 		removeSvelteSearchParam,
 		setSvelteSearchParamsArray,
 	} from '../../utils';
@@ -58,15 +55,13 @@
 		if (formatedSearch.length > 0) {
 			filtered = filtered.filter((p) => p.name.toLowerCase().trim().includes(formatedSearch));
 		}
-
 		if (selectedLocales.size > 0) {
-			const baseSet = toBaseLangSet(selectedLocales);
-			filtered = filtered.filter(
-				(p) =>
-					selectedLocales.has(p.locale) ||
-					baseSet.has(p.locale.split('-')[0].toLowerCase()) ||
-					p.locale === 'multi'
-			);
+			const filters = [...selectedLocales];
+			if (filters.length > 0) {
+				filtered = filtered.filter(
+					(p) => filters.some((l) => langCodesMatch(l, p.locale)) || p.locale === 'multi'
+				);
+			}
 		}
 
 		return filtered;
@@ -91,7 +86,9 @@
 			}
 		}
 
-		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY);
+		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY).filter(
+			(l) => l !== 'none' && l !== 'multi'
+		);
 		const enLocaleIndex = localeIds.indexOf('en');
 		if (enLocaleIndex > -1) {
 			if (!localeIds.includes('en-US')) localeIds.push('en-US');

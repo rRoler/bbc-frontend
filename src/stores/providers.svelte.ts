@@ -41,15 +41,6 @@ export function sortProviders(providers: Provider[]) {
 	return providers.sort((a, b) => a.priority - b.priority);
 }
 
-export function toBaseLangSet(locales: SvelteSet<string>): SvelteSet<string> {
-	const result = new SvelteSet<string>();
-	for (const locale of locales) {
-		if (locale === 'none') continue;
-		result.add(locale.split('-')[0].toLowerCase());
-	}
-	return result;
-}
-
 export function deriveAvailableLanguages(
 	providers: Provider[],
 	getMultiLanguages: (provider: Provider) => string[]

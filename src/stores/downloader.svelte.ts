@@ -44,7 +44,6 @@ import {
 import { ALLOWED_EDIT_ROLES } from '../config/constants.ts';
 import { type FileSystem } from './filesystem.svelte.ts';
 import { PROVIDER_LOCALE_PARAM_KEY, PROVIDER_PARAM_KEY } from '../config/constants.ts';
-import { toBaseLangSet } from './providers.svelte.ts';
 import { fileTypeFromBuffer } from 'file-type';
 import fileSaver from 'file-saver';
 import { zipSync } from 'fflate';
@@ -1279,9 +1278,11 @@ class Downloader {
 			if (books.length) this.allBookIds[provider.id] = books;
 		}
 
-		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY);
+		const localeIds = getAllSvelteSearchParams(PROVIDER_LOCALE_PARAM_KEY).filter(
+			(l) => l !== 'none' && l !== 'multi'
+		);
 		if (localeIds.length > 0) {
-			this.selectedLanguages = toBaseLangSet(new SvelteSet(localeIds));
+			this.selectedLanguages = new SvelteSet(localeIds);
 		}
 
 		const countIds = (store: Record<string, string[]>) =>

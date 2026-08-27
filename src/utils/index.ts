@@ -479,3 +479,13 @@ export function parseSeriesPageId(id: string): { providerId: string; seriesId: s
 	}
 	return null;
 }
+
+export function langCodesMatch(filterLang: string, bookLang: string): boolean {
+	const f = filterLang.toLowerCase();
+	if (f === 'none') return true;
+	const b = bookLang.toLowerCase();
+	if (f === b) return true;
+	const fParts = f.split('-');
+	if (fParts.length === 1) return fParts[0] === b.split('-')[0];
+	return false;
+}

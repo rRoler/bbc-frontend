@@ -6,6 +6,7 @@
 		getAllSvelteSearchParams,
 		getLocaleName,
 		langToFlag,
+		langCodesMatch,
 		parseSeriesPageId,
 	} from '../../utils';
 	import { fade } from 'svelte/transition';
@@ -19,7 +20,7 @@
 		ChevronLeft,
 		ChevronRight,
 	} from 'lucide-svelte';
-	import { SvelteSet } from 'svelte/reactivity';
+	import { SvelteSet, SvelteMap } from 'svelte/reactivity';
 	import Hover3D from '../ui/Hover3D.svelte';
 	import userState from '../../stores/user.svelte.ts';
 	import { ALLOWED_EDIT_ROLES } from '../../config/constants.ts';
@@ -44,7 +45,7 @@
 	import ProviderIcons from '../domain/ProviderIcons.svelte';
 	import { appState, addAppError } from '../../stores/app.svelte.ts';
 	import type { Provider } from '../../stores/providers.svelte.ts';
-	import { deriveAvailableLanguages, toBaseLangSet } from '../../stores/providers.svelte.ts';
+	import { deriveAvailableLanguages } from '../../stores/providers.svelte.ts';
 	import { matureContentSetting } from '../../stores/settings.svelte.ts';
 	import { setPageMeta } from '../../utils/meta.ts';
 
@@ -88,12 +89,19 @@
 		});
 	});
 
-	let activeProviders = $state<Provider[]>([]);
+	let baseProviders = $state<Provider[]>([]);
+	let selectedProviders = $state<Provider[]>([]);
+	let activeProviders = $derived.by(() => {
+		const map = new SvelteMap<string, Provider>();
+		for (const p of baseProviders) map.set(p.id, p);
+		for (const p of selectedProviders) map.set(p.id, p);
+		return [...map.values()];
+	});
 
 	// eslint-disable-next-line svelte/no-unnecessary-state-wrap
 	let selectedLocales = $state<SvelteSet<string>>(new SvelteSet<string>());
 
-	let langBaseSet = $derived(toBaseLangSet(selectedLocales));
+	let langFilters = $derived([...selectedLocales]);
 
 	let availableLanguages = $derived(
 		deriveAvailableLanguages(
@@ -298,13 +306,11 @@
 
 			// Initialize active providers
 			if (isMerged) {
-				activeProviders = allProviders.providers.filter((p) =>
+				baseProviders = allProviders.providers.filter((p) =>
 					Object.keys(mergedSeriesData).includes(p.id)
 				);
 			} else if (singleSeriesData) {
-				activeProviders = allProviders.providers.filter(
-					(p) => p.id === singleSeriesData!.providerId
-				);
+				baseProviders = allProviders.providers.filter((p) => p.id === singleSeriesData!.providerId);
 			}
 		} catch (e: unknown) {
 			addAppError(e);
@@ -322,12 +328,11 @@
 
 			if (isMerged) {
 				activeProviders.forEach((p) => {
-					seriesIdsToFetch[p.id] = mergedSeriesData[p.id].map((s) => s.id);
+					if (mergedSeriesData[p.id]) {
+						seriesIdsToFetch[p.id] = mergedSeriesData[p.id].map((s) => s.id);
+					}
 				});
-			} else if (
-				singleSeriesData &&
-				activeProviders.map((p) => p.id).includes(singleSeriesData.providerId)
-			) {
+			} else if (singleSeriesData) {
 				seriesIdsToFetch[singleSeriesData.providerId] = [singleSeriesData.id];
 			}
 
@@ -356,8 +361,8 @@
 			.filter((b) => b && activeProviders.map((p) => p.id).includes(b.providerId))
 			.filter((b) => {
 				const p = activeProviders.find((prov) => prov.id === b.providerId);
-				if (langBaseSet.size > 0 && p) {
-					return b.language && langBaseSet.has(b.language);
+				if (langFilters.length > 0 && p) {
+					return !!b.language && langFilters.some((l) => langCodesMatch(l, b.language!));
 				}
 				return true;
 			});
@@ -787,7 +792,7 @@
 								providers={allProviders.providers.filter((p) =>
 									Object.keys(mergedSeriesData).includes(p.id)
 								)}
-								bind:selected={activeProviders}
+								bind:selected={selectedProviders}
 								bind:selectedLocales
 								languages={availableLanguages}
 								dropdownPosition="sm:dropdown-end dropdown-center"

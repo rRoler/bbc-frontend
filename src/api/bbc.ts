@@ -546,11 +546,19 @@ export default class BBC_API {
 		const res = await fetch(
 			`${this.apiUrl}/discovery/series/${encodeURIComponent(providerId)}/${encodeURIComponent(seriesId)}`
 		);
-		if (!res.ok) {
-			throw await toApiError(res, 'Series');
+		if (res.ok) {
+			const body = (await res.json()) as { data: BBCSeriesDetail };
+			return body.data;
 		}
-		const body = (await res.json()) as { data: BBCSeriesDetail };
-		return body.data;
+		if (res.status === 404) {
+			const fallback = await this.getSeries({ [providerId]: [seriesId] }, undefined, true);
+			const detail = fallback.data[providerId]?.[0];
+			if (!detail) {
+				throw fallback.errors[0] ?? new BBC_API_Error('Series not found');
+			}
+			return detail;
+		}
+		throw await toApiError(res, 'Series');
 	}
 
 	async getBooks<D extends boolean = false>(

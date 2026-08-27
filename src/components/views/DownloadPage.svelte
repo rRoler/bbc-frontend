@@ -31,7 +31,7 @@
 	import Image from '../ui/Image.svelte';
 	import ProviderLabel from '../domain/ProviderLabel.svelte';
 	import ProviderSelector from '../domain/ProviderSelector.svelte';
-	import { deriveAvailableLanguages, toBaseLangSet } from '../../stores/providers.svelte.ts';
+	import { deriveAvailableLanguages } from '../../stores/providers.svelte.ts';
 	import { SvelteSet } from 'svelte/reactivity';
 	import {
 		automaticQualityPickerSetting,
@@ -59,7 +59,7 @@
 	let selectedLocales = $state<SvelteSet<string>>(new SvelteSet<string>());
 
 	$effect(() => {
-		downloader.selectedLanguages = toBaseLangSet(selectedLocales);
+		downloader.selectedLanguages = new SvelteSet([...selectedLocales]);
 	});
 
 	let availableLanguages = $derived(
